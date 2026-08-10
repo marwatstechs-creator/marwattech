@@ -197,83 +197,90 @@
   }
 }
 
-/* ── 3D buttons (RocketDevs-style gradient CTAs) ──────────────────── */
+/* ── 3D buttons (Canva-inspired: snappy press, soft shadow) ─────────── */
 .btn-3d {
-  @apply inline-flex items-center justify-center gap-2.5 overflow-hidden rounded-[14px] px-7 font-semibold text-white;
+  @apply inline-flex items-center justify-center gap-2.5 overflow-hidden rounded-xl px-7 font-semibold text-white;
   background-image: linear-gradient(to bottom, #6d5ed4, #4b3ea1);
   box-shadow:
-    0 4px 12px rgba(88, 74, 176, 0.32),
+    0 2px 8px rgba(88, 74, 176, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.18);
   transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
+    background-color 0.1s linear,
+    box-shadow 0.1s linear,
+    color 0.1s linear,
+    transform 70ms ease;
 }
 .btn-3d:hover {
-  transform: translateY(-2px);
+  transform: translateY(-1px);
   box-shadow:
-    0 6px 18px rgba(88, 74, 176, 0.4),
+    0 5px 16px rgba(88, 74, 176, 0.4),
     inset 0 1px 0 rgba(255, 255, 255, 0.22);
 }
 .btn-3d:active {
-  transform: translateY(0);
+  transform: scale(0.98) translateY(0);
   box-shadow:
-    0 2px 6px rgba(88, 74, 176, 0.25),
+    0 1px 4px rgba(88, 74, 176, 0.3),
     inset 0 0 0 transparent;
+  background-image: linear-gradient(to bottom, #6254c2, #403394);
 }
 .dark .btn-3d {
   background-image: linear-gradient(to bottom, #7b6de0, #584ab0);
   box-shadow:
-    0 4px 14px rgba(88, 74, 176, 0.3),
+    0 2px 10px rgba(88, 74, 176, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.12);
 }
 .dark .btn-3d:hover {
   box-shadow:
-    0 6px 20px rgba(88, 74, 176, 0.38),
+    0 6px 18px rgba(88, 74, 176, 0.38),
     inset 0 1px 0 rgba(255, 255, 255, 0.16);
 }
 
 .btn-3d-gold {
-  @apply inline-flex items-center justify-center gap-2.5 overflow-hidden rounded-[14px] px-7 font-semibold text-black;
+  @apply inline-flex items-center justify-center gap-2.5 overflow-hidden rounded-xl px-7 font-semibold text-black;
   background-image: linear-gradient(to bottom, #fbd250, #f0b525);
   box-shadow:
-    0 4px 12px rgba(248, 198, 64, 0.35),
+    0 2px 8px rgba(248, 198, 64, 0.35),
     inset 0 1px 0 rgba(255, 255, 255, 0.45);
   transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
+    background-color 0.1s linear,
+    box-shadow 0.1s linear,
+    color 0.1s linear,
+    transform 70ms ease;
 }
 .btn-3d-gold:hover {
-  transform: translateY(-2px);
+  transform: translateY(-1px);
   box-shadow:
-    0 6px 18px rgba(248, 198, 64, 0.45),
+    0 5px 16px rgba(248, 198, 64, 0.45),
     inset 0 1px 0 rgba(255, 255, 255, 0.5);
 }
 .btn-3d-gold:active {
-  transform: translateY(0);
+  transform: scale(0.98) translateY(0);
   box-shadow:
-    0 2px 6px rgba(248, 198, 64, 0.3),
+    0 1px 4px rgba(248, 198, 64, 0.3),
     inset 0 0 0 transparent;
+  background-image: linear-gradient(to bottom, #e8c23c, #d8a51c);
 }
 
 .btn-3d-outline {
-  @apply inline-flex items-center justify-center gap-2.5 overflow-hidden rounded-[14px] px-7 font-semibold;
+  @apply inline-flex items-center justify-center gap-2.5 overflow-hidden rounded-xl px-7 font-semibold;
   color: var(--primary);
   border: 1.5px solid rgba(116, 100, 198, 0.45);
   background-color: rgba(116, 100, 198, 0.04);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
   transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease,
-    background-color 0.2s ease,
-    border-color 0.2s ease;
+    background-color 0.1s linear,
+    box-shadow 0.1s linear,
+    color 0.1s linear,
+    transform 70ms ease,
+    border-color 0.1s linear;
 }
 .btn-3d-outline:hover {
-  transform: translateY(-2px);
+  transform: translateY(-1px);
   background-color: rgba(116, 100, 198, 0.1);
   border-color: rgba(116, 100, 198, 0.7);
 }
 .btn-3d-outline:active {
-  transform: translateY(0);
+  transform: scale(0.98) translateY(0);
 }
 .dark .btn-3d-outline {
   color: #c3b8f0;
