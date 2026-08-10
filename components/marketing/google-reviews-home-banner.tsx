@@ -66,7 +66,7 @@ export async function GoogleReviewsHomeBanner() {
             )}
             <div className="flex flex-col gap-2 sm:flex-row">
               <Link href="/testimonials">
-                <span className="group inline-flex h-9 items-center gap-2 overflow-hidden rounded-full border border-[#7464c6] bg-[#7464c6]/5 pl-4 pr-1.5 text-sm font-semibold text-[#7464c6] transition-colors hover:bg-[#7464c6]/10">
+                <span className="btn-3d-outline group h-9 rounded-full pl-4 pr-1.5 text-sm font-semibold">
                   <AppIcon name="star" size={14} color="#7464c6" />
                   Read All Reviews
                   <span className="relative inline-flex h-6 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full">

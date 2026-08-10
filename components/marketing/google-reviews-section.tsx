@@ -87,16 +87,11 @@ export async function GoogleReviewsSection() {
             href={data.place_url}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 rounded-full border px-6 py-3 text-sm font-semibold transition-all hover:scale-105"
-            style={{
-              borderColor: PURPLE,
-              backgroundColor: `${PURPLE}10`,
-              color: PURPLE,
-            }}
+            className="btn-3d-gold inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold"
           >
-            <AppIcon name="star" size={16} color={PURPLE} />
+            <AppIcon name="star" size={16} color="#000" />
             Leave a Review on Google
-            <AppIcon name="external" size={14} color={PURPLE} />
+            <AppIcon name="external" size={14} color="#000" />
           </Link>
         </div>
       </div>

@@ -1,6 +1,7 @@
 import { AppIcon } from "@/components/app-icon";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { LogoWatermark } from "@/components/marketing/logo-watermark";
 import { initials } from "@/lib/utils";
 
 type Testimonial = {
@@ -14,8 +15,9 @@ type Testimonial = {
 
 export function TestimonialCard({ t }: { t: Testimonial }) {
   return (
-    <Card className="h-full">
-      <CardContent className="flex h-full flex-col gap-4 p-6">
+    <Card className="relative h-full overflow-hidden">
+      <LogoWatermark className="bottom-0 right-0 h-28 w-28 translate-x-6 translate-y-6" />
+      <CardContent className="relative flex h-full flex-col gap-4 p-6">
         <div className="flex items-center justify-between">
           <span className="text-primary">
             <AppIcon name="quote" size={28} />

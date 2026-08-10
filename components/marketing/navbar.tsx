@@ -51,9 +51,9 @@ function MegaItem({ icon, title, desc, href }: { icon: React.ReactNode; title: s
 
 function ArrowBtn({ href, children, variant }: { href: string; children: React.ReactNode; variant: "gold" | "purple" | "outline" }) {
   const colorMap = {
-    gold: "bg-[#f8c640] text-black shadow-[0_0_20px_rgba(248,198,64,0.3)] hover:opacity-90",
-    purple: "bg-primary text-primary-foreground shadow-[0_4px_30px_rgba(116,100,198,0.4)] hover:opacity-90",
-    outline: "border text-foreground/70 hover:bg-accent hover:text-foreground",
+    gold: "btn-3d-gold",
+    purple: "btn-3d",
+    outline: "btn-3d-outline",
   };
   const circleMap = {
     gold: "bg-black/10",
@@ -62,7 +62,7 @@ function ArrowBtn({ href, children, variant }: { href: string; children: React.R
   };
   return (
     <Link href={href} onClick={() => trackEvent("cta_click", { cta: href })}>
-      <span className={cn("group inline-flex h-9 items-center gap-2 overflow-hidden rounded-full pl-4 pr-1.5 text-sm font-semibold transition-colors", colorMap[variant])}>
+      <span className={cn("group inline-flex h-9 items-center gap-2 overflow-hidden rounded-full pl-4 pr-1.5 text-sm font-semibold transition-all", colorMap[variant])}>
         {children}
         <span className={cn("relative inline-flex h-6 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full", circleMap[variant])}>
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
@@ -183,7 +183,7 @@ export function Navbar() {
                         {MEGA_MENU.featured.title}
                       </span>
                       <p className="mt-1.5 text-sm text-muted-foreground mb-6">{MEGA_MENU.featured.desc}</p>
-                      <Link href={MEGA_MENU.featured.href} onClick={() => setMegaOpen(false)} className="group mt-auto inline-flex items-center justify-between rounded-full bg-primary pb-1.5 pl-5 pr-1.5 pt-1.5 text-sm font-medium text-primary-foreground transition-colors hover:opacity-90">
+                      <Link href={MEGA_MENU.featured.href} onClick={() => setMegaOpen(false)} className="group mt-auto inline-flex items-center justify-between rounded-full btn-3d pb-1.5 pl-5 pr-1.5 pt-1.5 text-sm font-medium">
                         {MEGA_MENU.featured.cta}
                         <span className="relative flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary-foreground/15">
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="transition-transform duration-300 ease-out group-hover:translate-x-[220%]">
@@ -339,15 +339,15 @@ export function Navbar() {
               {/* CTA buttons */}
               <div className="flex flex-none gap-2.5 p-3">
                 <Link href="/client/register" onClick={() => setMobileOpen(false)}
-                  className="inline-flex h-11 flex-1 items-center justify-center rounded-full border text-sm font-semibold text-foreground/70 transition-colors hover:bg-accent">
+                  className="btn-3d-outline inline-flex h-11 flex-1 items-center justify-center rounded-full text-sm font-semibold">
                   Sign Up
                 </Link>
                 <Link href="/client/login" onClick={() => setMobileOpen(false)}
-                  className="inline-flex h-11 flex-1 items-center justify-center rounded-full border text-sm font-semibold text-foreground/70 transition-colors hover:bg-accent">
+                  className="btn-3d-outline inline-flex h-11 flex-1 items-center justify-center rounded-full text-sm font-semibold">
                   Login
                 </Link>
                 <Link href="/contact" onClick={() => setMobileOpen(false)}
-                  className="group inline-flex h-[52px] flex-[1.4] items-center justify-between overflow-hidden rounded-full bg-[#f8c640] pl-6 pr-2.5 text-base font-semibold text-black">
+                  className="btn-3d-gold group inline-flex h-[52px] flex-[1.4] items-center justify-between overflow-hidden rounded-full pl-6 pr-2.5 text-base font-semibold text-black">
                   Get Started
                   <span className="relative inline-flex h-9 w-[52px] shrink-0 items-center justify-center overflow-hidden rounded-full bg-black/10">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="transition-transform duration-300 ease-out group-hover:translate-x-[220%]">

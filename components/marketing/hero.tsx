@@ -114,7 +114,7 @@ function TrustBadge({ icon, rating, label }: { icon: "trustpilot" | "google" | "
 function ArrowButton({ href, children }: { href: string; children: React.ReactNode }) {
   return (
     <Link href={href} onClick={() => trackEvent("cta_click", { cta: "hero_primary" })}>
-      <span className="group inline-flex h-[52px] items-center gap-3 overflow-hidden rounded-full bg-primary pl-6 pr-2.5 text-base font-semibold text-primary-foreground shadow-[0_4px_30px_rgba(116,100,198,0.4)] transition-colors hover:opacity-90">
+      <span className="btn-3d group min-h-[64px] pl-6 pr-2.5">
         <span className="min-w-0 flex-1">{children}</span>
         <span className="relative inline-flex h-9 w-[52px] shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary-foreground/15">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
@@ -190,7 +190,7 @@ export function Hero() {
               className="flex w-full max-w-[280px] flex-col items-center gap-3 md:max-w-none md:flex-row md:justify-center">
               <ArrowButton href="/contact">Get Started</ArrowButton>
               <Link href="/portfolio">
-                <span className="group inline-flex h-[52px] items-center gap-3 overflow-hidden rounded-full border bg-card pl-6 pr-2.5 text-base font-semibold text-foreground/70 transition-colors hover:bg-accent hover:text-foreground">
+                <span className="btn-3d-outline group min-h-[64px] pl-6 pr-2.5">
                   View Portfolio
                   <span className="relative inline-flex h-9 w-[52px] shrink-0 items-center justify-center overflow-hidden rounded-full bg-foreground/5">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"

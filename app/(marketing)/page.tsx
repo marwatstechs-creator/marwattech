@@ -6,6 +6,7 @@ import { SectionHeader } from "@/components/marketing/section-header";
 import { ServiceCard } from "@/components/marketing/service-card";
 import { PortfolioCard } from "@/components/marketing/portfolio-card";
 import { TestimonialCard } from "@/components/marketing/testimonial-card";
+import { LogoWatermark } from "@/components/marketing/logo-watermark";
 import { GoogleReviewsHomeBanner } from "@/components/marketing/google-reviews-home-banner";
 import { BlogCard } from "@/components/marketing/blog-card";
 import { CtaBanner } from "@/components/marketing/cta-banner";
@@ -70,9 +71,9 @@ const FEATURES = [
 ];
 
 const STEPS = [
-  { step: "01", title: "Tell us your idea", text: "Share your goals through the free mockup form or a quick call." },
-  { step: "02", title: "Get your free mockup", text: "We design a homepage concept so you can see your vision first." },
-  { step: "03", title: "We build & launch", text: "Agile development with demos, then launch with training and support." },
+  { step: "01", icon: "chat", title: "Tell us your idea", text: "Share your goals through the free mockup form or a quick call.", footer: "Free 30-minute consultation" },
+  { step: "02", icon: "sparkles", title: "Get your free mockup", text: "We design a homepage concept so you can see your vision first.", footer: "No obligation, no cost" },
+  { step: "03", icon: "rocket", title: "We build & launch", text: "Agile development with demos, then launch with training and support.", footer: "Launch in as little as 2 weeks" },
 ];
 
 export default async function HomePage() {
@@ -135,9 +136,10 @@ export default async function HomePage() {
             {FEATURES.map((f) => (
               <div
                 key={f.title}
-                className="rounded-xl border bg-card p-6 transition-shadow hover:shadow-md"
+                className="relative overflow-hidden rounded-xl border bg-card p-6 transition-shadow hover:shadow-md"
               >
-                <span className="mb-4 grid size-11 place-items-center rounded-xl bg-primary/10 text-primary">
+                <LogoWatermark className="bottom-0 right-0 h-24 w-24 translate-x-5 translate-y-5" />
+                <span className="relative mb-4 grid size-11 place-items-center rounded-xl bg-primary/10 text-primary">
                   <AppIcon name={f.icon} size={22} />
                 </span>
                 <h3 className="font-display mb-2 text-lg font-semibold">
@@ -184,29 +186,54 @@ export default async function HomePage() {
             title="From idea to launch in 3 steps"
             description="A transparent, proven workflow — no surprises, no jargon."
           />
-          <div className="grid gap-6 md:grid-cols-3">
-            {STEPS.map((s, i) => (
-              <div key={s.step} className="relative rounded-xl border bg-card p-6">
-                <div className="mb-4 flex items-center justify-between">
-                  <span className="font-display text-4xl font-extrabold text-primary/20">
+          <div className="relative">
+            {/* Connecting lines (horizontal on desktop, vertical on mobile) */}
+            <div aria-hidden className="pointer-events-none absolute inset-0 z-0">
+              <div className="absolute inset-x-0 top-1/2 hidden h-px -translate-y-1/2 bg-border xl:block">
+                <div className="h-full w-full bg-primary" />
+              </div>
+              <div className="absolute inset-y-0 left-1/2 block w-px -translate-x-1/2 bg-border md:hidden">
+                <div className="h-full w-full bg-primary" />
+              </div>
+            </div>
+            <div className="relative z-[1] grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+              {STEPS.map((s) => (
+                <article
+                  key={s.step}
+                  className="group relative flex min-h-[278px] flex-col justify-between overflow-hidden rounded-2xl border bg-card p-6 transition-[color,background-color,border-color,box-shadow,transform] duration-200 hover:border-primary/40 hover:bg-accent/40"
+                >
+                  <LogoWatermark className="bottom-0 right-0 h-24 w-24 translate-x-5 translate-y-5" />
+                  <span
+                    aria-hidden
+                    className="pointer-events-none absolute right-[15px] top-[57px] z-0 -translate-y-1/2 font-display text-[102px] font-semibold leading-none tracking-tight opacity-20 transition-colors duration-500 text-primary group-hover:opacity-30"
+                  >
                     {s.step}
                   </span>
-                  {i < STEPS.length - 1 && (
-                    <AppIcon
-                      name="arrowRight"
-                      size={20}
-                      className="hidden text-muted-foreground/40 md:block"
-                    />
-                  )}
-                </div>
-                <h3 className="font-display mb-2 text-lg font-semibold">
-                  {s.title}
-                </h3>
-                <p className="text-sm leading-relaxed text-muted-foreground">
-                  {s.text}
-                </p>
-              </div>
-            ))}
+                  <div className="relative z-10 flex flex-col gap-6">
+                    <div className="flex flex-col gap-4">
+                      <div className="inline-flex w-fit items-center rounded-full border border-primary/30 bg-accent px-5 py-2 transition-colors duration-200 group-hover:border-primary">
+                        <AppIcon
+                          name={s.icon}
+                          size={22}
+                          className="text-foreground/70 transition-colors duration-200 group-hover:text-primary"
+                        />
+                      </div>
+                      <h3 className="max-w-[300px] font-display text-xl font-semibold capitalize text-foreground">
+                        {s.title}
+                      </h3>
+                    </div>
+                    <p className="text-sm leading-relaxed text-muted-foreground">
+                      {s.text}
+                    </p>
+                  </div>
+                  <div className="relative z-10 mt-6 border-t border-dashed border-border pt-3">
+                    <p className="font-mono text-[11px] font-medium uppercase tracking-wider text-muted-foreground/60">
+                      {s.footer}
+                    </p>
+                  </div>
+                </article>
+              ))}
+            </div>
           </div>
         </div>
       </section>

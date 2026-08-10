@@ -55,7 +55,7 @@ export const metadata: Metadata = {
     images: [`${SITE.url}/og-default.png`],
   },
   icons: {
-    icon: "/favicon.ico",
+    icon: "/assets/logo-dark-square.svg",
   },
 };
 

@@ -21,7 +21,7 @@ export function CtaBanner() {
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
             <Link href="/free-mockup">
-              <span className="group inline-flex h-[52px] items-center gap-3 overflow-hidden rounded-full bg-[#f8c640] pl-6 pr-2.5 text-base font-semibold text-black shadow-[0_4px_30px_rgba(248,198,64,0.4)] transition-colors hover:opacity-90">
+              <span className="btn-3d-gold group min-h-[64px] pl-6 pr-2.5">
                 Get a Free Mockup
                 <span className="relative inline-flex h-9 w-[52px] shrink-0 items-center justify-center overflow-hidden rounded-full bg-black/10">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
@@ -36,7 +36,7 @@ export function CtaBanner() {
               </span>
             </Link>
             <Link href="/contact">
-              <span className="group inline-flex h-[52px] items-center gap-3 overflow-hidden rounded-full border border-white/40 bg-transparent pl-6 pr-2.5 text-base font-semibold text-primary-foreground transition-colors hover:bg-white/10">
+              <span className="btn-3d-outline group min-h-[64px] border-white/50 text-white pl-6 pr-2.5 hover:bg-white/10">
                 Contact Us
                 <span className="relative inline-flex h-9 w-[52px] shrink-0 items-center justify-center overflow-hidden rounded-full bg-white/10">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
