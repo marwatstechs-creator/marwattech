@@ -1,0 +1,10 @@
+[     744ms] [ERROR] Access to XMLHttpRequest at 'https://ipapi.co/json/' from origin 'https://rocketdevs.com' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ https://rocketdevs.com/:0
+[     744ms] [ERROR] [IPInfoCtxProvider] Error fetching IP info: AxiosError: Network Error
+    at y.onerror (https://rocketdevs.com/_next/static/chunks/4377-2b40e7cc5ab320f6.js:1:54920) @ https://rocketdevs.com/_next/static/chunks/1684-f26cef736342c012.js:0
+[     744ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://ipapi.co/json/:0
+[    1014ms] [LOG] [GTM] User data cleared (logged out) @ https://rocketdevs.com/_next/static/chunks/app/layout-dde9b182a1862935.js:0
+[    1103ms] [WARNING] [TikTok Pixel] - Missing 'content_id' paramter
+Issue: The 'content_id' parameter isn't being received. This is required for Video Shopping Ads (VSA).
+Suggestion: Include the 'content_id' parameter in your source code. This is required for Video Shopping Ads (VSA). See https://ads.tiktok.com/help/article/standard-events-parameters?redirected=2 for more information. @ https://analytics.tiktok.com/i18n/pixel/static/main.MWQwZTMxZTQ3MQ.js:0
+[   10542ms] [LOG] Download the Apollo DevTools for a better development experience: %s https://chrome.google.com/webstore/detail/apollo-client-developer-t/jdkknkkbebbapilgoeccciglkfbmbnfm @ https://rocketdevs.com/_next/static/chunks/251-501ad8cd2d54fc45.js:12
+[   11717ms] [WARNING] Crisp script failed to load @ https://rocketdevs.com/_next/static/chunks/app/layout-dde9b182a1862935.js:0

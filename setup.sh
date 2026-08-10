@@ -18,7 +18,7 @@ echo -e "${GREEN}═════════════════════
 echo ""
 
 # ── 1. Apply database schema ───────────────────────────────────────
-echo -e "${YELLOW}[1/2] Applying database schema...${NC}"
+echo -e "${YELLOW}[1/3] Applying database schema...${NC}"
 
 PGPASSWORD="CV7000isj.@" /opt/homebrew/opt/libpq/bin/psql \
   -h db.wgcajewvabhyuzteacqx.supabase.co \
@@ -27,16 +27,30 @@ PGPASSWORD="CV7000isj.@" /opt/homebrew/opt/libpq/bin/psql \
   -d postgres \
   -f supabase/schema.sql
 
-if [ $? -eq 0 ]; then
-  echo -e "${GREEN}✅ Schema applied successfully!${NC}"
-else
-  echo -e "${RED}❌ Schema failed. Check the output above.${NC}"
-  exit 1
+if [ $? -ne 0 ]; then
+  echo -e "${RED}❌ Schema failed.${NC}"; exit 1
 fi
 
-echo ""
+echo -e "${GREEN}✅ Schema applied!${NC}"
 
-# ── 2. Seed admin user + default content ───────────────────────────
+echo ""
+echo -e "${YELLOW}[2/3] Applying client portal migration...${NC}"
+
+PGPASSWORD="CV7000isj.@" /opt/homebrew/opt/libpq/bin/psql \
+  -h db.wgcajewvabhyuzteacqx.supabase.co \
+  -p 5432 \
+  -U postgres \
+  -d postgres \
+  -f supabase/client-migration.sql
+
+if [ $? -ne 0 ]; then
+  echo -e "${RED}❌ Client migration failed.${NC}"; exit 1
+fi
+
+echo -e "${GREEN}✅ Client migration applied!${NC}"
+
+echo ""
+echo -e "${YELLOW}[3/3] Seeding admin account & default content...${NC}"
 echo -e "${YELLOW}[2/2] Seeding admin account & default content...${NC}"
 
 node scripts/seed.mjs

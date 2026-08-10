@@ -24,7 +24,7 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
 
-  /* Brand palette — IELTS-inspired: red = primary, gold = highlight, azure = secondary */
+  /* Brand palette — Purple-dominant theme */
   --color-brand: var(--brand);
   --color-brand-foreground: var(--brand-foreground);
   --color-gold: var(--gold);
@@ -38,73 +38,92 @@
   --radius-xl: calc(var(--radius) + 4px);
 
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-sora), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-space-grotesk), ui-sans-serif, system-ui, sans-serif;
 }
 
 :root {
   --radius: 0.625rem;
 
-  /* ── Light theme ─────────────────────────────────────────────── */
-  --background: oklch(0.99 0.002 85);
-  --foreground: oklch(0.24 0.03 265);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.24 0.03 265);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.24 0.03 265);
-  /* Brand red — primary CTAs */
-  --primary: oklch(0.52 0.22 27);
-  --primary-foreground: oklch(0.985 0.002 85);
-  /* Azure blue — secondary */
-  --secondary: oklch(0.52 0.18 240);
-  --secondary-foreground: oklch(0.985 0.002 85);
-  --muted: oklch(0.96 0.004 265);
-  --muted-foreground: oklch(0.55 0.02 265);
-  /* Gold — highlight / badges */
-  --accent: oklch(0.82 0.16 80);
-  --accent-foreground: oklch(0.35 0.08 55);
-  --destructive: oklch(0.55 0.22 25);
-  --destructive-foreground: oklch(0.985 0.002 85);
-  --border: oklch(0.9 0.01 265);
-  --input: oklch(0.87 0.015 265);
-  --ring: oklch(0.52 0.22 27);
+  /* ── Light theme — Purple brand ─────────────────────────────── */
+  /* User-defined custom properties */
+  --primary-purple: #7464c6;
+  --dark-purple: #5f4fa8;
+  --light-purple: #9b8dd4;
+  --accent-purple: #8b7dd4;
+  --text-dark: #111827;
+  --text-gray: #6b7280;
+  --gray-light: #f3f4f6;
+  --gray-border: #e5e7eb;
+  --white: #ffffff;
+  --glass: rgba(255, 255, 255, 0.55);
+  --glass2: rgba(255, 255, 255, 0.20);
+  --stroke: rgba(116, 100, 198, 0.18);
+  --stroke2: rgba(255, 255, 255, 0.35);
+  --shadowA: 0 18px 55px rgba(116, 100, 198, 0.16);
+  --shadowB: 0 10px 28px rgba(15, 23, 42, 0.10);
+
+  /* Shadcn/ui theme tokens — matched to logo colors */
+  --background: #faf9fd;
+  --foreground: #111827;
+  --card: #ffffff;
+  --card-foreground: #111827;
+  --popover: #ffffff;
+  --popover-foreground: #111827;
+  /* Primary = #7464c6 — logo's main purple */
+  --primary: #7464c6;
+  --primary-foreground: #ffffff;
+  /* Secondary = #f8c640 — gold accent */
+  --secondary: #f8c640;
+  --secondary-foreground: #111827;
+  --muted: #f3f4f6;
+  --muted-foreground: #6b7280;
+  /* Accent = #9b8dd4 — lighter purple */
+  --accent: #9b8dd4;
+  --accent-foreground: #111827;
+  /* Destructive = #b32e24 — logo's red accent */
+  --destructive: #b32e24;
+  --destructive-foreground: #ffffff;
+  --border: #e5e7eb;
+  --input: #e5e7eb;
+  --ring: #7464c6;
 
   /* Brand aliases */
-  --brand: oklch(0.52 0.22 27);
-  --brand-foreground: oklch(0.985 0.002 85);
-  --gold: oklch(0.82 0.16 80);
-  --gold-foreground: oklch(0.35 0.08 55);
-  --azure: oklch(0.52 0.18 240);
-  --azure-foreground: oklch(0.985 0.002 85);
+  --brand: #7464c6;
+  --brand-foreground: #ffffff;
+  --gold: #f8c640;
+  --gold-foreground: #111827;
+  --azure: #5f4fa8;
+  --azure-foreground: #ffffff;
 }
 
 .dark {
-  /* ── Dark theme ──────────────────────────────────────────────── */
-  --background: oklch(0.18 0.02 265);
-  --foreground: oklch(0.95 0.01 265);
-  --card: oklch(0.21 0.025 265);
-  --card-foreground: oklch(0.95 0.01 265);
-  --popover: oklch(0.21 0.025 265);
-  --popover-foreground: oklch(0.95 0.01 265);
-  --primary: oklch(0.6 0.22 27);
-  --primary-foreground: oklch(0.16 0.02 265);
-  --secondary: oklch(0.6 0.17 240);
-  --secondary-foreground: oklch(0.16 0.02 265);
-  --muted: oklch(0.26 0.02 265);
-  --muted-foreground: oklch(0.72 0.02 265);
-  --accent: oklch(0.78 0.15 80);
-  --accent-foreground: oklch(0.3 0.07 55);
-  --destructive: oklch(0.6 0.22 25);
-  --destructive-foreground: oklch(0.98 0.002 85);
-  --border: oklch(0.28 0.02 265);
-  --input: oklch(0.32 0.02 265);
-  --ring: oklch(0.6 0.22 27);
+  /* ── Dark theme — Purple brand ───────────────────────────────── */
+  --background: #111318;
+  --foreground: #f3f4f6;
+  --card: #1a1b23;
+  --card-foreground: #f3f4f6;
+  --popover: #1a1b23;
+  --popover-foreground: #f3f4f6;
+  --primary: #8b7dd4;
+  --primary-foreground: #111318;
+  --secondary: #f8c640;
+  --secondary-foreground: #111318;
+  --muted: #1f2029;
+  --muted-foreground: #9ca3af;
+  --accent: #7464c6;
+  --accent-foreground: #ffffff;
+  --destructive: #cf3a30;
+  --destructive-foreground: #ffffff;
+  --border: #2d2e3a;
+  --input: #2d2e3a;
+  --ring: #8b7dd4;
 
-  --brand: oklch(0.6 0.22 27);
-  --brand-foreground: oklch(0.16 0.02 265);
-  --gold: oklch(0.78 0.15 80);
-  --gold-foreground: oklch(0.3 0.07 55);
-  --azure: oklch(0.6 0.17 240);
-  --azure-foreground: oklch(0.16 0.02 265);
+  --brand: #8b7dd4;
+  --brand-foreground: #111318;
+  --gold: #f8c640;
+  --gold-foreground: #111318;
+  --azure: #7464c6;
+  --azure-foreground: #ffffff;
 }
 
 @layer base {

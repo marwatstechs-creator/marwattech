@@ -6,6 +6,7 @@ import { SectionHeader } from "@/components/marketing/section-header";
 import { ServiceCard } from "@/components/marketing/service-card";
 import { PortfolioCard } from "@/components/marketing/portfolio-card";
 import { TestimonialCard } from "@/components/marketing/testimonial-card";
+import { GoogleReviewsHomeBanner } from "@/components/marketing/google-reviews-home-banner";
 import { BlogCard } from "@/components/marketing/blog-card";
 import { CtaBanner } from "@/components/marketing/cta-banner";
 import { AppIcon } from "@/components/app-icon";
@@ -209,6 +210,9 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* Google Reviews Banner */}
+      <GoogleReviewsHomeBanner />
 
       {/* Testimonials */}
       {testimonials.length > 0 && (

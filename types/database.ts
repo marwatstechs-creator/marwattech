@@ -10,7 +10,7 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[];
 
-export type UserRole = "super_admin" | "editor" | "support";
+export type UserRole = "super_admin" | "editor" | "support" | "client";
 export type ContentStatus = "draft" | "published" | "archived";
 export type ApplicationStatus =
   | "new"
@@ -689,6 +689,292 @@ export interface Database {
           entity_type?: string | null;
           entity_id?: string | null;
           metadata?: Json | null;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      /* ── Client portal tables ───────────────────────────────── */
+      client_projects: {
+        Row: {
+          id: string;
+          client_id: string;
+          title: string;
+          description: string | null;
+          status: string;
+          progress: number;
+          start_date: string | null;
+          end_date: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          client_id: string;
+          title: string;
+          description?: string | null;
+          status?: string;
+          progress?: number;
+          start_date?: string | null;
+          end_date?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          client_id?: string;
+          title?: string;
+          description?: string | null;
+          status?: string;
+          progress?: number;
+          start_date?: string | null;
+          end_date?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      payments: {
+        Row: {
+          id: string;
+          client_id: string;
+          project_id: string | null;
+          amount: number;
+          currency: string;
+          status: string;
+          method: string | null;
+          transaction_id: string | null;
+          description: string | null;
+          paid_at: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          client_id: string;
+          project_id?: string | null;
+          amount: number;
+          currency?: string;
+          status?: string;
+          method?: string | null;
+          transaction_id?: string | null;
+          description?: string | null;
+          paid_at?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          client_id?: string;
+          project_id?: string | null;
+          amount?: number;
+          currency?: string;
+          status?: string;
+          method?: string | null;
+          transaction_id?: string | null;
+          description?: string | null;
+          paid_at?: string | null;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      invoices: {
+        Row: {
+          id: string;
+          client_id: string;
+          project_id: string | null;
+          invoice_number: string;
+          amount: number;
+          status: string;
+          due_date: string | null;
+          paid_at: string | null;
+          pdf_url: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          client_id: string;
+          project_id?: string | null;
+          invoice_number: string;
+          amount: number;
+          status?: string;
+          due_date?: string | null;
+          paid_at?: string | null;
+          pdf_url?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          client_id?: string;
+          project_id?: string | null;
+          invoice_number?: string;
+          amount?: number;
+          status?: string;
+          due_date?: string | null;
+          paid_at?: string | null;
+          pdf_url?: string | null;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      courses: {
+        Row: {
+          id: string;
+          title: string;
+          slug: string;
+          description: string | null;
+          cover_image: string | null;
+          category: string | null;
+          difficulty: string;
+          duration_hours: number | null;
+          is_published: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          title: string;
+          slug: string;
+          description?: string | null;
+          cover_image?: string | null;
+          category?: string | null;
+          difficulty?: string;
+          duration_hours?: number | null;
+          is_published?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          title?: string;
+          slug?: string;
+          description?: string | null;
+          cover_image?: string | null;
+          category?: string | null;
+          difficulty?: string;
+          duration_hours?: number | null;
+          is_published?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      course_lessons: {
+        Row: {
+          id: string;
+          course_id: string;
+          title: string;
+          slug: string;
+          content: string | null;
+          video_url: string | null;
+          sort_order: number;
+          duration_minutes: number | null;
+          is_free_preview: boolean;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          course_id: string;
+          title: string;
+          slug: string;
+          content?: string | null;
+          video_url?: string | null;
+          sort_order?: number;
+          duration_minutes?: number | null;
+          is_free_preview?: boolean;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          course_id?: string;
+          title?: string;
+          slug?: string;
+          content?: string | null;
+          video_url?: string | null;
+          sort_order?: number;
+          duration_minutes?: number | null;
+          is_free_preview?: boolean;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      enrollments: {
+        Row: {
+          id: string;
+          client_id: string;
+          course_id: string;
+          enrolled_at: string;
+          completed_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          client_id: string;
+          course_id: string;
+          enrolled_at?: string;
+          completed_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          client_id?: string;
+          course_id?: string;
+          enrolled_at?: string;
+          completed_at?: string | null;
+        };
+        Relationships: [];
+      };
+      lesson_progress: {
+        Row: {
+          id: string;
+          client_id: string;
+          lesson_id: string;
+          completed: boolean;
+          completed_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          client_id: string;
+          lesson_id: string;
+          completed?: boolean;
+          completed_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          client_id?: string;
+          lesson_id?: string;
+          completed?: boolean;
+          completed_at?: string | null;
+        };
+        Relationships: [];
+      };
+      study_materials: {
+        Row: {
+          id: string;
+          title: string;
+          description: string | null;
+          file_url: string;
+          file_type: string | null;
+          file_size: number | null;
+          category: string | null;
+          is_published: boolean;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          title: string;
+          description?: string | null;
+          file_url: string;
+          file_type?: string | null;
+          file_size?: number | null;
+          category?: string | null;
+          is_published?: boolean;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          title?: string;
+          description?: string | null;
+          file_url?: string;
+          file_type?: string | null;
+          file_size?: number | null;
+          category?: string | null;
+          is_published?: boolean;
           created_at?: string;
         };
         Relationships: [];

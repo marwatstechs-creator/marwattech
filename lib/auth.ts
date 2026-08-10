@@ -52,6 +52,10 @@ export function isSuperAdmin(role: UserRole) {
   return role === "super_admin";
 }
 
+export function isClient(role: UserRole) {
+  return role === "client";
+}
+
 /** Server-side guard: redirect non-editors away from content pages. */
 export async function guardEditor() {
   const session = await getSessionUser();
@@ -65,5 +69,13 @@ export async function guardSuperAdmin() {
   const session = await getSessionUser();
   if (!session) redirect("/admin/login");
   if (!isSuperAdmin(session.profile.role)) redirect("/admin");
+  return session;
+}
+
+/** Server-side guard: only clients may access client dashboard. */
+export async function guardClient() {
+  const session = await getSessionUser();
+  if (!session) redirect("/client/login");
+  if (session.profile.role !== "client") redirect("/admin/login");
   return session;
 }

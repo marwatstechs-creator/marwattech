@@ -2,8 +2,8 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 /**
- * Refreshes the auth session and guards the /admin routes.
- * Role-based checks happen at the page level (see app/admin/layout.tsx).
+ * Refreshes the auth session and guards the /admin + /client routes.
+ * Role-based checks happen at the page level.
  */
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
@@ -42,18 +42,31 @@ export async function updateSession(request: NextRequest) {
 
   const pathname = request.nextUrl.pathname;
   const isAdminRoute = pathname.startsWith("/admin");
-  const isLoginRoute = pathname === "/admin/login";
+  const isClientRoute = pathname.startsWith("/client");
+  const isLoginRoute = pathname === "/admin/login" || pathname === "/client/login";
+  const isAuthRoute = pathname === "/client/register";
+  const isProtectedRoute = (isAdminRoute || isClientRoute) && !isLoginRoute && !isAuthRoute;
 
   if (isLoginRoute && user) {
     const url = request.nextUrl.clone();
-    url.pathname = "/admin";
+    // Redirect to correct dashboard based on role
+    try {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", user.id)
+        .single();
+      url.pathname = profile?.role === "client" ? "/client" : "/admin";
+    } catch {
+      url.pathname = isAdminRoute ? "/admin" : "/client";
+    }
     url.search = "";
     return NextResponse.redirect(url);
   }
 
-  if (isAdminRoute && !isLoginRoute && !user) {
+  if (isProtectedRoute && !user) {
     const url = request.nextUrl.clone();
-    url.pathname = "/admin/login";
+    url.pathname = isClientRoute ? "/client/login" : "/admin/login";
     url.search = "";
     return NextResponse.redirect(url);
   }

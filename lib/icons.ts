@@ -97,6 +97,7 @@ import TwitterIcon from "@hugeicons/core-free-icons/TwitterIcon";
 import YoutubeIcon from "@hugeicons/core-free-icons/YoutubeIcon";
 import WhatsappIcon from "@hugeicons/core-free-icons/WhatsappIcon";
 import Facebook01Icon from "@hugeicons/core-free-icons/Facebook01Icon";
+import PinterestIcon from "@hugeicons/core-free-icons/PinterestIcon";
 import GithubIcon from "@hugeicons/core-free-icons/GithubIcon";
 
 export const ICONS = {
@@ -196,6 +197,7 @@ export const ICONS = {
   youtube: YoutubeIcon,
   whatsapp: WhatsappIcon,
   facebook: Facebook01Icon,
+  pinterest: PinterestIcon,
   github: GithubIcon,
 } as const satisfies Record<string, IconSvgObject>;
 

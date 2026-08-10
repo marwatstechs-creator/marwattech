@@ -40,6 +40,7 @@ const NAV: NavItem[] = [
   { label: "Media Library", href: "/admin/media", icon: "image", roles: ["super_admin", "editor"] },
   { label: "Settings", href: "/admin/settings", icon: "settings", roles: ["super_admin"] },
   { label: "Users", href: "/admin/users", icon: "team", roles: ["super_admin"] },
+  { label: "Clients", href: "/admin/users/clients", icon: "team", roles: ["super_admin"] },
 ];
 
 function SidebarContent({

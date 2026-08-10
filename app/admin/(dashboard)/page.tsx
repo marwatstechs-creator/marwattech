@@ -21,6 +21,7 @@ export default async function AdminDashboardPage() {
     posts: 0,
     projects: 0,
     unread: 0,
+    clients: 0,
   };
   let recentMessages: {
     id: string;
@@ -62,6 +63,7 @@ export default async function AdminDashboardPage() {
     stats.services = services.count ?? 0;
     stats.posts = posts.count ?? 0;
     stats.projects = projects.count ?? 0;
+    stats.clients = 0;
     stats.unread =
       (contact.count ?? 0) + (support.count ?? 0) + (mockup.count ?? 0);
     recentMessages = msg.data ?? [];

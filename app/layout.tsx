@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Sora } from "next/font/google";
+import { Inter, Space_Grotesk } from "next/font/google";
 
 import "./globals.css";
 import { Providers } from "@/app/providers";
@@ -12,10 +12,11 @@ const inter = Inter({
   display: "swap",
 });
 
-const sora = Sora({
+const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
-  variable: "--font-sora",
+  variable: "--font-space-grotesk",
   display: "swap",
+  weight: ["300", "400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -60,8 +61,8 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#0a0e1a" },
+    { media: "(prefers-color-scheme: light)", color: "#7464c6" },
+    { media: "(prefers-color-scheme: dark)", color: "#111318" },
   ],
   width: "device-width",
   initialScale: 1,
@@ -72,7 +73,7 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.variable} ${sora.variable} font-sans`}>
+      <body className={`${inter.variable} ${spaceGrotesk.variable} font-sans`}>
         <Providers>
           {children}
           <Analytics />

@@ -11,6 +11,7 @@ const SOCIALS: { label: string; icon: IconName; href: string }[] = [
   { label: "Twitter / X", icon: "twitter", href: SITE.social.twitter },
   { label: "LinkedIn", icon: "linkedin", href: SITE.social.linkedin },
   { label: "Instagram", icon: "instagram", href: SITE.social.instagram },
+  { label: "Pinterest", icon: "pinterest", href: SITE.social.pinterest },
   { label: "YouTube", icon: "youtube", href: SITE.social.youtube },
   { label: "WhatsApp", icon: "whatsapp", href: SITE.whatsapp },
 ];

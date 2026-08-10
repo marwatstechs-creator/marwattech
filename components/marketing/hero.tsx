@@ -1,225 +1,227 @@
 "use client";
 
+import * as React from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-
 import { AppIcon } from "@/components/app-icon";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { STATS } from "@/lib/constants";
 import { trackEvent } from "@/lib/analytics";
 
-const fadeUp = {
-  hidden: { opacity: 0, y: 24 },
-  show: { opacity: 1, y: 0 },
-};
+/* ── Dot Grid Canvas ────────────────────────────────────────────────── */
+
+function DotGrid() {
+  const canvasRef = React.useRef<HTMLCanvasElement>(null);
+  const containerRef = React.useRef<HTMLDivElement>(null);
+  const [pos, setPos] = React.useState({ x: 0.5, y: 0.5 });
+
+  React.useEffect(() => {
+    const onMove = (e: MouseEvent) => {
+      if (!containerRef.current) return;
+      const r = containerRef.current.getBoundingClientRect();
+      setPos({ x: (e.clientX - r.left) / r.width, y: (e.clientY - r.top) / r.height });
+    };
+    window.addEventListener("mousemove", onMove);
+    return () => window.removeEventListener("mousemove", onMove);
+  }, []);
+
+  const draw = React.useCallback(() => {
+    const c = canvasRef.current; if (!c) return;
+    const ctx = c.getContext("2d"); if (!ctx) return;
+    const p = c.parentElement!; const w = p.clientWidth; const h = p.clientHeight;
+    if (!w || !h) return;
+    const dpr = window.devicePixelRatio || 1;
+    c.width = w * dpr; c.height = h * dpr;
+    c.style.width = `${w}px`; c.style.height = `${h}px`;
+    ctx.scale(dpr, dpr);
+    ctx.clearRect(0, 0, w, h);
+    const s = 22;
+    for (let x = s; x < w; x += s) {
+      for (let y = s; y < h; y += s) {
+        const dx = x / w - pos.x, dy = y / h - pos.y;
+        const a = Math.max(0.05, (1 - Math.sqrt(dx*dx+dy*dy) / 0.5) * 0.28);
+        ctx.fillStyle = `rgba(116,100,198,${a})`;
+        ctx.beginPath(); ctx.arc(x, y, 1, 0, Math.PI*2); ctx.fill();
+      }
+    }
+  }, [pos]);
+
+  React.useEffect(() => { draw(); }, [draw]);
+  React.useEffect(() => {
+    window.addEventListener("resize", draw);
+    return () => window.removeEventListener("resize", draw);
+  }, [draw]);
+
+  return (
+    <div ref={containerRef} className="pointer-events-none absolute inset-0 -z-10 overflow-hidden"
+      style={{ maskImage: "radial-gradient(ellipse at center, black 55%, transparent 95%)", WebkitMaskImage: "radial-gradient(ellipse at center, black 55%, transparent 95%)" }}>
+      <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" />
+    </div>
+  );
+}
+
+/* ── Floating Testimonial Card ──────────────────────────────────────── */
+
+function FloatCard({ quote, name, deg }: { quote: string; name: string; deg: number }) {
+  return (
+    <div style={{ transform: `rotate(${deg}deg)` }}>
+      <article className="pointer-events-auto w-full rounded-4xl border bg-card p-6 shadow-sm transition-shadow hover:shadow-md">
+        <div className="flex items-start justify-between gap-3">
+          <p className="text-xs leading-relaxed text-foreground/70">&ldquo;{quote}&rdquo;</p>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-muted-foreground/30">
+            <path d="M16 3a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2 1 1 0 0 1 1 1v1a2 2 0 0 1-2 2 1 1 0 0 0-1 1v2a1 1 0 0 0 1 1 6 6 0 0 0 6-6V5a2 2 0 0 0-2-2z"/><path d="M5 3a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2 1 1 0 0 1 1 1v1a2 2 0 0 1-2 2 1 1 0 0 0-1 1v2a1 1 0 0 0 1 1 6 6 0 0 0 6-6V5a2 2 0 0 0-2-2z"/>
+          </svg>
+        </div>
+        <p className="mt-3 font-mono text-[11px] font-semibold uppercase tracking-wider text-foreground/40">&ndash; {name}</p>
+      </article>
+    </div>
+  );
+}
+
+/* ── Trust Badge ────────────────────────────────────────────────────── */
+
+function TrustBadge({ icon, rating, label }: { icon: "trustpilot" | "google" | "g2"; rating: string; label: string }) {
+  return (
+    <div className="flex items-center gap-3">
+      {icon === "trustpilot" && (
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" className="shrink-0">
+          <path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z" fill="#7464c6" stroke="none"/>
+        </svg>
+      )}
+      {icon === "google" && (
+        <svg width="30" height="30" viewBox="0 0 48 48" className="shrink-0">
+          <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"/><path fill="#FF3D00" d="M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691z"/><path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238C29.211 35.091 26.715 36 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"/><path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303c-.792 2.237-2.231 4.166-4.087 5.571l6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"/>
+        </svg>
+      )}
+      {icon === "g2" && (
+        <svg width="32" height="32" viewBox="0 0 32 32" className="shrink-0">
+          <circle cx="16" cy="16" r="16" fill="#FF492C"/>
+          <text x="16" y="21" textAnchor="middle" fontFamily="Arial,sans-serif" fontWeight="700" fontSize="14" fill="#fff">G2</text>
+        </svg>
+      )}
+      <div className="flex flex-col gap-1">
+        <div className="flex gap-0.5">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <AppIcon key={i} name="star" size={14} color="#7464c6" />
+          ))}
+        </div>
+        <span className="text-[11px] font-medium uppercase tracking-wide text-foreground/70">{rating} {label}</span>
+      </div>
+    </div>
+  );
+}
+
+/* ── Animated Arrow CTA ─────────────────────────────────────────────── */
+
+function ArrowButton({ href, children }: { href: string; children: React.ReactNode }) {
+  return (
+    <Link href={href} onClick={() => trackEvent("cta_click", { cta: "hero_primary" })}>
+      <span className="group inline-flex h-[52px] items-center gap-3 overflow-hidden rounded-full bg-primary pl-6 pr-2.5 text-base font-semibold text-primary-foreground shadow-[0_4px_30px_rgba(116,100,198,0.4)] transition-colors hover:opacity-90">
+        <span className="min-w-0 flex-1">{children}</span>
+        <span className="relative inline-flex h-9 w-[52px] shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary-foreground/15">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+            className="transition-transform duration-300 ease-out group-hover:translate-x-[220%]">
+            <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
+          </svg>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+            className="absolute inset-0 m-auto -translate-x-[220%] transition-transform duration-300 ease-out group-hover:translate-x-0">
+            <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
+          </svg>
+        </span>
+      </span>
+    </Link>
+  );
+}
+
+/* ── Hero ───────────────────────────────────────────────────────────── */
 
 export function Hero() {
   return (
-    <section className="relative overflow-hidden">
-      {/* Background decorations */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(55%_50%_at_50%_0%,hsl(var(--brand)/0.12),transparent)]"
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -left-24 top-40 size-72 rounded-full bg-gold/10 blur-3xl"
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -right-24 top-24 size-72 rounded-full bg-azure/10 blur-3xl"
-      />
+    <section className="relative isolate w-full overflow-hidden pb-16 pt-20 sm:pb-24 sm:pt-28 lg:pb-32 lg:pt-36">
+      <DotGrid />
 
-      <div className="relative mx-auto grid max-w-7xl items-center gap-12 px-4 pb-20 pt-16 sm:px-6 lg:grid-cols-2 lg:px-8 lg:pb-28 lg:pt-24">
-        {/* Copy */}
-        <div className="space-y-7">
-          <motion.div
-            variants={fadeUp}
-            initial="hidden"
-            animate="show"
-            transition={{ duration: 0.5 }}
-          >
-            <Badge variant="gold" className="gap-2 px-3 py-1 text-xs uppercase tracking-wide">
-              <AppIcon name="sparkles" size={14} />
-              Software & Web Development Company
-            </Badge>
-          </motion.div>
-
-          <motion.h1
-            variants={fadeUp}
-            initial="hidden"
-            animate="show"
-            transition={{ duration: 0.5, delay: 0.08 }}
-            className="font-display text-4xl font-extrabold leading-[1.1] tracking-tight text-foreground sm:text-5xl lg:text-6xl"
-          >
-            We build websites that{" "}
-            <span className="text-primary">grow your business</span>
-          </motion.h1>
-
-          <motion.p
-            variants={fadeUp}
-            initial="hidden"
-            animate="show"
-            transition={{ duration: 0.5, delay: 0.16 }}
-            className="max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg"
-          >
-            Marwat Tech is a full-service digital agency — custom web
-            development, ecommerce, mobile apps, UI/UX, SEO and AI solutions —
-            engineered for speed, security and results.
-          </motion.p>
-
-          <motion.div
-            variants={fadeUp}
-            initial="hidden"
-            animate="show"
-            transition={{ duration: 0.5, delay: 0.24 }}
-            className="flex flex-wrap items-center gap-3"
-          >
-            <Link
-              href="/free-mockup"
-              onClick={() => trackEvent("cta_click", { cta: "hero_free_mockup" })}
-            >
-              <Button size="lg" variant="gold" className="font-semibold">
-                Get a Free Mockup
-                <AppIcon name="arrowUpRight" size={18} />
-              </Button>
-            </Link>
-            <Link
-              href="/services"
-              onClick={() => trackEvent("cta_click", { cta: "hero_services" })}
-            >
-              <Button size="lg" variant="outline" className="font-semibold">
-                Explore Services
-              </Button>
-            </Link>
-          </motion.div>
-
-          {/* Stats */}
-          <motion.dl
-            variants={fadeUp}
-            initial="hidden"
-            animate="show"
-            transition={{ duration: 0.5, delay: 0.32 }}
-            className="grid max-w-md grid-cols-4 gap-4 border-t pt-6"
-          >
-            {STATS.map((s) => (
-              <div key={s.label}>
-                <dt className="order-2 text-xs text-muted-foreground">
-                  {s.label}
-                </dt>
-                <dd className="font-display order-1 text-2xl font-bold text-foreground">
-                  {s.value}
-                </dd>
-              </div>
-            ))}
-          </motion.dl>
-        </div>
-
-        {/* Visual */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.96 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="relative mx-auto w-full max-w-lg lg:max-w-none"
-        >
-          <div className="relative overflow-hidden rounded-2xl border bg-card shadow-xl">
-            {/* Fake browser bar */}
-            <div className="flex items-center gap-2 border-b bg-muted/60 px-4 py-3">
-              <span className="size-2.5 rounded-full bg-[#ff5f57]" />
-              <span className="size-2.5 rounded-full bg-[#febc2e]" />
-              <span className="size-2.5 rounded-full bg-[#28c840]" />
-              <span className="ml-3 flex-1 truncate rounded-md bg-background px-3 py-1 text-xs text-muted-foreground">
-                marwattech.com
-              </span>
-            </div>
-            {/* Fake dashboard */}
-            <div className="grid gap-4 p-5 sm:grid-cols-2">
-              <div className="space-y-3 rounded-xl border bg-muted/30 p-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-medium text-muted-foreground">
-                    Website Performance
-                  </span>
-                  <Badge variant="gold">99/100</Badge>
-                </div>
-                <div className="flex h-24 items-end gap-2">
-                  {[55, 72, 60, 85, 78, 95, 88, 100].map((h, i) => (
-                    <div
-                      key={i}
-                      style={{ height: `${h}%` }}
-                      className={
-                        i >= 5
-                          ? "flex-1 rounded-t-md bg-primary"
-                          : "flex-1 rounded-t-md bg-muted"
-                      }
-                    />
-                  ))}
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  +38% traffic this month
-                </p>
-              </div>
-              <div className="space-y-3 rounded-xl border bg-muted/30 p-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-medium text-muted-foreground">
-                    Conversions
-                  </span>
-                  <Badge variant="default">↑ 24%</Badge>
-                </div>
-                <div className="flex items-center justify-center gap-3 py-3">
-                  <span className="grid size-12 place-items-center rounded-full bg-primary/10 text-primary">
-                    <AppIcon name="rocket" size={26} />
-                  </span>
-                  <div>
-                    <p className="font-display text-2xl font-bold">4.9/5</p>
-                    <p className="text-xs text-muted-foreground">client rating</p>
-                  </div>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {["SEO", "Ecommerce", "AI", "Mobile"].map((t) => (
-                    <span
-                      key={t}
-                      className="rounded-md bg-background px-2 py-1 text-[11px] font-medium text-foreground/80"
-                    >
-                      {t}
-                    </span>
-                  ))}
-                </div>
-              </div>
+      <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="relative">
+          {/* Left floating cards - xl only */}
+          <div className="pointer-events-none hidden xl:flex absolute inset-y-0 z-0 w-[260px] items-center overflow-hidden left-0 justify-start">
+            <div className="flex w-[260px] flex-col gap-6 py-8 pl-2">
+              <FloatCard deg={4} quote="Marwat Tech delivered our website on time, within budget. Professional team, great communication." name="Home Plantings" />
+              <FloatCard deg={0} quote="Excellent service! They built our e-commerce site exactly how we wanted. Highly recommended." name="Muhammad Ali" />
+              <FloatCard deg={-4} quote="They helped us with SEO and website redesign. Traffic increased significantly within weeks." name="Bilal Hussain" />
             </div>
           </div>
 
-          {/* Floating chips */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.6 }}
-            className="absolute -left-4 top-8 hidden rounded-xl border bg-card px-4 py-3 shadow-lg sm:flex sm:items-center sm:gap-3"
-          >
-            <span className="grid size-9 place-items-center rounded-lg bg-gold/15 text-gold">
-              <AppIcon name="sparkles" size={18} />
-            </span>
-            <div>
-              <p className="text-sm font-semibold">Free Mockup</p>
-              <p className="text-xs text-muted-foreground">See your idea first</p>
+          {/* Right floating cards - xl only */}
+          <div className="pointer-events-none hidden xl:flex absolute inset-y-0 z-0 w-[260px] items-center overflow-hidden right-0 justify-end">
+            <div className="flex w-[260px] flex-col gap-6 py-8 pr-2">
+              <FloatCard deg={-4} quote="Professional, responsive and technically excellent. The app was approved on first submission." name="David Chen" />
+              <FloatCard deg={0} quote="From mockup to launch in three weeks. A smooth process that brings us real leads." name="James Okafor" />
+              <FloatCard deg={4} quote="The free mockup impressed us immediately — we knew we were in good hands." name="Ayesha Malik" />
             </div>
-          </motion.div>
+          </div>
 
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.75 }}
-            className="absolute -bottom-5 -right-2 hidden rounded-xl border bg-card px-4 py-3 shadow-lg sm:flex sm:items-center sm:gap-3"
-          >
-            <span className="grid size-9 place-items-center rounded-lg bg-azure/15 text-azure">
-              <AppIcon name="ai" size={18} />
-            </span>
-            <div>
-              <p className="text-sm font-semibold">AI Solutions</p>
-              <p className="text-xs text-muted-foreground">24/7 smart support</p>
-            </div>
-          </motion.div>
-        </motion.div>
+          {/* Gradient overlays on sides */}
+          <div className="pointer-events-none absolute inset-0 z-10 bg-gradient-to-b from-background/50 via-transparent to-background/50 hidden xl:block" />
+
+          {/* Center content */}
+          <div className="relative z-10 mx-auto flex max-w-[760px] flex-col items-center gap-8 lg:gap-12">
+            {/* Badge with pulsing dot */}
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+              <span className="inline-flex items-center justify-center gap-2 rounded-full bg-card px-5 py-2 text-xs font-semibold tracking-widest uppercase text-foreground/60 ring-1 ring-primary/30 shadow-[0_0_18px_0] shadow-primary/15">
+                <span className="size-[7px] shrink-0 rounded-full bg-primary animate-pulse" />
+                TOP RATED · TRUSTED BY 100+ CLIENTS
+              </span>
+            </motion.div>
+
+            {/* Heading */}
+            <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.1 }}
+              className="font-display text-center text-5xl font-extrabold tracking-tight sm:text-[56px] sm:leading-[1.05] lg:text-[72px] lg:leading-[1.07]">
+              <span className="block">We Build</span>
+              <span className="block bg-gradient-to-r from-[#7464c6] via-[#f8c640] to-[#9b8dd4] bg-clip-text text-transparent sm:mt-2">Digital Products</span>
+              <span className="block sm:mt-2">That Drive Growth<span className="font-serif">.</span></span>
+            </motion.h1>
+
+            {/* Subtitle */}
+            <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }}
+              className="hidden max-w-[640px] text-center text-lg leading-relaxed text-foreground/60 md:block">
+              Every project is built by vetted experts. From websites and mobile apps to SEO and AI — we deliver quality, on time, at competitive rates.
+            </motion.p>
+
+            {/* CTAs */}
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.3 }}
+              className="flex w-full max-w-[280px] flex-col items-center gap-3 md:max-w-none md:flex-row md:justify-center">
+              <ArrowButton href="/contact">Get Started</ArrowButton>
+              <Link href="/portfolio">
+                <span className="group inline-flex h-[52px] items-center gap-3 overflow-hidden rounded-full border bg-card pl-6 pr-2.5 text-base font-semibold text-foreground/70 transition-colors hover:bg-accent hover:text-foreground">
+                  View Portfolio
+                  <span className="relative inline-flex h-9 w-[52px] shrink-0 items-center justify-center overflow-hidden rounded-full bg-foreground/5">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+                      className="transition-transform duration-300 ease-out group-hover:translate-x-[220%]">
+                      <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
+                    </svg>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+                      className="absolute inset-0 m-auto -translate-x-[220%] transition-transform duration-300 ease-out group-hover:translate-x-0">
+                      <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
+                    </svg>
+                  </span>
+                </span>
+              </Link>
+            </motion.div>
+
+            {/* Developer CTA */}
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.4 }}
+              className="flex flex-col items-center gap-1.5 md:flex-row md:gap-2">
+              <span className="text-xs font-medium text-foreground/50">Are you a client?</span>
+              <Link href="/client/login" className="border-b border-dashed border-foreground/30 pb-0.5 text-xs font-medium text-foreground/70 transition-colors hover:border-primary hover:text-primary">
+                Login to your dashboard
+              </Link>
+            </motion.div>
+
+            {/* Trust badges */}
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.5 }}
+              className="flex items-center justify-center gap-6">
+              <TrustBadge icon="google" rating="4.7" label="from 6 reviews" />
+            </motion.div>
+          </div>
+        </div>
       </div>
     </section>
   );

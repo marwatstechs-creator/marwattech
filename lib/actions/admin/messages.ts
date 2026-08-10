@@ -76,3 +76,19 @@ export async function deleteContactMessage(id: string) {
   await logActivity(db, session, "delete", "contact_message", id);
   return { ok: true };
 }
+
+export async function deleteSupportTicket(id: string) {
+  const { session, db } = await requireStaff();
+  const { error } = await db.from("support_tickets").delete().eq("id", id);
+  if (error) return { error: error.message };
+  await logActivity(db, session, "delete", "support_ticket", id);
+  return { ok: true };
+}
+
+export async function deleteMockupRequest(id: string) {
+  const { session, db } = await requireStaff();
+  const { error } = await db.from("mockup_requests").delete().eq("id", id);
+  if (error) return { error: error.message };
+  await logActivity(db, session, "delete", "mockup_request", id);
+  return { ok: true };
+}
