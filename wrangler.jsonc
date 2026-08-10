@@ -1,0 +1,35 @@
+// Cloudflare deployment config for Marwat Tech (via @opennextjs/cloudflare).
+// Docs: https://opennext.js.org/cloudflare
+//
+// Public NEXT_PUBLIC_* values are also inlined at build time (see README).
+// Secrets (Supabase service role, SMTP credentials) should be set with
+//   `npx wrangler secret put SUPABASE_SERVICE_ROLE_KEY`
+//   `npx wrangler secret put SMTP_PASS`
+// ...and never committed to git.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "marwat-tech",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2026-08-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "vars": {
+    "NEXT_PUBLIC_SITE_URL": "https://marwattech.com",
+    "NEXT_PUBLIC_SUPABASE_URL": "https://YOUR_PROJECT.supabase.co",
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY": "your-anon-key",
+    "NEXT_PUBLIC_GTM_ID": "GTM-XXXXXXX",
+    "NEXT_PUBLIC_GA_ID": "G-XXXXXXX",
+    "NEXT_PUBLIC_CLARITY_ID": "",
+    "NEXT_PUBLIC_POSTHOG_KEY": "",
+    "NEXT_PUBLIC_POSTHOG_HOST": ""
+  },
+  "kv_namespaces": [
+    {
+      "binding": "NEXT_CACHE_WORKERS_KV",
+      "id": "REPLACE_WITH_YOUR_KV_NAMESPACE_ID"
+    }
+  ]
+}
