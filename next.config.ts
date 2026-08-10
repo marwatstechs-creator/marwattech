@@ -2,8 +2,12 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  // Required by @opennextjs/cloudflare for the standalone build output.
+  output: "standalone",
   // TypeScript already runs separately via `npm run typecheck`.
-  typescript: { ignoreBuildErrors: false },
+  // ignoreBuildErrors avoids a Next.js route-group type bug when OpenNext
+  // re-runs `next build` against an existing `.next` directory.
+  typescript: { ignoreBuildErrors: true },
   eslint: { ignoreDuringBuilds: true },
   images: {
     formats: ["image/avif", "image/webp"],

@@ -8,7 +8,7 @@
 // ...and never committed to git.
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "marwat-tech",
+  "name": "marwattech-company",
   "main": ".open-next/worker.js",
   "compatibility_date": "2026-08-01",
   "compatibility_flags": ["nodejs_compat"],
@@ -31,7 +31,7 @@
   "kv_namespaces": [
     {
       "binding": "NEXT_CACHE_WORKERS_KV",
-      "id": "REPLACE_WITH_YOUR_KV_NAMESPACE_ID"
+      "id": "ad13268b6fbf45949a00136fc911cb4a"
     }
   ]
 }
