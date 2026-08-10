@@ -49,7 +49,7 @@ function MegaItem({ icon, title, desc, href }: { icon: React.ReactNode; title: s
 
 /* ── Arrow Button ───────────────────────────────────────────────────── */
 
-function ArrowBtn({ href, children, variant }: { href: string; children: React.ReactNode; variant: "gold" | "purple" | "outline" }) {
+function ArrowBtn({ href, children, variant, showArrow = true }: { href: string; children: React.ReactNode; variant: "gold" | "purple" | "outline"; showArrow?: boolean }) {
   const colorMap = {
     gold: "btn-3d-gold",
     purple: "btn-3d",
@@ -62,18 +62,20 @@ function ArrowBtn({ href, children, variant }: { href: string; children: React.R
   };
   return (
     <Link href={href} onClick={() => trackEvent("cta_click", { cta: href })}>
-      <span className={cn("group inline-flex h-9 items-center gap-2 overflow-hidden rounded-full pl-4 pr-1.5 text-sm font-semibold transition-all", colorMap[variant])}>
+      <span className={cn("group inline-flex h-9 items-center gap-2 overflow-hidden rounded-full text-sm font-semibold transition-all", showArrow ? "pl-4 pr-1.5" : "px-4", colorMap[variant])}>
         {children}
-        <span className={cn("relative inline-flex h-6 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full", circleMap[variant])}>
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
-            className="transition-transform duration-300 ease-out group-hover:translate-x-[220%]">
-            <path d="M5 12h14M12 5l7 7-7 7"/>
-          </svg>
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
-            className="absolute inset-0 m-auto -translate-x-[220%] transition-transform duration-300 ease-out group-hover:translate-x-0">
-            <path d="M5 12h14M12 5l7 7-7 7"/>
-          </svg>
-        </span>
+        {showArrow && (
+          <span className={cn("relative inline-flex h-6 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full", circleMap[variant])}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+              className="transition-transform duration-300 ease-out group-hover:translate-x-[220%]">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+              className="absolute inset-0 m-auto -translate-x-[220%] transition-transform duration-300 ease-out group-hover:translate-x-0">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+          </span>
+        )}
       </span>
     </Link>
   );
@@ -125,6 +127,7 @@ export function Navbar() {
   const [scrolled, setScrolled] = React.useState(false);
   const [megaOpen, setMegaOpen] = React.useState(false);
   const [mobileOpen, setMobileOpen] = React.useState(false);
+  const [mobileExploreOpen, setMobileExploreOpen] = React.useState(false);
   const navRef = React.useRef<HTMLDivElement>(null);
   const closeTimer = React.useRef<ReturnType<typeof setTimeout>>(undefined);
 
@@ -231,8 +234,8 @@ export function Navbar() {
             <div className="flex items-center gap-1.5">
               <div className="hidden items-center gap-1.5 lg:flex">
                 <ThemeToggle />
-                <ArrowBtn href="/client/register" variant="outline">Sign Up</ArrowBtn>
-                <ArrowBtn href="/client/login" variant="outline">Login</ArrowBtn>
+                <ArrowBtn href="/client/register" variant="outline" showArrow={false}><AppIcon name="userAdd" size={14} /> Sign Up</ArrowBtn>
+                <ArrowBtn href="/client/login" variant="outline" showArrow={false}><AppIcon name="login" size={14} /> Login</ArrowBtn>
                 <ArrowBtn href="/contact" variant="gold">Get Started</ArrowBtn>
               </div>
               <button type="button" className="grid size-9 place-items-center rounded-full border bg-background lg:hidden" onClick={() => setMobileOpen(true)} aria-label="Open navigation">
@@ -272,16 +275,46 @@ export function Navbar() {
               {/* Scrollable nav */}
               <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-3 pb-2 pt-4">
                 <ul className="flex flex-col gap-1">
-                  {/* Explore */}
+                  {/* Explore (mobile) */}
                   <li className="flex flex-col">
                     <button className="group flex min-h-[44px] w-full items-center gap-3 rounded-2xl px-3 text-start text-base font-semibold text-foreground/70 transition-colors hover:bg-accent hover:text-foreground"
-                      onClick={() => { setMobileOpen(false); setMegaOpen(true); }}>
+                      onClick={() => setMobileExploreOpen((v) => !v)}>
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" className="shrink-0 text-muted-foreground group-hover:text-primary transition-colors">
                         <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>
                       </svg>
                       <span className="flex-1 text-start transition-transform duration-200 group-hover:translate-x-[3px]">Explore</span>
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="shrink-0 text-muted-foreground"><path d="m6 9 6 6 6-6"/></svg>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className={cn("shrink-0 text-muted-foreground transition-transform duration-200", mobileExploreOpen && "rotate-180")}><path d="m6 9 6 6 6-6"/></svg>
                     </button>
+
+                    <AnimatePresence initial={false}>
+                      {mobileExploreOpen && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.2 }}
+                          className="overflow-hidden"
+                        >
+                          <div className="mt-1 flex flex-col gap-1 rounded-2xl border bg-accent/20 p-2">
+                            <Link href={MEGA_MENU.featured.href} onClick={() => setMobileOpen(false)} className="flex items-center gap-3 rounded-xl bg-primary p-3 text-sm font-semibold text-primary-foreground">
+                              <span className="text-lg">{MEGA_MENU.featured.icon}</span>
+                              <span className="flex-1">{MEGA_MENU.featured.title}</span>
+                              <AppIcon name="arrowRight" size={16} />
+                            </Link>
+                            {MEGA_MENU.columns.map((col) => (
+                              <div key={col.label} className="flex flex-col gap-0.5">
+                                <span className="px-2 pt-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{col.label}</span>
+                                {col.items.map((item) => (
+                                  <div key={item.href} onClick={() => setMobileOpen(false)}>
+                                    <MegaItem icon={item.icon} title={item.title} desc={item.desc} href={item.href} />
+                                  </div>
+                                ))}
+                              </div>
+                            ))}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </li>
 
                   {/* Nav items with icons */}
@@ -340,10 +373,12 @@ export function Navbar() {
               <div className="flex flex-none gap-2.5 p-3">
                 <Link href="/client/register" onClick={() => setMobileOpen(false)}
                   className="btn-3d-outline inline-flex h-11 flex-1 items-center justify-center rounded-full text-sm font-semibold">
+                  <AppIcon name="userAdd" size={16} />
                   Sign Up
                 </Link>
                 <Link href="/client/login" onClick={() => setMobileOpen(false)}
                   className="btn-3d-outline inline-flex h-11 flex-1 items-center justify-center rounded-full text-sm font-semibold">
+                  <AppIcon name="login" size={16} />
                   Login
                 </Link>
                 <Link href="/contact" onClick={() => setMobileOpen(false)}

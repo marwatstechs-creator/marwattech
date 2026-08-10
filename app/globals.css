@@ -276,7 +276,7 @@
 }
 .btn-3d-outline:hover {
   transform: translateY(-1px);
-  background-color: rgba(116, 100, 198, 0.1);
+  background-color: #f1eefd;
   border-color: rgba(116, 100, 198, 0.7);
 }
 .btn-3d-outline:active {

@@ -17,15 +17,14 @@ import { createClient } from "@/lib/supabase/server";
 import {
   getFeaturedServices,
   getFeaturedProjects,
-  getFeaturedTestimonials,
   getPublishedPosts,
 } from "@/lib/db/content";
 import {
   DEMO_SERVICES,
   DEMO_PROJECTS,
   DEMO_POSTS,
-  DEMO_TESTIMONIALS,
 } from "@/lib/demo";
+import { getGoogleReviews } from "@/lib/google/reviews";
 import { buildMetadata } from "@/lib/seo";
 import { SITE } from "@/lib/constants";
 
@@ -79,23 +78,48 @@ const STEPS = [
 export default async function HomePage() {
   let services = DEMO_SERVICES;
   let projects = DEMO_PROJECTS;
-  let testimonials = DEMO_TESTIMONIALS;
   let posts = DEMO_POSTS;
+
+  // Real Google reviews for the testimonials section (no fake testimonials).
+  let googleReviews: Array<{
+    id: string;
+    client_name: string;
+    company: string | null;
+    role: string | null;
+    quote: string;
+    rating: number;
+    avatar_url: string | null;
+  }> = [];
+  let googlePlaceUrl = "https://maps.google.com/?cid=15403920924729213100";
 
   try {
     const db = await createClient();
-    const [s, p, t, postsRes] = await Promise.all([
+    const [s, p, postsRes] = await Promise.all([
       getFeaturedServices(db, 6),
       getFeaturedProjects(db, 6),
-      getFeaturedTestimonials(db, 3),
       getPublishedPosts(db, { page: 1, perPage: 3 }),
     ]);
     services = s.length ? s : DEMO_SERVICES;
     projects = p.length ? p : DEMO_PROJECTS;
-    testimonials = t.length ? t : DEMO_TESTIMONIALS.slice(0, 3);
     posts = postsRes.posts.length ? postsRes.posts : DEMO_POSTS;
   } catch {
     // Supabase not configured yet — fall back to demo content.
+  }
+
+  try {
+    const google = await getGoogleReviews();
+    googlePlaceUrl = google.place_url;
+    googleReviews = google.reviews.map((r, i) => ({
+      id: `google-${i}`,
+      client_name: r.author_name,
+      company: r.relative_time_description ?? null,
+      role: "Google Review",
+      quote: r.text || "No written review.",
+      rating: r.rating,
+      avatar_url: r.profile_photo_url,
+    }));
+  } catch {
+    // Google API unreachable — leave the section hidden rather than show fakes.
   }
 
   return (
@@ -241,24 +265,24 @@ export default async function HomePage() {
       {/* Google Reviews Banner */}
       <GoogleReviewsHomeBanner />
 
-      {/* Testimonials */}
-      {testimonials.length > 0 && (
+      {/* Google Reviews (real, from the Google Places API) */}
+      {googleReviews.length > 0 && (
         <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
           <SectionHeader
-            eyebrow="Testimonials"
+            eyebrow="Google Reviews"
             title="What our clients say"
-            description="Real feedback from businesses we’ve helped grow."
+            description="Real feedback straight from our Google Business Profile."
           />
           <div className="grid gap-6 md:grid-cols-3">
-            {testimonials.map((t) => (
+            {googleReviews.slice(0, 6).map((t) => (
               <TestimonialCard key={t.id} t={t} />
             ))}
           </div>
           <div className="mt-10 text-center">
-            <Link href="/testimonials">
-              <Button variant="ghost">
-                Read more reviews
-                <AppIcon name="arrowRight" size={16} />
+            <Link href={googlePlaceUrl} target="_blank" rel="noopener noreferrer">
+              <Button variant="outline">
+                Leave a review on Google
+                <AppIcon name="external" size={16} />
               </Button>
             </Link>
           </div>
