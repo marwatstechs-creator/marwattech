@@ -212,6 +212,14 @@ export default async function BlogPostPage({ params }: Props) {
           dangerouslySetInnerHTML={{ __html: content }}
         />
 
+        {/* Custom HTML / CSS / JS */}
+        {post.custom_html ? (
+          <div
+            className="mt-10"
+            dangerouslySetInnerHTML={{ __html: post.custom_html }}
+          />
+        ) : null}
+
         {/* Tags */}
         {post.post_tags && post.post_tags.length > 0 && (
           <div className="mt-10 flex flex-wrap gap-2 border-t pt-6">

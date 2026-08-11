@@ -17,6 +17,7 @@ const postSchema = z.object({
     .regex(/^[a-z0-9-]+$/, "Use lowercase letters, numbers and hyphens"),
   excerpt: z.string().max(500).optional().or(z.literal("")),
   content: z.string().min(1, "Content is required"),
+  custom_html: z.string().optional().or(z.literal("")),
   cover_image: z.string().max(600).optional().or(z.literal("")),
   author_id: z.string().uuid().nullable().optional(),
   category_id: z.string().uuid().nullable().optional(),

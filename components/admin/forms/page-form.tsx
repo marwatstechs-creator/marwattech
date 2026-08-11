@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/select";
 import { SlugField } from "@/components/admin/slug-field";
 import { RichTextEditor } from "@/components/admin/rich-text-editor";
+import { CustomHtmlField } from "@/components/admin/custom-html-field";
 import { createPage, updatePage, type PageInput } from "@/lib/actions/admin/pages";
 
 export function PageForm({
@@ -34,6 +35,7 @@ export function PageForm({
     title: initial?.title ?? "",
     slug: initial?.slug ?? "",
     content: initial?.content ?? "",
+    custom_html: initial?.custom_html ?? "",
     status: (initial?.status ?? "draft") as "draft" | "published" | "archived",
     meta_title: initial?.meta_title ?? "",
     meta_description: initial?.meta_description ?? "",
@@ -99,6 +101,8 @@ export function PageForm({
               <RichTextEditor value={form.content ?? ""} onChange={(v) => set("content", v)} />
             </CardContent>
           </Card>
+
+          <CustomHtmlField value={form.custom_html ?? ""} onChange={(v) => set("custom_html", v)} />
         </div>
 
         {/* Sidebar */}

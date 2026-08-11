@@ -15,6 +15,7 @@ const pageSchema = z.object({
     .max(250)
     .regex(/^[a-z0-9-]+$/, "Use lowercase letters, numbers and hyphens"),
   content: z.string().min(1, "Content is required"),
+  custom_html: z.string().optional().or(z.literal("")),
   status: z.enum(["draft", "published", "archived"]).default("draft"),
   meta_title: z.string().max(200).optional().or(z.literal("")),
   meta_description: z.string().max(300).optional().or(z.literal("")),
@@ -34,6 +35,7 @@ export async function createPage(input: PageInput) {
       title: parsed.data.title,
       slug: parsed.data.slug,
       content: parsed.data.content,
+      custom_html: parsed.data.custom_html || null,
       status: parsed.data.status,
       meta_title: parsed.data.meta_title || null,
       meta_description: parsed.data.meta_description || null,
@@ -58,6 +60,7 @@ export async function updatePage(id: string, input: PageInput) {
       title: parsed.data.title,
       slug: parsed.data.slug,
       content: parsed.data.content,
+      custom_html: parsed.data.custom_html || null,
       status: parsed.data.status,
       meta_title: parsed.data.meta_title || null,
       meta_description: parsed.data.meta_description || null,

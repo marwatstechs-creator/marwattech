@@ -41,6 +41,7 @@ export default async function PageDetailPage({ params }: Props) {
   let page: {
     title: string;
     content: string;
+    custom_html: string | null;
     meta_description: string | null;
   } | null = null;
 
@@ -48,7 +49,7 @@ export default async function PageDetailPage({ params }: Props) {
     const db = await createClient();
     const { data } = await db
       .from("pages")
-      .select("title, content, meta_description")
+      .select("title, content, custom_html, meta_description")
       .eq("slug", slug)
       .eq("status", "published")
       .maybeSingle();
@@ -70,6 +71,12 @@ export default async function PageDetailPage({ params }: Props) {
           className="prose-cms"
           dangerouslySetInnerHTML={{ __html: content }}
         />
+        {page.custom_html ? (
+          <div
+            className="mt-10"
+            dangerouslySetInnerHTML={{ __html: page.custom_html }}
+          />
+        ) : null}
       </section>
 
       <CtaBanner />

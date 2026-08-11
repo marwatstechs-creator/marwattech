@@ -53,6 +53,7 @@ export default async function EditPostPage({ params }: Props) {
           slug: String(post.slug ?? ""),
           excerpt: String(post.excerpt ?? ""),
           content: String(post.content ?? ""),
+          custom_html: String(post.custom_html ?? ""),
           cover_image: String(post.cover_image ?? ""),
           author_id: String(post.author_id ?? ""),
           category_id: String(post.category_id ?? ""),

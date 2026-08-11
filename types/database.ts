@@ -159,6 +159,7 @@ export interface Database {
           title: string;
           slug: string;
           content: string;
+          custom_html: string | null;
           status: ContentStatus;
           meta_title: string | null;
           meta_description: string | null;
@@ -170,6 +171,7 @@ export interface Database {
           title: string;
           slug: string;
           content?: string;
+          custom_html?: string | null;
           status?: ContentStatus;
           meta_title?: string | null;
           meta_description?: string | null;
@@ -181,6 +183,7 @@ export interface Database {
           title?: string;
           slug?: string;
           content?: string;
+          custom_html?: string | null;
           status?: ContentStatus;
           meta_title?: string | null;
           meta_description?: string | null;
@@ -340,6 +343,7 @@ export interface Database {
           slug: string;
           excerpt: string | null;
           content: string;
+          custom_html: string | null;
           cover_image: string | null;
           author_id: string | null;
           category_id: string | null;
@@ -361,6 +365,7 @@ export interface Database {
           slug: string;
           excerpt?: string | null;
           content: string;
+          custom_html?: string | null;
           cover_image?: string | null;
           author_id?: string | null;
           category_id?: string | null;
@@ -382,6 +387,7 @@ export interface Database {
           slug?: string;
           excerpt?: string | null;
           content?: string;
+          custom_html?: string | null;
           cover_image?: string | null;
           author_id?: string | null;
           category_id?: string | null;

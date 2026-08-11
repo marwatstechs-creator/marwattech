@@ -17,7 +17,7 @@ export default async function AdminEditPage({
   const db = await createClient();
   const { data: page } = await db
     .from("pages")
-    .select("id, title, slug, content, status, meta_title, meta_description")
+    .select("id, title, slug, content, custom_html, status, meta_title, meta_description")
     .eq("id", id)
     .maybeSingle();
 
@@ -36,6 +36,7 @@ export default async function AdminEditPage({
           title: page.title,
           slug: page.slug,
           content: page.content,
+          custom_html: page.custom_html ?? "",
           status: page.status,
           meta_title: page.meta_title ?? "",
           meta_description: page.meta_description ?? "",

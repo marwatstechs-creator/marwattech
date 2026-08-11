@@ -12,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { SlugField } from "@/components/admin/slug-field";
 import { RichTextEditor } from "@/components/admin/rich-text-editor";
+import { CustomHtmlField } from "@/components/admin/custom-html-field";
 import { SeoFields } from "@/components/admin/seo-fields";
 import { ImageField } from "@/components/admin/image-field";
 import {
@@ -44,6 +45,7 @@ export function PostForm({
     slug: initial?.slug ?? "",
     excerpt: initial?.excerpt ?? "",
     content: initial?.content ?? "",
+    custom_html: initial?.custom_html ?? "",
     cover_image: initial?.cover_image ?? "",
     author_id: initial?.author_id ?? "",
     category_id: initial?.category_id ?? "",
@@ -121,6 +123,8 @@ export function PostForm({
               <RichTextEditor value={form.content ?? ""} onChange={(v) => set("content", v)} />
             </CardContent>
           </Card>
+
+          <CustomHtmlField value={form.custom_html ?? ""} onChange={(v) => set("custom_html", v)} />
         </div>
 
         <div className="space-y-6">
