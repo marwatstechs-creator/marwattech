@@ -12,9 +12,10 @@ type DB = SupabaseClient<Database>;
  * URL (add to PayPal Dashboard → Notifications → Webhooks → Add Webhook):
  *   https://marwattech-company.marwatstechs.workers.dev/api/paypal/webhook
  *
- * Set the PAYPAL_WEBHOOK_ID env var (from the webhook details page) to enable
- * signature verification. Without it the handler still processes events but
- * doesn't verify the sender (intended for sandbox testing).
+ * Set the PAYPAL_WEBHOOK_ID (env or payment_gateways.webhook_id) to enable
+ * signature verification. In live mode the handler FAILS CLOSED — events are
+ * rejected when no webhook id is configured so forged events can't be trusted.
+ * Only an explicit sandbox setup may process events without verification.
  *
  * Handles: payments, subscriptions, invoices, disputes, vault tokens,
  * payouts + records every event for audit/replay.
@@ -46,7 +47,7 @@ export async function POST(request: Request) {
   const resource = event.resource ?? {};
 
   try {
-    // 1) Verify signature when a webhook id is configured.
+    // 1) Verify signature (fails closed in live).
     const verified = await verifyWebhook(request, raw);
     if (!verified.ok) {
       return NextResponse.json(
@@ -55,8 +56,21 @@ export async function POST(request: Request) {
       );
     }
 
-    // 2) Record every event (audit / replay).
     const db = createAdminClient();
+
+    // 2) Dedup by PayPal event id — never reprocess a delivered event.
+    if (event.id) {
+      const { data: existing } = await db
+        .from("webhook_events")
+        .select("id")
+        .eq("event_id", event.id)
+        .maybeSingle();
+      if (existing) {
+        return NextResponse.json({ received: true });
+      }
+    }
+
+    // 3) Record every event (audit / replay).
     await db.from("webhook_events").insert({
       event_id: event.id,
       event_type: eventType,
@@ -66,7 +80,7 @@ export async function POST(request: Request) {
       processed_at: new Date().toISOString(),
     });
 
-    // 3) Dispatch to the matching handler.
+    // 4) Dispatch to the matching handler.
     await handleEvent(db, eventType, resource);
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
@@ -83,8 +97,8 @@ export async function POST(request: Request) {
     } catch {
       /* best-effort logging */
     }
-    // Ack anyway so PayPal doesn't retry forever on non-critical events.
-    return NextResponse.json({ received: true });
+    // Return a non-2xx so PayPal redelivers (reconciliation depends on it).
+    return NextResponse.json({ error: message.slice(0, 200) }, { status: 500 });
   }
 
   return NextResponse.json({ received: true });
@@ -99,7 +113,11 @@ async function verifyWebhook(
   const cfg = await resolvePaypalConfig();
   const webhookId = cfg.webhookId;
   if (!webhookId) {
-    // No webhook id configured — accept (sandbox/testing mode).
+    // Fail closed: without a webhook id we cannot verify the sender, so we
+    // must not trust any event. Only an explicit sandbox setup may skip it.
+    if (cfg.env !== "sandbox") {
+      return { ok: false, reason: "Webhook id not configured" };
+    }
     return { ok: true };
   }
 

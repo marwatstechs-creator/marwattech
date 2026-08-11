@@ -119,7 +119,7 @@ create index if not exists paypal_subscriptions_email_idx on public.paypal_subsc
 create table if not exists public.payment_methods (
   id uuid primary key default gen_random_uuid(),
   customer_email text,
-  paypal_payment_token_id text,
+  paypal_payment_token_id text unique,
   instrument_type text,
   brand text,
   last4 text,

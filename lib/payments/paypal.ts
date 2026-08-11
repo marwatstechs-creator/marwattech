@@ -363,6 +363,45 @@ export async function capturePayPalOrder(
   };
 }
 
+/** Refund a captured PayPal payment (Orders API v2). Returns the refund id. */
+export async function refundPayPalCapture(
+  captureId: string,
+  amount?: number,
+  currency?: string
+): Promise<{ refundId: string | null; status: string }> {
+  const cfg = await resolvePaypalConfig();
+  const token = await getAccessToken(cfg);
+
+  const body: Record<string, unknown> = {};
+  if (amount != null && currency) {
+    body.amount = { value: amount.toFixed(2), currency_code: currency };
+  }
+
+  const res = await fetch(`${cfg.apiBase}/v2/payments/captures/${captureId}/refund`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+    cache: "no-store",
+  });
+
+  const data = (await res.json()) as {
+    id?: string;
+    status?: string;
+    message?: string;
+    details?: { issue?: string; description?: string }[];
+  };
+  if (!res.ok) {
+    const detail = data.details?.[0];
+    throw new Error(
+      `PAYPAL_REFUND_FAILED ${res.status} ${data.message ?? ""} ${detail?.issue ?? ""} ${detail?.description ?? ""}`
+    );
+  }
+  return { refundId: data.id ?? null, status: data.status ?? "UNKNOWN" };
+}
+
 /**
  * v6 vault-with-purchase: after a successful capture, GET the order to surface
  * the vault token at payment_source.paypal.attributes.vault.id (it isn't always

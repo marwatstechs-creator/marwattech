@@ -11,10 +11,16 @@ async function makeClient(): Promise<DB> {
   return await createClient();
 }
 
+/** Roles allowed to use the admin console and admin server actions. */
+const ADMIN_ROLES: string[] = ["super_admin", "editor", "support"];
+
 /** Returns the session + a RLS-respecting server client, redirecting if needed. */
 export async function requireStaff() {
   const session = await getSessionUser();
   if (!session) redirect("/admin/login");
+  // Enforce the role here (not just in the layout) so every admin server
+  // action is protected even when it is called directly.
+  if (!ADMIN_ROLES.includes(session.profile.role)) redirect("/admin");
   const db = await makeClient();
   return { session, db };
 }

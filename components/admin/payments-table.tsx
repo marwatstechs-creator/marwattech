@@ -45,6 +45,7 @@ import {
   recordManualPayment,
   updatePaymentStatus,
   deletePayment,
+  refundPayment,
 } from "@/lib/actions/payments";
 import {
   CURRENCIES,
@@ -235,57 +236,126 @@ function RecordManualPaymentDialog() {
 
 function RowActions({ row, isSuper }: { row: PaymentRow; isSuper: boolean }) {
   const [busy, setBusy] = React.useState(false);
-  const run = async (fn: () => Promise<{ ok?: boolean; error?: string }>) => {
+  const [confirmAction, setConfirmAction] = React.useState<
+    null | { kind: "refund" } | { kind: "delete" }
+  >(null);
+
+  const run = async (
+    fn: () => Promise<{ ok?: boolean; error?: string }>,
+    success = "Updated"
+  ) => {
     setBusy(true);
     const res = await fn();
     setBusy(false);
     if (!res.ok) toast.error(res.error || "Action failed");
-    else toast.success("Updated");
+    else toast.success(success);
+  };
+
+  const runConfirmed = async (
+    fn: () => Promise<{ ok?: boolean; error?: string }>,
+    success: string
+  ) => {
+    setBusy(true);
+    const res = await fn();
+    setBusy(false);
+    setConfirmAction(null);
+    if (!res.ok) toast.error(res.error || "Action failed");
+    else toast.success(success);
   };
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="sm" className="h-8 w-8 p-0" disabled={busy}>
-          <AppIcon name="settings" size={16} />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-48">
-        <DropdownMenuLabel>{row.order_id}</DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        {row.status === "pending" && (
-          <>
-            <DropdownMenuItem onClick={() => run(() => updatePaymentStatus(row.id, "completed"))}>
-              <AppIcon name="check" size={15} /> Mark completed
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => run(() => updatePaymentStatus(row.id, "cancelled"))}>
-              <AppIcon name="close" size={15} /> Cancel payment
-            </DropdownMenuItem>
-          </>
-        )}
-        {row.status === "completed" && (
-          <DropdownMenuItem onClick={() => run(() => updatePaymentStatus(row.id, "refunded"))}>
-            <AppIcon name="refresh" size={15} /> Mark refunded
-          </DropdownMenuItem>
-        )}
-        {row.status === "failed" && (
-          <DropdownMenuItem onClick={() => run(() => updatePaymentStatus(row.id, "cancelled"))}>
-            <AppIcon name="close" size={15} /> Cancel
-          </DropdownMenuItem>
-        )}
-        {isSuper && (
-          <>
-            <DropdownMenuSeparator />
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" size="sm" className="h-8 w-8 p-0" disabled={busy}>
+            <AppIcon name="settings" size={16} />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-48">
+          <DropdownMenuLabel>{row.order_id}</DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          {row.status === "pending" && (
+            <>
+              <DropdownMenuItem onClick={() => run(() => updatePaymentStatus(row.id, "completed"))}>
+                <AppIcon name="check" size={15} /> Mark completed
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => run(() => updatePaymentStatus(row.id, "cancelled"))}>
+                <AppIcon name="close" size={15} /> Cancel payment
+              </DropdownMenuItem>
+            </>
+          )}
+          {row.status === "completed" && (
             <DropdownMenuItem
-              className="text-destructive focus:text-destructive"
-              onClick={() => run(() => deletePayment(row.id))}
+              onClick={() => setConfirmAction({ kind: "refund" })}
+              disabled={busy}
             >
-              <AppIcon name="delete" size={15} /> Delete record
+              <AppIcon name="refresh" size={15} /> Refund payment
             </DropdownMenuItem>
-          </>
-        )}
-      </DropdownMenuContent>
-    </DropdownMenu>
+          )}
+          {row.status === "failed" && (
+            <DropdownMenuItem onClick={() => run(() => updatePaymentStatus(row.id, "cancelled"))}>
+              <AppIcon name="close" size={15} /> Cancel
+            </DropdownMenuItem>
+          )}
+          {isSuper && (
+            <>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                className="text-destructive focus:text-destructive"
+                onClick={() => setConfirmAction({ kind: "delete" })}
+                disabled={busy}
+              >
+                <AppIcon name="delete" size={15} /> Delete record
+              </DropdownMenuItem>
+            </>
+          )}
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      <Dialog
+        open={confirmAction !== null}
+        onOpenChange={(o) => !o && setConfirmAction(null)}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>
+              {confirmAction?.kind === "refund"
+                ? "Refund this payment?"
+                : "Delete this payment record?"}
+            </DialogTitle>
+            <DialogDescription>
+              {confirmAction?.kind === "refund"
+                ? "This issues a real refund through PayPal (when a capture exists) and marks the payment refunded. This cannot be undone."
+                : "This permanently removes the payment record and cannot be undone."}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setConfirmAction(null)}
+              disabled={busy}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant={confirmAction?.kind === "delete" ? "destructive" : "default"}
+              disabled={busy}
+              onClick={() =>
+                confirmAction?.kind === "refund"
+                  ? runConfirmed(() => refundPayment(row.id), "Refund initiated")
+                  : runConfirmed(() => deletePayment(row.id), "Payment record deleted")
+              }
+            >
+              {busy
+                ? "Working…"
+                : confirmAction?.kind === "refund"
+                  ? "Refund"
+                  : "Delete"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
 

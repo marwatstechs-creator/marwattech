@@ -10,6 +10,7 @@ import {
   createPayPalOrder,
   capturePayPalOrder,
   getOrderVaultToken,
+  refundPayPalCapture,
   resolvePaypalConfig,
 } from "@/lib/payments/paypal";
 import {
@@ -164,13 +165,31 @@ export async function capturePayPalCheckout(
 
     const { data: row } = await db
       .from("payments")
-      .select("id, amount, currency")
+      .select("id, amount, currency, paypal_order_id")
       .eq("order_id", internalOrderId)
       .single();
 
     if (!row) return { ok: false, error: "Order not found." };
 
+    // Integrity: the captured order must be the one we created for this row.
+    if (row.paypal_order_id && row.paypal_order_id !== paypalOrderId) {
+      await db.from("payments").update({ status: "failed" }).eq("id", row.id);
+      return { ok: false, error: "Payment verification failed." };
+    }
+
     if (capture.status === "COMPLETED") {
+      // Integrity: the amount PayPal captured must match what we reserved.
+      const amountMatches =
+        capture.grossAmount == null ||
+        Math.abs(capture.grossAmount - Number(row.amount)) < 0.01;
+      const currencyMatches =
+        !capture.currency ||
+        capture.currency.toUpperCase() === String(row.currency).toUpperCase();
+      if (!amountMatches || !currencyMatches) {
+        await db.from("payments").update({ status: "failed" }).eq("id", row.id);
+        return { ok: false, error: "Payment amount verification failed." };
+      }
+
       await db
         .from("payments")
         .update({
@@ -363,7 +382,9 @@ export async function recordManualPayment(input: z.infer<typeof manualSchema>) {
 
 const STATUS_TRANSITIONS: Record<PaymentStatus, PaymentStatus[]> = {
   pending: ["completed", "cancelled", "failed"],
-  completed: ["refunded"],
+  // "refunded" is intentionally NOT here: refunds must go through
+  // refundPayment() so the money is actually returned via PayPal.
+  completed: [],
   failed: ["cancelled"],
   cancelled: [],
   refunded: [],
@@ -375,7 +396,7 @@ export async function updatePaymentStatus(id: string, status: PaymentStatus) {
 
   const { data: current } = await db
     .from("payments")
-    .select("status, order_id")
+    .select("status, order_id, metadata")
     .eq("id", id)
     .single();
   if (!current) return { error: "Payment not found" };
@@ -385,15 +406,79 @@ export async function updatePaymentStatus(id: string, status: PaymentStatus) {
     return { error: `Cannot change ${current.status} → ${status}` };
   }
 
+  // Preserve existing capture metadata (audit trail) instead of wiping it.
   const { error } = await db
     .from("payments")
-    .update({ status, metadata: { status_changed_by: session.user.email, changed_at: new Date().toISOString() } })
+    .update({
+      status,
+      metadata: {
+        ...((current.metadata as Record<string, unknown>) ?? {}),
+        status_changed_by: session.user.email,
+        changed_at: new Date().toISOString(),
+      },
+    })
     .eq("id", id);
   if (error) return { error: error.message };
 
   await logActivity(db, session, "payment_status", "payment", id, {
     from: current.status,
     to: status,
+  });
+  revalidatePath("/admin/payments");
+  revalidatePath("/admin");
+  return { ok: true };
+}
+
+/* ── Admin: issue a REAL PayPal refund (money is actually returned) ────── */
+
+export async function refundPayment(id: string) {
+  const { session, db } = await requireStaff();
+
+  const { data: current } = await db
+    .from("payments")
+    .select("status, order_id, paypal_capture_id, amount, currency, metadata")
+    .eq("id", id)
+    .single();
+  if (!current) return { error: "Payment not found" };
+  if (current.status !== "completed") {
+    return { error: "Only completed payments can be refunded." };
+  }
+
+  // Issue the refund through PayPal when we have a capture to refund.
+  if (current.paypal_capture_id) {
+    try {
+      await refundPayPalCapture(
+        current.paypal_capture_id,
+        Number(current.amount),
+        current.currency
+      );
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "unknown error";
+      return { error: `PayPal refund failed: ${message}` };
+    }
+  } else {
+    return {
+      error: "No PayPal capture found for this payment — refund it in the PayPal dashboard instead.",
+    };
+  }
+
+  const { error } = await db
+    .from("payments")
+    .update({
+      status: "refunded",
+      metadata: {
+        ...((current.metadata as Record<string, unknown>) ?? {}),
+        refunded_by: session.user.email,
+        refunded_at: new Date().toISOString(),
+      },
+    })
+    .eq("id", id);
+  if (error) return { error: error.message };
+
+  await logActivity(db, session, "payment_refund", "payment", id, {
+    from: current.status,
+    to: "refunded",
+    order_id: current.order_id,
   });
   revalidatePath("/admin/payments");
   revalidatePath("/admin");
