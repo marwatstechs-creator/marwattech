@@ -86,12 +86,13 @@ export default async function AdminBlogPage() {
                   </TableCell>
                   <TableCell>
                     <RowActions
+                      itemId={p.id}
                       editHref={`/admin/blog/${p.id}`}
                       viewHref={`/blog/${p.slug}`}
                       status={p.status}
                       statusOptions={["draft", "published", "archived"]}
-                      onStatusChange={(status) => togglePostStatus(p.id, status as "draft" | "published" | "archived")}
-                      onDelete={() => deletePost(p.id)}
+                      onStatusChange={togglePostStatus}
+                      onDelete={deletePost}
                       label="post"
                     />
                   </TableCell>

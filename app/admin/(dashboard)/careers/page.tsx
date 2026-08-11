@@ -82,11 +82,12 @@ export default async function AdminCareersPage() {
                   <TableCell>{j.job_type ?? "—"}</TableCell>
                   <TableCell>
                     <RowActions
+                      itemId={j.id}
                       editHref={`/admin/careers/${j.id}`}
                       status={j.status}
                       statusOptions={["draft", "published", "archived"]}
-                      onStatusChange={(status) => toggleCareerStatus(j.id, status as "draft" | "published" | "archived")}
-                      onDelete={() => deleteCareer(j.id)}
+                      onStatusChange={toggleCareerStatus}
+                      onDelete={deleteCareer}
                       label="position"
                     />
                   </TableCell>

@@ -18,10 +18,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 type RowActionsProps = {
+  itemId: string;
   editHref: string;
-  onDelete?: () => Promise<{ error?: string } | { ok: boolean }>;
+  onDelete?: (id: string) => Promise<{ error?: string } | { ok: boolean }>;
   status?: string;
-  onStatusChange?: (status: string) => Promise<{ error?: string } | { ok: boolean }>;
+  onStatusChange?: (
+    id: string,
+    status: "draft" | "published" | "archived"
+  ) => Promise<{ error?: string } | { ok: boolean }>;
   statusOptions?: string[];
   viewHref?: string;
   label?: string;
@@ -41,6 +45,7 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 export function RowActions({
+  itemId,
   editHref,
   onDelete,
   status,
@@ -53,7 +58,7 @@ export function RowActions({
 
   const changeStatus = async (next: string) => {
     if (!onStatusChange) return;
-    const res = await onStatusChange(next);
+    const res = await onStatusChange(itemId, next as "draft" | "published" | "archived");
     if ("error" in res && res.error) {
       toast.error(res.error);
       return;
@@ -95,7 +100,7 @@ export function RowActions({
           </Button>
         </Link>
       )}
-      {onDelete && <DeleteButton onDelete={onDelete} label={label} />}
+      {onDelete && <DeleteButton itemId={itemId} onDelete={onDelete} label={label} />}
     </div>
   );
 }

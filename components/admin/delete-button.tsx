@@ -16,10 +16,12 @@ import {
 } from "@/components/ui/dialog";
 
 export function DeleteButton({
+  itemId,
   onDelete,
   label = "item",
 }: {
-  onDelete: () => Promise<{ error?: string } | { ok: boolean }>;
+  itemId: string;
+  onDelete: (id: string) => Promise<{ error?: string } | { ok: boolean }>;
   label?: string;
 }) {
   const router = useRouter();
@@ -28,7 +30,7 @@ export function DeleteButton({
 
   const confirm = async () => {
     setPending(true);
-    const res = await onDelete();
+    const res = await onDelete(itemId);
     setPending(false);
     if ("error" in res && res.error) {
       toast.error(res.error);

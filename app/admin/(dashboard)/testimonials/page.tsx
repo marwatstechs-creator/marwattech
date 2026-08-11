@@ -82,11 +82,12 @@ export default async function AdminTestimonialsPage() {
                   <TableCell>{t.featured ? "★" : "—"}</TableCell>
                   <TableCell>
                     <RowActions
+                      itemId={t.id}
                       editHref={`/admin/testimonials/${t.id}`}
                       status={t.status}
                       statusOptions={["published", "draft", "archived"]}
-                      onStatusChange={(status) => toggleTestimonialStatus(t.id, status as "draft" | "published" | "archived")}
-                      onDelete={() => deleteTestimonial(t.id)}
+                      onStatusChange={toggleTestimonialStatus}
+                      onDelete={deleteTestimonial}
                       label="testimonial"
                     />
                   </TableCell>

@@ -89,12 +89,13 @@ export default async function AdminServicesPage() {
                   </TableCell>
                   <TableCell>
                     <RowActions
+                      itemId={s.id}
                       editHref={`/admin/services/${s.id}`}
                       viewHref={`/services/${s.slug}`}
                       status={s.status}
                       statusOptions={["draft", "published", "archived"]}
-                      onStatusChange={(status) => toggleServiceStatus(s.id, status as "draft" | "published" | "archived")}
-                      onDelete={() => deleteService(s.id)}
+                      onStatusChange={toggleServiceStatus}
+                      onDelete={deleteService}
                       label="service"
                     />
                   </TableCell>

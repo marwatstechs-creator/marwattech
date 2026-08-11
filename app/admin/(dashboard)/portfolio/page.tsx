@@ -92,12 +92,13 @@ export default async function AdminPortfolioPage() {
                   </TableCell>
                   <TableCell>
                     <RowActions
+                      itemId={p.id}
                       editHref={`/admin/portfolio/${p.id}`}
                       viewHref={`/portfolio/${p.slug}`}
                       status={p.status}
                       statusOptions={["draft", "published", "archived"]}
-                      onStatusChange={(status) => togglePortfolioStatus(p.id, status as "draft" | "published" | "archived")}
-                      onDelete={() => deletePortfolioItem(p.id)}
+                      onStatusChange={togglePortfolioStatus}
+                      onDelete={deletePortfolioItem}
                       label="project"
                     />
                   </TableCell>
