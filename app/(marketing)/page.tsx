@@ -73,7 +73,7 @@ const STEPS = [
   { step: "01", icon: "chat", title: "Tell us your idea", text: "Share your goals through the free mockup form or a quick call.", footer: "Free 30-minute consultation" },
   { step: "02", icon: "sparkles", title: "Get your free mockup", text: "We design a homepage concept so you can see your vision first.", footer: "No obligation, no cost" },
   { step: "03", icon: "rocket", title: "We build & launch", text: "Agile development with demos, then launch with training and support.", footer: "Launch in as little as 2 weeks" },
-];
+] as const;
 
 export default async function HomePage() {
   let services = DEMO_SERVICES;

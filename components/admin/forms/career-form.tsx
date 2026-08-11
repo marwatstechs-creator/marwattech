@@ -53,11 +53,11 @@ export function CareerForm({
     setPending(true);
     const payload: CareerInput = {
       ...form,
-      department: form.department || null,
-      location: form.location || null,
-      salary_range: form.salary_range || null,
-      description: form.description || null,
-      requirements: form.requirements || null,
+      department: form.department || "",
+      location: form.location || "",
+      salary_range: form.salary_range || "",
+      description: form.description || "",
+      requirements: form.requirements || "",
     } as CareerInput;
 
     const res = initial?.id

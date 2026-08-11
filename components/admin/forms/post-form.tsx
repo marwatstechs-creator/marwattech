@@ -69,8 +69,8 @@ export function PostForm({
       tags: tagNames,
       author_id: form.author_id || null,
       category_id: form.category_id || null,
-      excerpt: form.excerpt || null,
-      cover_image: form.cover_image || null,
+      excerpt: form.excerpt || "",
+      cover_image: form.cover_image || "",
     } as PostInput;
 
     const res = initial?.id

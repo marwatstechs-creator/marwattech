@@ -69,8 +69,8 @@ export function ServiceForm({
     const payload: ServiceInput = {
       ...form,
       category_id: form.category_id || null,
-      icon: form.icon || null,
-      summary: form.summary || null,
+      icon: form.icon || "",
+      summary: form.summary || "",
     } as ServiceInput;
 
     const res = initial?.id

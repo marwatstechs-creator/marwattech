@@ -54,9 +54,9 @@ export function TestimonialForm({
     setPending(true);
     const payload: TestimonialInput = {
       ...form,
-      company: form.company || null,
-      role: form.role || null,
-      avatar_url: form.avatar_url || null,
+      company: form.company || "",
+      role: form.role || "",
+      avatar_url: form.avatar_url || "",
     } as TestimonialInput;
 
     const res = initial?.id

@@ -82,11 +82,11 @@ export function PortfolioForm({
       technologies,
       images: form.images.map((img) => ({ url: img.url ?? "", alt: img.alt })),
       category_id: form.category_id || null,
-      client_name: form.client_name || null,
-      industry: form.industry || null,
-      summary: form.summary || null,
-      project_url: form.project_url || null,
-      cover_image: form.cover_image || null,
+      client_name: form.client_name || "",
+      industry: form.industry || "",
+      summary: form.summary || "",
+      project_url: form.project_url || "",
+      cover_image: form.cover_image || "",
     } as PortfolioInput;
 
     const res = initial?.id

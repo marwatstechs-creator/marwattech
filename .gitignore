@@ -3,6 +3,9 @@
 /.pnp
 .pnp.*
 
+# local npm cache (used when the sandbox blocks ~/.npm)
+/.npm-cache
+
 # next.js
 /.next/
 /out/
