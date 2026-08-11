@@ -62,7 +62,7 @@ function ArrowBtn({ href, children, variant, showArrow = true }: { href: string;
   };
   return (
     <Link href={href} onClick={() => trackEvent("cta_click", { cta: href })}>
-      <span className={cn("group inline-flex h-9 items-center gap-2 overflow-hidden rounded-full text-sm font-semibold transition-all", showArrow ? "pl-4 pr-1.5" : "px-4", colorMap[variant])}>
+      <span className={cn("group inline-flex h-9 items-center gap-2 whitespace-nowrap overflow-hidden rounded-full text-sm font-semibold transition-all", showArrow ? "pl-4 pr-1.5" : "px-4", colorMap[variant])}>
         {children}
         {showArrow && (
           <span className={cn("relative inline-flex h-6 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full", circleMap[variant])}>
@@ -164,7 +164,7 @@ export function Navbar() {
                 onMouseEnter={() => { clearTimeout(closeTimer.current); setMegaOpen(true); }}
                 onMouseLeave={() => { closeTimer.current = setTimeout(() => setMegaOpen(false), 200); }}>
                 <button
-                  className={cn("inline-flex items-center gap-1 rounded-full px-3 py-2 text-sm font-medium transition-colors", megaOpen ? "text-foreground" : "text-foreground/60 hover:text-foreground")}>
+                  className={cn("inline-flex items-center gap-1 whitespace-nowrap rounded-full px-3 py-2 text-sm font-medium transition-colors", megaOpen ? "text-foreground" : "text-foreground/60 hover:text-foreground")}>
                   Explore
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"
                     className={cn("transition-transform duration-200", megaOpen && "rotate-180")}>
@@ -186,7 +186,7 @@ export function Navbar() {
                         {MEGA_MENU.featured.title}
                       </span>
                       <p className="mt-1.5 text-sm text-muted-foreground mb-6">{MEGA_MENU.featured.desc}</p>
-                      <Link href={MEGA_MENU.featured.href} onClick={() => setMegaOpen(false)} className="group mt-auto inline-flex items-center justify-between rounded-full btn-3d pb-1.5 pl-5 pr-1.5 pt-1.5 text-sm font-medium">
+                      <Link href={MEGA_MENU.featured.href} onClick={() => setMegaOpen(false)} className="group mt-auto inline-flex items-center justify-between whitespace-nowrap rounded-full btn-3d pb-1.5 pl-5 pr-1.5 pt-1.5 text-sm font-medium">
                         {MEGA_MENU.featured.cta}
                         <span className="relative flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary-foreground/15">
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="transition-transform duration-300 ease-out group-hover:translate-x-[220%]">
@@ -226,7 +226,7 @@ export function Navbar() {
                 ] as const
               ).map((item) => (
                 <Link key={item.href} href={item.href}
-                  className={cn("inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-sm font-medium transition-colors", isActive(item.href) ? "text-foreground" : "text-foreground/60 hover:text-foreground")}>
+                  className={cn("inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-2 text-sm font-medium transition-colors", isActive(item.href) ? "text-foreground" : "text-foreground/60 hover:text-foreground")}>
                   {item.href === "/portfolio" ? (
                     <span className="inline-flex shrink-0">
                       <img src="/assets/logo-light-square.svg" alt="" className="h-4 w-4 dark:hidden" />
@@ -389,17 +389,17 @@ export function Navbar() {
               {/* CTA buttons */}
               <div className="flex flex-none gap-2.5 p-3">
                 <Link href="/client/register" onClick={() => setMobileOpen(false)}
-                  className="btn-3d-outline inline-flex h-11 flex-1 items-center justify-center rounded-full text-sm font-semibold">
+                  className="btn-3d-outline inline-flex h-11 flex-1 items-center justify-center whitespace-nowrap rounded-full text-sm font-semibold">
                   <AppIcon name="userAdd" size={16} />
                   Sign Up
                 </Link>
                 <Link href="/client/login" onClick={() => setMobileOpen(false)}
-                  className="btn-3d-outline inline-flex h-11 flex-1 items-center justify-center rounded-full text-sm font-semibold">
+                  className="btn-3d-outline inline-flex h-11 flex-1 items-center justify-center whitespace-nowrap rounded-full text-sm font-semibold">
                   <AppIcon name="login" size={16} />
                   Login
                 </Link>
                 <Link href="/contact" onClick={() => setMobileOpen(false)}
-                  className="btn-3d-gold group inline-flex h-[52px] flex-[1.4] items-center justify-between overflow-hidden rounded-full pl-6 pr-2.5 text-base font-semibold text-black">
+                  className="btn-3d-gold group inline-flex h-[52px] flex-[1.4] items-center justify-between whitespace-nowrap overflow-hidden rounded-full pl-6 pr-2.5 text-base font-semibold text-black">
                   Get Started
                   <span className="relative inline-flex h-9 w-[52px] shrink-0 items-center justify-center overflow-hidden rounded-full bg-black/10">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="transition-transform duration-300 ease-out group-hover:translate-x-[220%]">
