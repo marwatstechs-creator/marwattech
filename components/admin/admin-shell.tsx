@@ -16,6 +16,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { createClient } from "@/lib/supabase/client";
 import { trackEvent } from "@/lib/analytics";
 import { cn, initials } from "@/lib/utils";
@@ -154,6 +155,7 @@ export function AdminShell({
           </div>
 
           <div className="flex items-center gap-3">
+            <ThemeToggle />
             <div className="hidden text-right sm:block">
               <p className="text-sm font-medium leading-none">{user.full_name ?? "Admin"}</p>
               <p className="mt-1 text-xs text-muted-foreground">{user.email}</p>

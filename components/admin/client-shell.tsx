@@ -10,6 +10,7 @@ import { Logo } from "@/components/marketing/logo";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { createClient } from "@/lib/supabase/client";
 import { cn, initials } from "@/lib/utils";
 
@@ -87,6 +88,7 @@ export function ClientShell({
             Client Portal
           </Badge>
           <div className="flex items-center gap-3">
+            <ThemeToggle />
             <div className="hidden text-right sm:block">
               <p className="text-sm font-medium">{user.full_name ?? "Client"}</p>
               <p className="text-xs text-muted-foreground">{user.email}</p>

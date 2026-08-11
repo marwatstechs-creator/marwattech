@@ -9,8 +9,10 @@ create extension if not exists "moddatetime"; -- updated_at triggers
 
 -- ── Enums ───────────────────────────────────────────────────────────────
 do $$ begin
-  create type public.user_role as enum ('super_admin', 'editor', 'support');
+  create type public.user_role as enum ('super_admin', 'editor', 'support', 'client');
 exception when duplicate_object then null; end $$;
+
+alter type public.user_role add value if not exists 'client';
 
 do $$ begin
   create type public.content_status as enum ('draft', 'published', 'archived');
@@ -38,18 +40,20 @@ create table if not exists public.profiles (
   updated_at timestamptz not null default now()
 );
 
--- Auto-create a profile row when a user signs up
+-- Auto-create a profile row when a user signs up. Public signups are
+-- clients (staff are created with explicit roles via the seed script).
 create or replace function public.handle_new_user()
 returns trigger
 language plpgsql
 security definer set search_path = public
 as $$
 begin
-  insert into public.profiles (id, full_name, avatar_url)
+  insert into public.profiles (id, full_name, avatar_url, role)
   values (
     new.id,
     coalesce(new.raw_user_meta_data ->> 'full_name', new.raw_user_meta_data ->> 'name', new.email),
-    new.raw_user_meta_data ->> 'avatar_url'
+    new.raw_user_meta_data ->> 'avatar_url',
+    'client'
   )
   on conflict (id) do nothing;
   return new;

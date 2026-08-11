@@ -73,6 +73,17 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        {/* Polyfill for the esbuild/SWC `__name` helper that OpenNext's
+            minified inline scripts reference but don't define. Prevents the
+            "ReferenceError: __name is not defined" console error that broke
+            the next-themes pre-hydration script on every page. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `window.__name=function(t,n){try{Object.defineProperty(t,"name",{value:n,configurable:true})}catch(e){}};`,
+          }}
+        />
+      </head>
       <body className={`${inter.variable} ${spaceGrotesk.variable} font-sans`}>
         <Providers>
           {children}

@@ -13,6 +13,17 @@ export async function updateSession(request: NextRequest) {
     return supabaseResponse;
   }
 
+  // Auth redirects must never be cached at the edge: a cached 307 would
+  // loop once the user's session/cookie changes (logged in vs not).
+  const noCache = (res: NextResponse) => {
+    res.headers.set(
+      "Cache-Control",
+      "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0"
+    );
+    res.headers.set("Pragma", "no-cache");
+    return res;
+  };
+
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -61,14 +72,14 @@ export async function updateSession(request: NextRequest) {
       url.pathname = isAdminRoute ? "/admin" : "/client";
     }
     url.search = "";
-    return NextResponse.redirect(url);
+    return noCache(NextResponse.redirect(url));
   }
 
   if (isProtectedRoute && !user) {
     const url = request.nextUrl.clone();
     url.pathname = isClientRoute ? "/client/login" : "/admin/login";
     url.search = "";
-    return NextResponse.redirect(url);
+    return noCache(NextResponse.redirect(url));
   }
 
   return supabaseResponse;
