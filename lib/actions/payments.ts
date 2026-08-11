@@ -36,6 +36,8 @@ const checkoutSchema = z.object({
   customerEmail: z.string().email().max(320).optional().or(z.literal("")),
   // v6 SDK: save the buyer's PayPal method to the vault on successful capture.
   saveMethod: z.boolean().optional().default(false),
+  // Digital-wallet orders (Google Pay / Apple Pay) declare their payment source.
+  paymentSource: z.enum(["googlepay", "applepay"]).optional(),
 });
 
 export type CheckoutResult =
@@ -56,7 +58,7 @@ export async function createPayPalCheckout(
     return { ok: false, notConfigured: true };
   }
 
-  const { amount, currency, itemType, itemName, description, customerName, customerEmail, saveMethod } =
+  const { amount, currency, itemType, itemName, description, customerName, customerEmail, saveMethod, paymentSource } =
     parsed.data;
 
   let origin = "https://www.marwattech.com";
@@ -105,6 +107,7 @@ export async function createPayPalCheckout(
         storeInVault: Boolean(saveMethod),
         returnUrl: `${origin}/payment`,
         cancelUrl: `${origin}/payment`,
+        paymentSource,
       });
     } catch (createErr) {
       if (saveMethod) {
@@ -117,6 +120,7 @@ export async function createPayPalCheckout(
           itemName: itemName || undefined,
           description: description || undefined,
           storeInVault: false,
+          paymentSource,
         });
       } else {
         throw createErr;

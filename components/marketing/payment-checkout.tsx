@@ -340,31 +340,95 @@ export function PaymentCheckout({ configured, clientId, env, initial }: Checkout
         const container = buttonContainerRef.current;
         container.innerHTML = "";
 
-        // v6 requires createOrder to resolve to { orderId } (NOT a plain string).
-        const createOrderFor = () => async (): Promise<{ orderId: string }> => {
-          const v = valuesRef.current;
-          const res = await createPayPalCheckout({
-            amount: Number(v.amount),
-            currency: v.currency,
-            itemType: v.itemType,
-            itemName: v.itemName,
-            description: v.description,
-            customerName: v.customerName,
-            customerEmail: v.customerEmail,
-            saveMethod,
-          });
-          if (!res.ok) {
-            if (res.notConfigured) {
-              setError("The payment gateway isn't configured yet. Please contact us.");
-            } else {
-              setError(res.error || "Could not start payment.");
-            }
-            throw new Error(res.error || "create failed");
-          }
-          internalOrderRef.current = res.orderId;
-          setError(null);
-          return { orderId: res.paypalOrderId };
+        // Loading skeleton shown while the SDK checks available methods.
+        const skeleton = document.createElement("div");
+        skeleton.id = "mt-loading";
+        skeleton.className =
+          "flex min-h-[120px] items-center justify-center gap-2 text-sm text-muted-foreground";
+        skeleton.innerHTML =
+          '<span class="size-4 animate-spin rounded-full border-2 border-foreground/15 border-t-foreground"></span><span>Loading payment options…</span>';
+        container.appendChild(skeleton);
+        const hideSkeleton = () => {
+          const s = container.querySelector("#mt-loading");
+          if (s) s.remove();
         };
+
+        // Grouped, labelled payment sections (PayPal / Card / More ways to pay).
+        type SectionKey = "paypal" | "card" | "wallet";
+        const usedSections = new Set<SectionKey>();
+        const sectionEls: Record<SectionKey, HTMLDivElement | null> = {
+          paypal: null,
+          card: null,
+          wallet: null,
+        };
+        const sectionLabels: Record<SectionKey, string> = {
+          paypal: "Pay with PayPal",
+          card: "Debit or Credit Card",
+          wallet: "More ways to pay",
+        };
+        const ensureSection = (key: SectionKey): HTMLDivElement => {
+          if (sectionEls[key]) return sectionEls[key]!;
+          const sec = document.createElement("div");
+          const lbl = document.createElement("p");
+          lbl.className =
+            "mt-pay-label-hide mb-2 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/80";
+          const txt = document.createElement("span");
+          txt.textContent = sectionLabels[key];
+          const rule = document.createElement("span");
+          rule.className = "h-px flex-1 bg-border";
+          lbl.appendChild(txt);
+          lbl.appendChild(rule);
+          sec.appendChild(lbl);
+          if (key !== "paypal") sec.style.marginTop = "6px";
+          container.appendChild(sec);
+          sectionEls[key] = sec;
+          usedSections.add(key);
+          return sec;
+        };
+        // Hide the section labels unless more than one payment method shows.
+        const finalizeSections = () => {
+          hideSkeleton();
+          if (usedSections.size <= 1) {
+            container
+              .querySelectorAll(".mt-pay-label-hide")
+              .forEach((l) => ((l as HTMLElement).style.display = "none"));
+          }
+        };
+
+        // v6 requires createOrder to resolve to { orderId } (NOT a plain string).
+        const createOrderFor =
+          (method: "paypal" | "card" | "googlepay" | "applepay" = "paypal") =>
+          async (): Promise<{ orderId: string }> => {
+            const v = valuesRef.current;
+            const res = await createPayPalCheckout({
+              amount: Number(v.amount),
+              currency: v.currency,
+              itemType: v.itemType,
+              itemName: v.itemName,
+              description: v.description,
+              customerName: v.customerName,
+              customerEmail: v.customerEmail,
+              // Only PayPal / Card methods can be vaulted ("save this payment
+              // method"); wallet orders are created without vaulting.
+              saveMethod:
+                method === "paypal" || method === "card" ? saveMethod : false,
+              paymentSource:
+                method === "googlepay" || method === "applepay"
+                  ? method
+                  : undefined,
+            });
+            if (!res.ok) {
+              if (res.notConfigured) {
+                setError("The payment gateway isn't configured yet. Please contact us.");
+              } else {
+                setError(res.error || "Could not start payment.");
+              }
+              throw new Error(res.error || "create failed");
+            }
+            internalOrderRef.current = res.orderId;
+            setError(null);
+            return { orderId: res.paypalOrderId };
+          };
 
         const sessionOptions: PayPalV6SessionOptions = {
           onApprove: async ({ orderId }) => {
@@ -381,9 +445,14 @@ export function PaymentCheckout({ configured, clientId, env, initial }: Checkout
           onError: () => setStatus("error"),
         };
 
-        const addButton = (el: HTMLElement, session: PayPalV6Session) => {
+        const addButton = (
+          el: HTMLElement,
+          session: PayPalV6Session,
+          section: SectionKey = "paypal"
+        ) => {
           el.setAttribute("hidden", "");
           el.style.width = "100%";
+          el.style.marginBottom = "8px";
           el.addEventListener("click", async () => {
             try {
               // Pass the create-order promise without awaiting it first, so
@@ -396,7 +465,7 @@ export function PaymentCheckout({ configured, clientId, env, initial }: Checkout
               setStatus("error");
             }
           });
-          container.appendChild(el);
+          ensureSection(section).appendChild(el);
           mounted.push(el);
           el.removeAttribute("hidden");
         };
@@ -450,14 +519,16 @@ export function PaymentCheckout({ configured, clientId, env, initial }: Checkout
             try {
               await guestSession.start(
                 { presentationMode: "auto" },
-                createOrderFor()()
+                createOrderFor("card")()
               );
             } catch {
               setStatus("error");
             }
           });
           cardWrap.appendChild(cardBtn);
-          container.appendChild(cardWrap);
+          cardWrap.style.width = "100%";
+          cardWrap.style.marginBottom = "8px";
+          ensureSection("card").appendChild(cardWrap);
           mounted.push(cardWrap);
         }
         // Google Pay (shows when eligible + Google Pay available)
@@ -533,15 +604,27 @@ export function PaymentCheckout({ configured, clientId, env, initial }: Checkout
                     currencyCode: currency,
                     totalPriceStatus: "FINAL",
                     totalPrice: amountNum.toFixed(2),
+                    totalPriceLabel: "Total",
+                    displayItems: [
+                      {
+                        label: "Total",
+                        type: "SUBTOTAL",
+                        price: amountNum.toFixed(2),
+                      },
+                    ],
                   },
                   callbackIntents: ["PAYMENT_AUTHORIZATION"],
                 });
                 const gpBtn = paymentsClient.createButton({
                   onClick: () => paymentsClient.loadPaymentData(buildReq()),
+                  buttonType: "pay",
+                  buttonColor: "black",
+                  buttonSizeMode: "fill",
+                  buttonRadius: 8,
                 });
                 gpBtn.style.width = "100%";
-                gpBtn.style.marginTop = "8px";
-                container.appendChild(gpBtn);
+                gpBtn.style.marginBottom = "8px";
+                ensureSection("wallet").appendChild(gpBtn);
                 mounted.push(gpBtn);
               }
             }
@@ -598,13 +681,20 @@ export function PaymentCheckout({ configured, clientId, env, initial }: Checkout
               apBtn.setAttribute("type", "buy");
               apBtn.setAttribute("locale", "en");
               apBtn.style.width = "100%";
-              apBtn.style.marginTop = "8px";
+              apBtn.style.marginBottom = "8px";
               apBtn.addEventListener("click", () => {
                 const paymentRequest = {
                   countryCode: "US",
                   currencyCode: currency,
                   merchantCapabilities,
                   supportedNetworks,
+                  requiredBillingContactFields: [
+                    "name",
+                    "phone",
+                    "email",
+                    "postalAddress",
+                  ],
+                  requiredShippingContactFields: [],
                   total: {
                     label: "Marwat Tech",
                     amount: amountNum.toFixed(2),
@@ -652,7 +742,7 @@ export function PaymentCheckout({ configured, clientId, env, initial }: Checkout
                 session.oncancel = () => setStatus("cancelled");
                 session.begin();
               });
-              container.appendChild(apBtn);
+              ensureSection("wallet").appendChild(apBtn);
               mounted.push(apBtn);
             }
           } catch {
@@ -660,10 +750,17 @@ export function PaymentCheckout({ configured, clientId, env, initial }: Checkout
           }
         }
 
-        if (!mounted.length) setStatus("error");
-        else setStatus("ready");
+        if (!mounted.length) {
+          hideSkeleton();
+          setStatus("error");
+        } else {
+          finalizeSections();
+        }
       } catch {
-        if (!cancelled) setStatus("error");
+        if (!cancelled) {
+          hideSkeleton();
+          setStatus("error");
+        }
       }
     })();
 
@@ -688,8 +785,9 @@ export function PaymentCheckout({ configured, clientId, env, initial }: Checkout
           <CardHeader>
             <CardTitle className="font-display text-xl">Payment details</CardTitle>
             <CardDescription>
-              Tell us what this payment is for. You&apos;ll pay securely through
-              PayPal (cards, PayPal balance, Venmo & Pay Later where available).
+              Tell us what this payment is for. You&apos;ll pay securely
+              through PayPal, cards, and digital wallets (Google Pay &amp; Apple
+              Pay) where available.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -823,13 +921,20 @@ export function PaymentCheckout({ configured, clientId, env, initial }: Checkout
               <div>
                 {valid ? (
                   <>
-                    <div
-                      ref={buttonContainerRef}
-                      className="min-h-[120px] rounded-2xl border border-dashed p-2 [&_iframe]:rounded-xl"
-                    />
-                    <p className="mt-2 text-center text-xs text-muted-foreground">
-                      {env === "sandbox" ? "Sandbox mode — test payments only." : "Secure checkout via PayPal."}
-                    </p>
+                    <div className="mt-3">
+                      <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/80">
+                        Choose how to pay
+                      </p>
+                      <div
+                        ref={buttonContainerRef}
+                        className="rounded-2xl border border-border/70 bg-muted/20 p-3 [&_iframe]:rounded-xl"
+                      />
+                      <p className="mt-2 text-center text-xs text-muted-foreground">
+                        {env === "sandbox"
+                          ? "Sandbox mode — test payments only."
+                          : "Secure checkout via PayPal."}
+                      </p>
+                    </div>
 
                     {/* Save payment method (v6 vault-with-purchase) */}
                     <label className="mt-4 flex cursor-pointer items-start gap-2 rounded-xl border bg-muted/40 p-3 text-xs text-muted-foreground">

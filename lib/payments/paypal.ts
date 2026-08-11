@@ -171,6 +171,8 @@ export type CreateOrderInput = {
   /** Required by PayPal when storeInVault is set (RETURN_URL_REQUIRED). */
   returnUrl?: string;
   cancelUrl?: string;
+  /** Digital-wallet orders (Google Pay / Apple Pay) pre-set the payment source. */
+  paymentSource?: "googlepay" | "applepay";
 };
 
 export type CreateOrderResult = {
@@ -217,7 +219,7 @@ export async function createPayPalOrder(
     intent: "CAPTURE",
     purchase_units: [purchaseUnits],
   };
-  if (input.storeInVault) {
+  if (input.storeInVault && !input.paymentSource) {
     // v6 SDK vault-with-purchase: save the buyer's PayPal method on success.
     requestBody.payment_source = {
       paypal: {
@@ -237,6 +239,19 @@ export async function createPayPalOrder(
             customer_type: "CONSUMER",
           },
         },
+      },
+    };
+  } else if (input.paymentSource === "googlepay") {
+    // Digital-wallet order: PayPal runs SCA / 3-D Secure when required.
+    requestBody.payment_source = {
+      googlePay: {
+        attributes: { verification: { method: "SCA_WHEN_REQUIRED" } },
+      },
+    };
+  } else if (input.paymentSource === "applepay") {
+    requestBody.payment_source = {
+      applePay: {
+        attributes: { verification: { method: "SCA_WHEN_REQUIRED" } },
       },
     };
   } else {
