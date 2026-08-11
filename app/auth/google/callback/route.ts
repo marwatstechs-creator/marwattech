@@ -1,3 +1,4 @@
+import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
 import { exchangeGoogleCode, type GoogleLoginMode } from "@/lib/google";
@@ -17,6 +18,13 @@ export async function GET(request: Request) {
   const fail = (err = "google") => NextResponse.redirect(`${origin}/admin/login?error=${err}`);
 
   if (!code) return fail();
+
+  // Verify the OAuth state (login-CSRF protection). We always send a state now.
+  const state = searchParams.get("state");
+  const cookieStore = await cookies();
+  const expected = cookieStore.get("oauth_state_google")?.value;
+  cookieStore.delete("oauth_state_google");
+  if (!state || !expected || state !== expected) return fail("google");
 
   try {
     const identity = await exchangeGoogleCode(code, redirectUri);

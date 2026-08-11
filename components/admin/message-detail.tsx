@@ -64,6 +64,7 @@ export function MessageDetailDialog({
 }) {
   const router = useRouter();
   const [pending, setPending] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const [status, setStatus] = useState(String(message.status ?? "new"));
   const [notes, setNotes] = useState(String(message.internal_notes ?? ""));
 
@@ -107,7 +108,13 @@ export function MessageDetailDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog
+      open={open}
+      onOpenChange={(o) => {
+        onOpenChange(o);
+        if (!o) setConfirmDelete(false);
+      }}
+    >
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>
@@ -182,12 +189,24 @@ export function MessageDetailDialog({
         </div>
 
         <DialogFooter>
-          {type === "contact" && (
-            <Button variant="destructive" onClick={remove}>
-              <AppIcon name="delete" size={14} />
-              Delete
-            </Button>
-          )}
+          {type === "contact" &&
+            (confirmDelete ? (
+              <Button
+                variant="destructive"
+                onClick={() => {
+                  remove();
+                  setConfirmDelete(false);
+                }}
+                disabled={pending}
+              >
+                Confirm delete?
+              </Button>
+            ) : (
+              <Button variant="destructive" onClick={() => setConfirmDelete(true)}>
+                <AppIcon name="delete" size={14} />
+                Delete
+              </Button>
+            ))}
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Close
           </Button>

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { toast } from "sonner";
 
 import { createClient } from "@/lib/supabase/client";
@@ -101,6 +102,14 @@ export default function AdminLoginPage() {
               autoComplete="current-password"
               required
             />
+            <div className="flex justify-end">
+              <Link
+                href="/auth/reset-password"
+                className="text-xs font-medium text-primary hover:underline"
+              >
+                Forgot password?
+              </Link>
+            </div>
           </div>
 
           {error && (

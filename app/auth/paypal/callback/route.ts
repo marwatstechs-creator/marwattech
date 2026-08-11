@@ -1,3 +1,4 @@
+import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
 import { exchangePaypalIdentity, type PaypalLoginMode } from "@/lib/payments/paypal-identity";
@@ -18,6 +19,13 @@ export async function GET(request: Request) {
   const fail = () => NextResponse.redirect(`${origin}/admin/login?error=paypal`);
 
   if (!code) return fail();
+
+  // Verify the OAuth state (login-CSRF protection). We always send a state now.
+  const state = searchParams.get("state");
+  const cookieStore = await cookies();
+  const expected = cookieStore.get("oauth_state_paypal")?.value;
+  cookieStore.delete("oauth_state_paypal");
+  if (!state || !expected || state !== expected) return fail();
 
   try {
     const identity = await exchangePaypalIdentity(code, redirectUri);

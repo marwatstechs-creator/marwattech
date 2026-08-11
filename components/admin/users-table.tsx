@@ -39,6 +39,7 @@ import {
   createAdminUser,
   deleteAdminUser,
 } from "@/lib/actions/admin/users";
+import { DeleteButton } from "@/components/admin/delete-button";
 import { formatDate, initials } from "@/lib/utils";
 
 const ROLES = ["super_admin", "editor", "support"] as const;
@@ -80,12 +81,7 @@ export function UsersTable({ users, currentUserId }: { users: User[]; currentUse
     router.refresh();
   };
 
-  const remove = async (id: string) => {
-    const res = await deleteAdminUser(id);
-    if ("error" in res && res.error) return toast.error(res.error);
-    toast.success("User deleted");
-    router.refresh();
-  };
+  const remove = (id: string) => deleteAdminUser(id);
 
   return (
     <div className="space-y-6">
@@ -199,16 +195,9 @@ export function UsersTable({ users, currentUserId }: { users: User[]; currentUse
                     {formatDate(u.created_at)}
                   </TableCell>
                   <TableCell className="text-right">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="size-8 text-destructive hover:bg-destructive/10"
-                      onClick={() => remove(u.id)}
-                      disabled={u.id === currentUserId}
-                      aria-label="Delete user"
-                    >
-                      <AppIcon name="delete" size={15} />
-                    </Button>
+                    {u.id !== currentUserId && (
+                      <DeleteButton itemId={u.id} onDelete={remove} label="user" />
+                    )}
                   </TableCell>
                 </TableRow>
               ))

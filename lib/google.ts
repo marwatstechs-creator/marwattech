@@ -79,7 +79,8 @@ export async function resolveGoogleConfig(): Promise<GoogleConfig> {
 /** Build the Google OAuth authorize URL (redirect the browser here). */
 export async function buildGoogleLoginUrl(
   mode: GoogleLoginMode,
-  origin: string
+  origin: string,
+  state?: string
 ): Promise<{ url: string; enabled: boolean }> {
   const cfg = await resolveGoogleConfig();
   if (!cfg.enabled || !cfg.clientId) {
@@ -93,7 +94,7 @@ export async function buildGoogleLoginUrl(
     scope: "openid email profile",
     access_type: "offline",
     prompt: "select_account",
-    state: `${mode}-${Date.now()}`,
+    state: state ?? `${mode}-${Date.now()}`,
   });
   return { url: `${GOOGLE_AUTH_BASE}?${params.toString()}`, enabled: true };
 }

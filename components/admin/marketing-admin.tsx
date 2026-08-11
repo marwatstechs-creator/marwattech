@@ -41,6 +41,7 @@ import {
   sendSmtpTest,
   previewMarketingEmail,
 } from "@/lib/actions/marketing";
+import { DeleteButton } from "@/components/admin/delete-button";
 import { formatDate } from "@/lib/utils";
 
 export type SubscriberRow = {
@@ -137,7 +138,7 @@ function SubscribersTab({ subscribers }: { subscribers: SubscriberRow[] }) {
                   </TableCell>
                   <TableCell className="text-xs text-muted-foreground">{formatDate(s.created_at)}</TableCell>
                   <TableCell className="text-right">
-                    <Button size="sm" variant="outline" onClick={() => removeSubscriber(s.id)}>Remove</Button>
+                    <DeleteButton itemId={s.id} onDelete={removeSubscriber} label="subscriber" />
                   </TableCell>
                 </TableRow>
               ))

@@ -98,6 +98,14 @@ export default function ClientLoginPage() {
               autoComplete="current-password"
               required
             />
+            <div className="flex justify-end">
+              <Link
+                href="/auth/reset-password"
+                className="text-xs font-medium text-primary hover:underline"
+              >
+                Forgot password?
+              </Link>
+            </div>
           </div>
           {error && (
             <p className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">

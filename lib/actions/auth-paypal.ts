@@ -1,6 +1,6 @@
 "use server";
 
-import { headers } from "next/headers";
+import { cookies, headers } from "next/headers";
 
 import { buildPaypalLoginUrl, type PaypalLoginMode } from "@/lib/payments/paypal-identity";
 
@@ -11,7 +11,21 @@ export async function getPaypalLoginUrl(mode: PaypalLoginMode) {
   const host = h.get("x-forwarded-host") ?? h.get("host") ?? "localhost:3000";
   const origin = `${proto}://${host}`;
 
-  const { url, enabled } = await buildPaypalLoginUrl(mode, origin);
+  // Random state bound to the user's session (login-CSRF protection).
+  const state =
+    typeof crypto !== "undefined" && crypto.randomUUID
+      ? crypto.randomUUID()
+      : `pp-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  const cookieStore = await cookies();
+  cookieStore.set("oauth_state_paypal", state, {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: true,
+    path: "/",
+    maxAge: 600,
+  });
+
+  const { url, enabled } = await buildPaypalLoginUrl(mode, origin, state);
   if (!enabled) {
     return { ok: false as const, notConfigured: true as const };
   }

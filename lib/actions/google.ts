@@ -2,7 +2,7 @@
 
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
-import { headers } from "next/headers";
+import { cookies, headers } from "next/headers";
 
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requireStaff, requireSuperAdmin, logActivity } from "@/lib/actions/admin/helpers";
@@ -96,7 +96,21 @@ export async function saveGoogleSettings(input: z.infer<typeof googleSchema>) {
 
 /** Build the Google OAuth authorize URL for "Sign in with Google". */
 export async function getGoogleLoginUrl(mode: GoogleLoginMode) {
-  const { url, enabled } = await buildGoogleLoginUrl(mode, await getOrigin());
+  // Random state bound to the user's session (login-CSRF protection).
+  const state =
+    typeof crypto !== "undefined" && crypto.randomUUID
+      ? crypto.randomUUID()
+      : `go-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  const cookieStore = await cookies();
+  cookieStore.set("oauth_state_google", state, {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: true,
+    path: "/",
+    maxAge: 600,
+  });
+
+  const { url, enabled } = await buildGoogleLoginUrl(mode, await getOrigin(), state);
   if (!enabled) {
     return { ok: false as const, notConfigured: true as const };
   }

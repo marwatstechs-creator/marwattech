@@ -18,7 +18,8 @@ function authBase(env: "sandbox" | "live"): string {
 /** Build the PayPal OAuth authorize URL (redirect the browser here). */
 export async function buildPaypalLoginUrl(
   mode: PaypalLoginMode,
-  origin: string
+  origin: string,
+  state?: string
 ): Promise<{ url: string; enabled: boolean }> {
   const cfg = await resolvePaypalConfig();
   if (!cfg.enabled || !cfg.clientId) {
@@ -30,7 +31,7 @@ export async function buildPaypalLoginUrl(
     response_type: "code",
     scope: "openid email profile",
     redirect_uri: redirectUri,
-    state: `${mode}-${Date.now()}`,
+    state: state ?? `${mode}-${Date.now()}`,
   });
   return { url: `${authBase(cfg.env)}?${params.toString()}`, enabled: true };
 }

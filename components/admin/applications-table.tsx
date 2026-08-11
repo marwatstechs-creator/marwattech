@@ -25,6 +25,7 @@ import {
   updateApplicationStatus,
   deleteApplication,
 } from "@/lib/actions/admin/applications";
+import { DeleteButton } from "@/components/admin/delete-button";
 import { formatDate } from "@/lib/utils";
 
 const STATUSES = ["new", "reviewed", "interview", "rejected", "hired"] as const;
@@ -46,12 +47,7 @@ export function ApplicationsTable({
     router.refresh();
   };
 
-  const remove = async (id: string) => {
-    const res = await deleteApplication(id);
-    if ("error" in res && res.error) return toast.error(res.error);
-    toast.success("Application deleted");
-    router.refresh();
-  };
+  const remove = (id: string) => deleteApplication(id);
 
   return (
     <div className="rounded-xl border bg-card">
@@ -116,15 +112,7 @@ export function ApplicationsTable({
                   </Select>
                 </TableCell>
                 <TableCell className="text-right">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="size-8 text-destructive hover:bg-destructive/10"
-                    onClick={() => remove(r.id)}
-                    aria-label="Delete application"
-                  >
-                    <AppIcon name="delete" size={15} />
-                  </Button>
+                  <DeleteButton itemId={r.id} onDelete={remove} label="application" />
                 </TableCell>
               </TableRow>
             ))
