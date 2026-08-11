@@ -32,14 +32,21 @@ export default function ClientRegisterPage() {
     }
 
     const db = createClient();
+    // Point the confirmation email's link at the production app — otherwise
+    // Supabase falls back to the configured SITE_URL (e.g. localhost:3000).
+    const origin = window.location.origin;
     const { error: signUpError } = await db.auth.signUp({
       email,
       password,
-      options: { data: { full_name: name } },
+      options: {
+        data: { full_name: name },
+        emailRedirectTo: `${origin}/auth/confirm`,
+      },
     });
 
     if (signUpError) {
-      setError(signUpError.message);
+      // Generic message — don't leak whether the account already exists.
+      setError("Could not create your account. If you already have an account, sign in instead.");
       setPending(false);
       return;
     }
