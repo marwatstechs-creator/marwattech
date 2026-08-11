@@ -7,6 +7,8 @@ import { toast } from "sonner";
 
 import { createClient } from "@/lib/supabase/client";
 import { AppIcon } from "@/components/app-icon";
+import { GoogleSignIn } from "@/components/admin/google-sign-in";
+import { GoogleOneTapLoader } from "@/components/admin/google-one-tap-loader";
 import { PayPalSignIn } from "@/components/admin/paypal-sign-in";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -51,7 +53,11 @@ export default function ClientLoginPage() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const err = params.get("error");
-    if (err === "paypal" || err === "paypal_no_email") {
+    if (err === "google" || err === "google_no_email") {
+      toast.error(
+        "Google sign-in could not be completed. Check your Client ID + Secret and the redirect URI in Settings → Google Sign-In."
+      );
+    } else if (err === "paypal" || err === "paypal_no_email") {
       toast.error(
         "PayPal sign-in could not be completed. Make sure the PayPal gateway is configured and Log in with PayPal is enabled for your app."
       );
@@ -67,6 +73,7 @@ export default function ClientLoginPage() {
         </CardDescription>
       </CardHeader>
       <CardContent>
+        <GoogleOneTapLoader mode="client" />
         <form onSubmit={handleLogin} className="space-y-4" noValidate>
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
@@ -115,6 +122,7 @@ export default function ClientLoginPage() {
           <span className="h-px flex-1 bg-border" />
         </div>
 
+        <GoogleSignIn mode="client" />
         <PayPalSignIn mode="client" />
 
         <p className="mt-4 text-center text-sm text-muted-foreground">

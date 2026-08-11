@@ -24,6 +24,8 @@ import ArrowLeft01Icon from "@hugeicons/core-free-icons/ArrowLeft01Icon";
 import ArrowRight01Icon from "@hugeicons/core-free-icons/ArrowRight01Icon";
 import ArrowUpRight01Icon from "@hugeicons/core-free-icons/ArrowUpRight01Icon";
 
+import GoogleIcon from "@hugeicons/core-free-icons/GoogleIcon";
+
 import Call02Icon from "@hugeicons/core-free-icons/Call02Icon";
 import Mail01Icon from "@hugeicons/core-free-icons/Mail01Icon";
 import Clock01Icon from "@hugeicons/core-free-icons/Clock01Icon";
@@ -122,6 +124,7 @@ export const ICONS = {
   arrowLeft: ArrowLeft01Icon,
   arrowRight: ArrowRight01Icon,
   arrowUpRight: ArrowUpRight01Icon,
+  google: GoogleIcon,
 
   // Contact
   phone: Call02Icon,

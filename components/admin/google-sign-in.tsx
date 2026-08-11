@@ -1,10 +1,9 @@
 "use client";
 
 import * as React from "react";
-import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
-import { createClient } from "@/lib/supabase/client";
+import { getGoogleLoginUrl } from "@/lib/actions/google";
 import { trackEvent } from "@/lib/analytics";
 
 const GOOGLE_G = (
@@ -17,45 +16,27 @@ const GOOGLE_G = (
 );
 
 /**
- * "Continue with Google" — Supabase OAuth.
- * Requires the Google provider to be enabled in Supabase → Auth → Providers
- * (Client ID + Secret). Until then the button shows a helpful message.
+ * "Continue with Google" — direct OAuth redirect flow.
+ * Uses the Client ID + Secret saved in Admin → Settings → Google Sign-In.
+ * Until then the button shows a helpful message pointing at Settings.
  */
 export function GoogleSignIn({ mode = "admin" }: { mode?: "admin" | "client" }) {
-  const router = useRouter();
   const [pending, setPending] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
 
   const handleGoogle = async () => {
     setPending(true);
     setError(null);
-    const db = createClient();
-    try {
-      const { data, error: authError } = await db.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback?next=${mode === "admin" ? "/admin" : "/client"}`,
-          queryParams: { access_type: "offline", prompt: "consent" },
-        },
-      });
-
-      if (authError || !data.url) {
-        setPending(false);
-        const msg =
-          authError?.message?.toLowerCase().includes("provider") ||
-          !data.url
-            ? "Google sign-in isn't enabled yet. Ask the administrator to enable Google in Supabase → Authentication → Providers, then add your Google Client ID & Secret."
-            : authError?.message ?? "Google sign-in failed. Please try again.";
-        setError(msg);
-        return;
-      }
-
-      trackEvent("admin_google_signin");
-      router.push(data.url);
-    } catch {
+    const res = await getGoogleLoginUrl(mode);
+    if (!res.ok) {
       setPending(false);
-      setError("Google sign-in failed. Please try again.");
+      setError(
+        "Google sign-in isn't enabled yet. Add your Google Client ID & Secret in Admin → Settings → Google Sign-In first."
+      );
+      return;
     }
+    trackEvent("google_signin");
+    window.location.href = res.url;
   };
 
   return (

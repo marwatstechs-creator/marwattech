@@ -79,3 +79,66 @@ export async function guardClient() {
   if (session.profile.role !== "client") redirect("/admin/login");
   return session;
 }
+
+/**
+ * Find-or-create a Supabase account for a verified external identity
+ * (Google / PayPal), then sign them in server-side via a magic-link OTP
+ * (no password change required). Returns the dashboard path by role.
+ */
+export async function signInWithVerifiedEmail(opts: {
+  email: string;
+  name?: string | null;
+  picture?: string | null;
+}): Promise<{ target: "/admin" | "/client"; error?: string }> {
+  const { createAdminClient } = await import("@/lib/supabase/admin");
+  const admin = createAdminClient();
+  const email = opts.email.toLowerCase();
+
+  // 1) Find the account by email; auto-create a client account if missing.
+  const { data: users } = await admin.auth.admin.listUsers();
+  let user = users?.users.find((u) => u.email?.toLowerCase() === email);
+  if (!user) {
+    const { data: created, error: createErr } = await admin.auth.admin.createUser({
+      email,
+      email_confirm: true,
+      user_metadata: {
+        full_name: opts.name ?? email.split("@")[0],
+        ...(opts.picture ? { avatar_url: opts.picture } : {}),
+      },
+    });
+    if (createErr) return { target: "/client", error: createErr.message };
+    user = created?.user ?? undefined;
+  }
+  if (!user) return { target: "/client", error: "No user account found" };
+
+  // 2) Generate a magic-link OTP and complete it server-side (sets the cookie).
+  const { data: linkData } = await admin.auth.admin.generateLink({
+    type: "magiclink",
+    email,
+  });
+  const token = linkData?.properties?.hashed_token;
+  if (!token) return { target: "/client", error: "Could not generate sign-in link" };
+
+  const db = await createClient();
+  const { error: verifyErr } = await db.auth.verifyOtp({
+    email,
+    token,
+    type: "magiclink",
+  });
+  if (verifyErr) return { target: "/client", error: verifyErr.message };
+
+  // 3) Route to the right dashboard based on role.
+  const {
+    data: { user: sessUser },
+  } = await db.auth.getUser();
+  let isStaff = false;
+  if (sessUser) {
+    const { data: profile } = await db
+      .from("profiles")
+      .select("role")
+      .eq("id", sessUser.id)
+      .single();
+    isStaff = ["super_admin", "editor", "support"].includes(String(profile?.role));
+  }
+  return { target: isStaff ? "/admin" : "/client" };
+}

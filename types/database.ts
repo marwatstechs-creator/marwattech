@@ -838,6 +838,33 @@ export interface Database {
         };
         Relationships: [];
       };
+      google_settings: {
+        Row: {
+          id: boolean;
+          client_id: string | null;
+          client_secret: string | null;
+          enabled: boolean;
+          one_tap_enabled: boolean;
+          updated_at: string;
+        };
+        Insert: {
+          id?: boolean;
+          client_id?: string | null;
+          client_secret?: string | null;
+          enabled?: boolean;
+          one_tap_enabled?: boolean;
+          updated_at?: string;
+        };
+        Update: {
+          id?: boolean;
+          client_id?: string | null;
+          client_secret?: string | null;
+          enabled?: boolean;
+          one_tap_enabled?: boolean;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       /* ── Email marketing + PayPal features ────────────────── */
       newsletter_subscribers: {
         Row: {

@@ -2,10 +2,12 @@ import { AdminPageHeader } from "@/components/admin/page-header";
 import { SettingsForm } from "@/components/admin/forms/settings-form";
 import { PaymentGatewaySettings, type GatewayStatus } from "@/components/admin/payment-gateway-settings";
 import { MailSettings, type MailSettingsStatus } from "@/components/admin/mail-settings";
+import { GoogleSettings, type GoogleSettingsStatus } from "@/components/admin/google-settings";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { resolvePaypalConfig } from "@/lib/payments/paypal";
 import { resolveMailConfig } from "@/lib/email";
+import { resolveGoogleConfig } from "@/lib/google";
 import { guardSuperAdmin } from "@/lib/auth";
 
 export const revalidate = 0;
@@ -94,6 +96,36 @@ export default async function AdminSettingsPage() {
     // fallback to defaults
   }
 
+  let google: GoogleSettingsStatus = {
+    enabled: false,
+    oneTapEnabled: false,
+    hasClientId: false,
+    hasSecret: false,
+    source: "none",
+    stored: null,
+  };
+  try {
+    const cfg = await resolveGoogleConfig();
+    const admin = createAdminClient();
+    const { data } = await admin
+      .from("google_settings")
+      .select("client_id, one_tap_enabled")
+      .eq("id", true)
+      .maybeSingle();
+    google = {
+      enabled: cfg.enabled,
+      oneTapEnabled: cfg.oneTapEnabled,
+      hasClientId: Boolean(cfg.clientId),
+      hasSecret: cfg.hasSecret,
+      source: cfg.source,
+      stored: data
+        ? { client_id: data.client_id, one_tap_enabled: data.one_tap_enabled }
+        : null,
+    };
+  } catch {
+    // fallback to defaults
+  }
+
   return (
     <>
       <AdminPageHeader
@@ -103,6 +135,7 @@ export default async function AdminSettingsPage() {
       <div className="space-y-8">
         <SettingsForm initial={settings} />
         <MailSettings status={mail} />
+        <GoogleSettings status={google} />
         <PaymentGatewaySettings status={gateway} />
       </div>
     </>
