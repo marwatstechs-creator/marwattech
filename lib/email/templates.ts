@@ -1,15 +1,15 @@
 /**
  * Branded HTML email templates — follow the Marwat Tech web app style:
- * red (primary) + gold (accent) + azure (secondary), Inter font, rounded
- * cards. All inline styles (email-client safe). Server-only.
+ * purple (primary) + gold (accent) + white, Inter font, rounded cards.
+ * All inline styles (email-client safe). Server-only.
  */
 import { SITE } from "@/lib/constants";
 
 /* ── Brand tokens (mirror app/globals.css) ───────────────────────────── */
-const RED = "#c81e2e";
-const RED_DARK = "#a31623";
+const PURPLE = "#7464c6";
+const PURPLE_DARK = "#5f4fa8";
 const GOLD = "#f8c640";
-const AZURE = "#2563eb";
+const AZURE = "#5f4fa8";
 const INK = "#1e293b";
 const MUTED = "#64748b";
 const BORDER = "#e2e8f0";
@@ -55,7 +55,7 @@ ${o.preheader ? `<div style="display:none;max-height:0;overflow:hidden;mso-hide:
 
         <!-- Header -->
         <tr>
-          <td style="background:linear-gradient(135deg, ${RED} 0%, ${RED_DARK} 100%);padding:26px 32px;">
+          <td style="background:linear-gradient(135deg, ${PURPLE} 0%, ${PURPLE_DARK} 100%);padding:26px 32px;">
             <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
               <tr>
                 <td>
@@ -82,7 +82,7 @@ ${o.preheader ? `<div style="display:none;max-height:0;overflow:hidden;mso-hide:
         <!-- Body -->
         <tr>
           <td style="padding:32px;">
-            ${o.badge ? `<div style="display:inline-block;background:${RED}14;color:${RED};font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:4px 10px;border-radius:999px;margin-bottom:14px;">${esc(o.badge)}</div>` : ""}
+            ${o.badge ? `<div style="display:inline-block;background:${PURPLE}14;color:${PURPLE};font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:4px 10px;border-radius:999px;margin-bottom:14px;">${esc(o.badge)}</div>` : ""}
             ${o.title ? `<h1 style="margin:0 0 14px;font-size:24px;line-height:1.25;color:${INK};font-weight:800;">${esc(o.title)}</h1>` : ""}
             ${o.body}
             ${o.cta ? ctaButton(o.cta.label, o.cta.href) : ""}
@@ -117,8 +117,8 @@ ${o.preheader ? `<div style="display:none;max-height:0;overflow:hidden;mso-hide:
 function ctaButton(label: string, href: string): string {
   return `
   <table role="presentation" cellpadding="0" cellspacing="0" style="margin:24px 0 4px;"><tr>
-    <td style="border-radius:999px;background:${RED};">
-      <a href="${esc(href)}" style="display:inline-block;padding:12px 26px;border-radius:999px;background:${RED};color:#ffffff;font-size:14px;font-weight:700;text-decoration:none;letter-spacing:0.2px;">${esc(label)}</a>
+    <td style="border-radius:999px;background:${PURPLE};">
+      <a href="${esc(href)}" style="display:inline-block;padding:12px 26px;border-radius:999px;background:${PURPLE};color:#ffffff;font-size:14px;font-weight:700;text-decoration:none;letter-spacing:0.2px;">${esc(label)}</a>
     </td>
   </tr></table>`;
 }
@@ -195,7 +195,7 @@ export function invoiceEmail(opts: {
           </td>
           <td style="padding:14px 16px;background:${BG};text-align:right;">
             <div style="font-size:12px;color:${MUTED};">Amount due</div>
-            <div style="font-size:18px;font-weight:800;color:${RED};">${esc(opts.amount)} ${esc(opts.currency)}</div>
+            <div style="font-size:18px;font-weight:800;color:${PURPLE};">${esc(opts.amount)} ${esc(opts.currency)}</div>
           </td>
         </tr>
         ${opts.description ? `<tr><td colspan="2" style="padding:12px 16px;color:${MUTED};font-size:13px;">${esc(opts.description)}</td></tr>` : ""}

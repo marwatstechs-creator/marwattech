@@ -225,7 +225,7 @@ function CampaignsTab({ campaigns, emailConfigured }: { campaigns: CampaignRow[]
               <DialogHeader>
                 <DialogTitle>Create &amp; send campaign</DialogTitle>
                 <DialogDescription>
-                  Rendered with the Marwat Tech branded email template (red/gold/azure).
+                  Rendered with the Marwat Tech branded email template (purple/gold/white).
                 </DialogDescription>
               </DialogHeader>
               <div className="grid gap-4">

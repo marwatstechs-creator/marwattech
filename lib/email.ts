@@ -182,7 +182,7 @@ export async function sendBulkEmail(
 function shell(body: string) {
   return `
   <div style="font-family:Inter,Arial,sans-serif;max-width:600px;margin:0 auto;color:#1e293b;">
-    <div style="background:#c81e2e;padding:20px 28px;border-radius:12px 12px 0 0;">
+    <div style="background:#7464c6;padding:20px 28px;border-radius:12px 12px 0 0;">
       <h1 style="margin:0;color:#fff;font-size:20px;">${SITE.name}</h1>
     </div>
     <div style="border:1px solid #e2e8f0;border-top:0;padding:28px;border-radius:0 0 12px 12px;">
