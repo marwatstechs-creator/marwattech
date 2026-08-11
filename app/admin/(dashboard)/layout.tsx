@@ -25,6 +25,7 @@ export default async function AdminDashboardLayout({
         email: session.user.email,
         full_name: session.profile.full_name,
         role: session.profile.role,
+        avatar_url: session.profile.avatar_url,
       }}
     >
       {children}

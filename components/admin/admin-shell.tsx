@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { AppIcon } from "@/components/app-icon";
 import { Logo } from "@/components/marketing/logo";
@@ -15,8 +15,9 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { CollapsibleSidebar, type CollapsibleSidebarItem } from "@/components/admin/collapsible-sidebar";
 import { createClient } from "@/lib/supabase/client";
 import { trackEvent } from "@/lib/analytics";
 import { cn, initials } from "@/lib/utils";
@@ -34,6 +35,7 @@ const NAV: NavItem[] = [
   { label: "Services", href: "/admin/services", icon: "code", roles: ["super_admin", "editor"] },
   { label: "Portfolio", href: "/admin/portfolio", icon: "layers", roles: ["super_admin", "editor"] },
   { label: "Blog", href: "/admin/blog", icon: "file", roles: ["super_admin", "editor"] },
+  { label: "Pages", href: "/admin/pages", icon: "document", roles: ["super_admin", "editor"] },
   { label: "Testimonials", href: "/admin/testimonials", icon: "quote", roles: ["super_admin", "editor"] },
   { label: "Careers", href: "/admin/careers", icon: "briefcase", roles: ["super_admin", "editor"] },
   { label: "Applications", href: "/admin/applications", icon: "userAdd", roles: ["super_admin", "editor"] },
@@ -107,11 +109,41 @@ export function AdminShell({
   user,
 }: {
   children: React.ReactNode;
-  user: { email?: string; full_name: string | null; role: UserRole };
+  user: { email?: string; full_name: string | null; role: UserRole; avatar_url?: string | null };
 }) {
   const router = useRouter();
   const pathname = usePathname();
   const [signingOut, setSigningOut] = useState(false);
+  const [pinned, setPinned] = useState(false);
+
+  // Restore the pinned state on mount (localStorage).
+  useEffect(() => {
+    try {
+      const v = window.localStorage.getItem("mts-admin-sidebar");
+      if (v) setPinned(v === "1");
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  const togglePin = () => {
+    setPinned((p) => {
+      const next = !p;
+      try {
+        window.localStorage.setItem("mts-admin-sidebar", next ? "1" : "0");
+      } catch {
+        // ignore
+      }
+      return next;
+    });
+  };
+
+  const items: CollapsibleSidebarItem[] = NAV.filter((n) =>
+    n.roles.includes(user.role)
+  ).map(({ label, href, icon }) => ({ label, href, icon }));
+
+  const isActive = (href: string) =>
+    href === "/admin" ? pathname === "/admin" : pathname.startsWith(href);
 
   const handleSignOut = async () => {
     setSigningOut(true);
@@ -124,16 +156,45 @@ export function AdminShell({
 
   return (
     <div className="flex min-h-screen bg-muted/30">
-      {/* Desktop sidebar */}
-      <aside className="sticky top-0 hidden h-screen w-64 shrink-0 border-r bg-background lg:block">
-        <SidebarContent role={user.role} />
-      </aside>
+      {/* Desktop collapsible sidebar */}
+      <CollapsibleSidebar
+        items={items}
+        isActive={isActive}
+        pinned={pinned}
+        onTogglePin={togglePin}
+        footer={(open) => (
+          <Link
+            href="/"
+            target="_blank"
+            title={!open ? "View site" : undefined}
+            className={cn(
+              "flex items-center rounded-lg text-sm font-medium text-foreground/70 transition-colors hover:bg-accent-hover hover:text-foreground",
+              open ? "gap-3 px-3 py-2.5" : "justify-center px-2 py-2.5"
+            )}
+          >
+            <AppIcon name="globe" size={18} className="shrink-0" />
+            {open && <span className="truncate whitespace-nowrap">View site</span>}
+            {open && <AppIcon name="external" size={14} className="ml-auto opacity-50" />}
+          </Link>
+        )}
+      />
 
       {/* Main */}
       <div className="flex min-w-0 flex-1 flex-col">
         {/* Topbar */}
         <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-4 border-b bg-background/90 px-4 backdrop-blur sm:px-6">
           <div className="flex items-center gap-3">
+            {/* Sidebar pin toggle (desktop) */}
+            <Button
+              variant="outline"
+              size="icon"
+              className="hidden lg:inline-flex"
+              onClick={togglePin}
+              aria-label={pinned ? "Collapse sidebar" : "Expand sidebar"}
+              title={pinned ? "Collapse sidebar" : "Expand sidebar"}
+            >
+              <AppIcon name="menu" size={20} />
+            </Button>
             {/* Mobile menu */}
             <Sheet>
               <SheetTrigger asChild>
@@ -163,6 +224,9 @@ export function AdminShell({
               <p className="mt-1 text-xs text-muted-foreground">{user.email}</p>
             </div>
             <Avatar className="size-9">
+              {user.avatar_url ? (
+                <AvatarImage src={user.avatar_url} alt={user.full_name ?? "Admin"} />
+              ) : null}
               <AvatarFallback className="bg-primary/10 text-xs font-bold text-primary">
                 {initials(user.full_name ?? "A")}
               </AvatarFallback>

@@ -153,6 +153,42 @@ export interface Database {
         };
         Relationships: [];
       };
+      pages: {
+        Row: {
+          id: string;
+          title: string;
+          slug: string;
+          content: string;
+          status: ContentStatus;
+          meta_title: string | null;
+          meta_description: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          title: string;
+          slug: string;
+          content?: string;
+          status?: ContentStatus;
+          meta_title?: string | null;
+          meta_description?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          title?: string;
+          slug?: string;
+          content?: string;
+          status?: ContentStatus;
+          meta_title?: string | null;
+          meta_description?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       portfolio_categories: {
         Row: {
           id: string;

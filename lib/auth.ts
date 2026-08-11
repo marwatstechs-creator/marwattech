@@ -127,6 +127,15 @@ export async function signInWithVerifiedEmail(opts: {
   });
   if (verifyErr) return { target: "/client", error: verifyErr.message };
 
+  // Sync the external provider's profile picture + display name into the
+  // profiles table so the dashboard avatar shows it (e.g. Google avatar).
+  if (user && (opts.picture || opts.name)) {
+    const patch: { full_name?: string; avatar_url?: string } = {};
+    if (opts.name) patch.full_name = opts.name;
+    if (opts.picture) patch.avatar_url = opts.picture;
+    await admin.from("profiles").update(patch).eq("id", user.id);
+  }
+
   // 3) Route to the right dashboard based on role.
   const {
     data: { user: sessUser },

@@ -19,6 +19,7 @@ export default async function ClientDashboardLayout({
       user={{
         email: session.user.email,
         full_name: session.profile.full_name,
+        avatar_url: session.profile.avatar_url,
       }}
     >
       {children}

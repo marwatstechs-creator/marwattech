@@ -25,6 +25,7 @@ import ArrowRight01Icon from "@hugeicons/core-free-icons/ArrowRight01Icon";
 import ArrowUpRight01Icon from "@hugeicons/core-free-icons/ArrowUpRight01Icon";
 
 import GoogleIcon from "@hugeicons/core-free-icons/GoogleIcon";
+import File02Icon from "@hugeicons/core-free-icons/File02Icon";
 
 import Call02Icon from "@hugeicons/core-free-icons/Call02Icon";
 import Mail01Icon from "@hugeicons/core-free-icons/Mail01Icon";
@@ -142,6 +143,7 @@ export const ICONS = {
   briefcase: Briefcase01Icon,
   team: UserGroup02Icon,
   file: File01Icon,
+  document: File02Icon,
   calendar: Calendar01Icon,
   layers: Layers01Icon,
   heart: HeartIcon,
