@@ -157,6 +157,7 @@ function CampaignsTab({ campaigns, emailConfigured }: { campaigns: CampaignRow[]
   const [audience, setAudience] = React.useState<"subscribers" | "clients" | "custom">("subscribers");
   const [customEmails, setCustomEmails] = React.useState("");
   const [preview, setPreview] = React.useState<string | null>(null);
+  const [testTo, setTestTo] = React.useState("");
 
   const previewHtml = async () => {
     if (!subject.trim() || !bodyHtml.trim()) return;
@@ -202,11 +203,18 @@ function CampaignsTab({ campaigns, emailConfigured }: { campaigns: CampaignRow[]
             </>
           )}
         </p>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <Input
+            type="email"
+            placeholder="test@email.com"
+            value={testTo}
+            onChange={(e) => setTestTo(e.target.value)}
+            className="w-56"
+          />
           <Button variant="outline" size="sm" onClick={async () => {
-            const res = await sendSmtpTest();
+            const res = await sendSmtpTest(testTo.trim() || undefined);
             if (!res.ok) toast.error(res.error || "Test failed");
-            else toast.success("Test email sent");
+            else toast.success("Test email sent — check the inbox");
           }}>
             Send test email
           </Button>

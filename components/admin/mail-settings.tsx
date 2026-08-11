@@ -35,6 +35,7 @@ export function MailSettings({ status }: { status: MailSettingsStatus }) {
   const [fromEmail, setFromEmail] = React.useState(status.stored?.from_email ?? status.fromEmail ?? "");
   const [clearPass, setClearPass] = React.useState(false);
   const [pending, setPending] = React.useState(false);
+  const [testTo, setTestTo] = React.useState("");
 
   const submit = async () => {
     setPending(true);
@@ -59,7 +60,7 @@ export function MailSettings({ status }: { status: MailSettingsStatus }) {
 
   const test = async () => {
     setPending(true);
-    const res = await sendSmtpTest();
+    const res = await sendSmtpTest(testTo.trim() || undefined);
     setPending(false);
     if (!res.ok) {
       toast.error(res.error || "Test failed");
@@ -154,10 +155,30 @@ export function MailSettings({ status }: { status: MailSettingsStatus }) {
           <code className="rounded bg-background px-1">RESEND_API_KEY</code> env var, which overrides SMTP.
         </div>
 
-        <div className="flex flex-wrap justify-end gap-2">
-          <Button variant="outline" onClick={test} disabled={pending}>
-            <AppIcon name="mail" size={15} /> Send test email
-          </Button>
+        <div className="rounded-xl border bg-muted/40 p-4">
+          <Label htmlFor="smtp-test-to" className="mb-1 block text-sm font-medium">
+            Send test email to
+          </Label>
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+            <Input
+              id="smtp-test-to"
+              type="email"
+              placeholder="you@example.com"
+              value={testTo}
+              onChange={(e) => setTestTo(e.target.value)}
+              className="flex-1"
+            />
+            <Button variant="outline" onClick={test} disabled={pending} className="shrink-0">
+              <AppIcon name="mail" size={15} /> Send test email
+            </Button>
+          </div>
+          <p className="mt-2 text-xs text-muted-foreground">
+            Enter any email address to confirm the mail system works — check the spam folder too.
+            Leave blank to send to your own account email.
+          </p>
+        </div>
+
+        <div className="flex justify-end">
           <Button variant="gold" onClick={submit} disabled={pending}>
             {pending ? "Saving…" : "Save mail settings"}
           </Button>

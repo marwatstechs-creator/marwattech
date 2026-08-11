@@ -89,10 +89,19 @@ export async function removeSubscriber(id: string) {
 
 /* ── Admin: SMTP test ─────────────────────────────────────────────────── */
 
-export async function sendSmtpTest() {
+export async function sendSmtpTest(to?: string) {
   const { session } = await requireStaff();
-  const to = session.user.email;
-  if (!to) return { error: "Your account has no email address." };
+  const recipient = to?.trim() || session.user.email;
+  if (!recipient) {
+    return {
+      error:
+        "No recipient email — enter an email address or make sure your account has one.",
+    };
+  }
+  const parsed = z.string().email().safeParse(recipient);
+  if (!parsed.success) {
+    return { error: "Invalid recipient email address." };
+  }
   if (!(await isEmailConfigured())) {
     return {
       error:
@@ -101,11 +110,11 @@ export async function sendSmtpTest() {
   }
   try {
     await sendEmail({
-      to,
+      to: parsed.data,
       subject: "Marwat Tech — SMTP test",
       html: testEmail(),
     });
-    return { ok: true };
+    return { ok: true, to: parsed.data };
   } catch (err) {
     return { error: err instanceof Error ? err.message : String(err) };
   }
