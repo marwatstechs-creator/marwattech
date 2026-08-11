@@ -1,12 +1,10 @@
 import type { Metadata } from "next";
 
-import { PageHero } from "@/components/marketing/page-hero";
+import { BlogPageClient } from "@/components/marketing/blog-page-client";
+import type { BlogPostCard } from "@/components/marketing/blog-card-v2";
 import { CtaBanner } from "@/components/marketing/cta-banner";
-import { BlogCard } from "@/components/marketing/blog-card";
-import { BlogFilters } from "@/components/marketing/blog-filters";
-import { Pagination } from "@/components/marketing/pagination";
 import { createClient } from "@/lib/supabase/server";
-import { getPublishedPosts } from "@/lib/db/content";
+import { getPublishedPosts, getBlogCategories } from "@/lib/db/content";
 import { DEMO_POSTS } from "@/lib/demo";
 import { buildMetadata } from "@/lib/seo";
 
@@ -21,6 +19,14 @@ export const metadata: Metadata = buildMetadata({
 
 type SearchParams = Promise<{ page?: string; q?: string; category?: string }>;
 
+const FALLBACK_CATEGORIES = [
+  { name: "Web Design & Development", slug: "web-design-development" },
+  { name: "SEO & Marketing", slug: "seo-marketing" },
+  { name: "Business Strategy", slug: "business-strategy" },
+  { name: "Domain & Hosting", slug: "domain-hosting" },
+  { name: "AI & Future Tech", slug: "ai-future-tech" },
+];
+
 export default async function BlogPage({
   searchParams,
 }: {
@@ -31,8 +37,9 @@ export default async function BlogPage({
   const q = params.q;
   const category = params.category;
 
-  let posts = DEMO_POSTS;
+  let posts = DEMO_POSTS as unknown as BlogPostCard[];
   let totalPages = 1;
+  let categories = FALLBACK_CATEGORIES;
 
   try {
     const db = await createClient();
@@ -43,46 +50,27 @@ export default async function BlogPage({
       categorySlug: category,
     });
     if (result.posts.length || q || category) {
-      posts = result.posts.length ? result.posts : [];
+      posts = result.posts as unknown as BlogPostCard[];
       totalPages = result.totalPages;
     }
+    const cats = await getBlogCategories(db);
+    if (cats.length) {
+      categories = cats.map((c) => ({ name: c.name, slug: c.slug }));
+    }
   } catch {
-    // fallback to demo (pagination hidden)
+    // fallback to demo content
   }
 
   return (
     <>
-      <PageHero
-        badge="Blog"
-        title="Insights, tutorials & guides"
-        description="Practical advice on web development, SEO, ecommerce and AI — from the people who build it every day."
-        breadcrumbs={[{ label: "Blog" }]}
+      <BlogPageClient
+        posts={posts}
+        categories={categories}
+        activeCategory={category}
+        q={q}
+        page={page}
+        totalPages={totalPages}
       />
-
-      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-        <BlogFilters />
-        {posts.length === 0 ? (
-          <div className="rounded-xl border border-dashed bg-muted/40 p-16 text-center">
-            <p className="text-muted-foreground">
-              No articles found{q ? ` for “${q}”` : ""}. Try a different search
-              or category.
-            </p>
-          </div>
-        ) : (
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {posts.map((p) => (
-              <BlogCard key={p.id} post={p} />
-            ))}
-          </div>
-        )}
-        <Pagination
-          currentPage={page}
-          totalPages={totalPages}
-          basePath="/blog"
-          searchParams={{ q, category }}
-        />
-      </section>
-
       <CtaBanner />
     </>
   );

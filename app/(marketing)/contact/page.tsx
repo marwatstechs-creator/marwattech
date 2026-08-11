@@ -30,7 +30,7 @@ const CONTACT_CARDS = [
   {
     icon: "pin" as const,
     title: "Visit us",
-    lines: [SITE.address],
+    lines: [SITE.location],
     href: undefined,
   },
   {

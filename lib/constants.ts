@@ -9,9 +9,8 @@ export const SITE = {
   salesEmail: "contact@marwattech.com",
   phone: "+92 310 4580297",
   whatsapp: "https://wa.me/923104580297",
-  address: "MOSMIAT, Main University Rd, Gulzar E Hijri Scheme 33, Karachi, 75280",
   location: "Karachi, Pakistan",
-  hours: "Mon – Sat, 9:00 AM – 6:00 PM (PKT)",
+  hours: "Mon – Sat, 9:00 AM – 6:00 PM",
   social: {
     facebook: "https://www.facebook.com/marwat.teck",
     twitter: "https://twitter.com/MarwatsTech",

@@ -130,7 +130,6 @@ export function Footer() {
             <div>
               <p className="text-xs text-muted-foreground">Visit us</p>
               <p className="text-sm font-medium">{SITE.location}</p>
-              <p className="mt-0.5 text-xs text-muted-foreground">{SITE.address}</p>
             </div>
           </div>
           <div className="flex items-start gap-3">
