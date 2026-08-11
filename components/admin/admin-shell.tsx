@@ -185,31 +185,16 @@ export function AdminShell({
         {/* Topbar */}
         <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-4 border-b bg-background/90 px-4 backdrop-blur sm:px-6">
           <div className="flex items-center gap-3">
-            {/* Square logo — shows in the navbar when the sidebar is collapsed */}
-            {!sidebarOpen && (
-              <Link href="/" aria-label="Marwat Tech — Home" className="shrink-0">
-                <img
-                  src="/assets/logo-light-square.svg"
-                  alt="Marwat Tech"
-                  className="size-8 dark:hidden"
-                />
-                <img
-                  src="/assets/logo-dark-square.svg"
-                  alt="Marwat Tech"
-                  className="hidden size-8 dark:block"
-                />
-              </Link>
-            )}
-            {/* Sidebar pin toggle (desktop) */}
+            {/* Sidebar toggle (desktop) — menu icon becomes close when open */}
             <div className="hidden lg:block">
               <Button
                 variant="outline"
                 size="icon"
                 onClick={togglePin}
-                aria-label={pinned ? "Collapse sidebar" : "Expand sidebar"}
-                title={pinned ? "Collapse sidebar" : "Expand sidebar"}
+                aria-label={sidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
+                title={sidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
               >
-                <AppIcon name="menu" size={20} />
+                <AppIcon name={sidebarOpen ? "close" : "menu"} size={20} />
               </Button>
             </div>
             {/* Mobile menu */}
