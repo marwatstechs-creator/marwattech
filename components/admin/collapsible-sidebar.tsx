@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { AppIcon } from "@/components/app-icon";
 import { Logo } from "@/components/marketing/logo";
@@ -24,17 +24,21 @@ export function CollapsibleSidebar({
   items,
   isActive,
   pinned,
-  onTogglePin,
+  onOpenChange,
   footer,
 }: {
   items: CollapsibleSidebarItem[];
   isActive: (href: string) => boolean;
   pinned: boolean;
-  onTogglePin: () => void;
+  onOpenChange?: (open: boolean) => void;
   footer?: (open: boolean) => React.ReactNode;
 }) {
   const [hovered, setHovered] = useState(false);
   const open = pinned || hovered;
+
+  useEffect(() => {
+    onOpenChange?.(open);
+  }, [open, onOpenChange]);
 
   return (
     <aside
@@ -44,35 +48,28 @@ export function CollapsibleSidebar({
       onMouseLeave={() => setHovered(false)}
     >
       <div className={cn("flex h-full flex-col", !open && "items-center")}>
-        {/* Header: logo + pin toggle */}
+        {/* Header: square logo when collapsed, full logo when open */}
         <div
           className={cn(
-            "flex h-16 shrink-0 items-center border-b",
-            open ? "justify-between gap-2 px-4" : "justify-center px-2"
+            "flex h-16 shrink-0 items-center border-b px-3",
+            open ? "justify-start" : "justify-center"
           )}
         >
-          <Logo
-            markClassName="size-8"
-            className={cn(
-              "[&>span:last-child]:text-base",
-              !open && "[&>span:last-child]:hidden"
-            )}
-          />
-          {open && (
-            <button
-              type="button"
-              onClick={onTogglePin}
-              aria-label={pinned ? "Collapse sidebar" : "Pin sidebar open"}
-              title={pinned ? "Collapse sidebar (click again)" : "Pin sidebar open"}
-              className={cn(
-                "grid size-8 shrink-0 place-items-center rounded-lg transition-colors",
-                pinned
-                  ? "bg-primary/10 text-primary"
-                  : "text-muted-foreground hover:bg-accent-hover hover:text-foreground"
-              )}
-            >
-              <AppIcon name="menu" size={16} />
-            </button>
+          {open ? (
+            <Logo markClassName="size-8" className="[&>span:last-child]:text-base" />
+          ) : (
+            <Link href="/" aria-label="Marwat Tech — Home" className="grid place-items-center">
+              <img
+                src="/assets/logo-light-square.svg"
+                alt="Marwat Tech"
+                className="size-8 dark:hidden"
+              />
+              <img
+                src="/assets/logo-dark-square.svg"
+                alt="Marwat Tech"
+                className="hidden size-8 dark:block"
+              />
+            </Link>
           )}
         </div>
 

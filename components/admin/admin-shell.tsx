@@ -115,6 +115,7 @@ export function AdminShell({
   const pathname = usePathname();
   const [signingOut, setSigningOut] = useState(false);
   const [pinned, setPinned] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Restore the pinned state on mount (localStorage).
   useEffect(() => {
@@ -161,7 +162,7 @@ export function AdminShell({
         items={items}
         isActive={isActive}
         pinned={pinned}
-        onTogglePin={togglePin}
+        onOpenChange={setSidebarOpen}
         footer={(open) => (
           <Link
             href="/"
@@ -184,18 +185,35 @@ export function AdminShell({
         {/* Topbar */}
         <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-4 border-b bg-background/90 px-4 backdrop-blur sm:px-6">
           <div className="flex items-center gap-3">
+            {/* Square logo — shows in the navbar when the sidebar is collapsed */}
+            {!sidebarOpen && (
+              <Link href="/" aria-label="Marwat Tech — Home" className="shrink-0">
+                <img
+                  src="/assets/logo-light-square.svg"
+                  alt="Marwat Tech"
+                  className="size-8 dark:hidden"
+                />
+                <img
+                  src="/assets/logo-dark-square.svg"
+                  alt="Marwat Tech"
+                  className="hidden size-8 dark:block"
+                />
+              </Link>
+            )}
             {/* Sidebar pin toggle (desktop) */}
-            <Button
-              variant="outline"
-              size="icon"
-              className="hidden lg:inline-flex"
-              onClick={togglePin}
-              aria-label={pinned ? "Collapse sidebar" : "Expand sidebar"}
-              title={pinned ? "Collapse sidebar" : "Expand sidebar"}
-            >
-              <AppIcon name="menu" size={20} />
-            </Button>
+            <div className="hidden lg:block">
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={togglePin}
+                aria-label={pinned ? "Collapse sidebar" : "Expand sidebar"}
+                title={pinned ? "Collapse sidebar" : "Expand sidebar"}
+              >
+                <AppIcon name="menu" size={20} />
+              </Button>
+            </div>
             {/* Mobile menu */}
+            <div className="lg:hidden">
             <Sheet>
               <SheetTrigger asChild>
                 <Button variant="outline" size="icon" className="lg:hidden" aria-label="Open admin menu">
@@ -209,6 +227,7 @@ export function AdminShell({
                 <SidebarContent role={user.role} onNavigate={() => undefined} />
               </SheetContent>
             </Sheet>
+            </div>
 
             <div className="hidden sm:block">
               <Badge variant="gold" className="uppercase tracking-wide">

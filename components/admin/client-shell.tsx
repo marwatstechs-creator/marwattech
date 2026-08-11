@@ -35,6 +35,7 @@ export function ClientShell({
   const router = useRouter();
   const [signingOut, setSigningOut] = useState(false);
   const [pinned, setPinned] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     try {
@@ -81,7 +82,7 @@ export function ClientShell({
         items={items}
         isActive={isActive}
         pinned={pinned}
-        onTogglePin={togglePin}
+        onOpenChange={setSidebarOpen}
         footer={(open) => (
           <Link
             href="/"
@@ -102,16 +103,31 @@ export function ClientShell({
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-4 border-b bg-background/90 px-4 backdrop-blur sm:px-6">
           <div className="flex items-center gap-3">
-            <Button
-              variant="outline"
-              size="icon"
-              className="hidden lg:inline-flex"
-              onClick={togglePin}
-              aria-label={pinned ? "Collapse sidebar" : "Expand sidebar"}
-              title={pinned ? "Collapse sidebar" : "Expand sidebar"}
-            >
-              <AppIcon name="menu" size={20} />
-            </Button>
+            {!sidebarOpen && (
+              <Link href="/" aria-label="Marwat Tech — Home" className="shrink-0">
+                <img
+                  src="/assets/logo-light-square.svg"
+                  alt="Marwat Tech"
+                  className="size-8 dark:hidden"
+                />
+                <img
+                  src="/assets/logo-dark-square.svg"
+                  alt="Marwat Tech"
+                  className="hidden size-8 dark:block"
+                />
+              </Link>
+            )}
+            <div className="hidden lg:block">
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={togglePin}
+                aria-label={pinned ? "Collapse sidebar" : "Expand sidebar"}
+                title={pinned ? "Collapse sidebar" : "Expand sidebar"}
+              >
+                <AppIcon name="menu" size={20} />
+              </Button>
+            </div>
             <Badge variant="gold" className="uppercase tracking-wide">
               Client Portal
             </Badge>
