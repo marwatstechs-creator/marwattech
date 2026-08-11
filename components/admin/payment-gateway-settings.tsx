@@ -28,6 +28,11 @@ export function PaymentGatewaySettings({ status }: { status: GatewayStatus }) {
   const [clearSecret, setClearSecret] = React.useState(false);
   const [pending, setPending] = React.useState(false);
 
+  const webhookUrl = React.useMemo(() => {
+    if (typeof window === "undefined") return "";
+    return `${window.location.origin}/api/paypal/webhook`;
+  }, []);
+
   const submit = async () => {
     setPending(true);
     const res = await savePaymentGateway({
@@ -132,6 +137,30 @@ export function PaymentGatewaySettings({ status }: { status: GatewayStatus }) {
               required for our flow (orders are captured server-side).
             </li>
           </ol>
+        </div>
+
+        {/* Webhook */}
+        <div className="rounded-xl border bg-muted/40 p-4 text-xs leading-relaxed text-muted-foreground">
+          <p className="mb-1 font-semibold text-foreground">Webhooks (for payments, subscriptions, invoices, disputes &amp; vault)</p>
+          <p className="mb-2">
+            In PayPal Dashboard → Notifications → Webhooks, add this URL and subscribe to the events
+            you enabled:
+          </p>
+          <div className="flex items-center gap-2">
+            <code className="min-w-0 flex-1 truncate rounded-lg border bg-background px-2 py-1.5 text-[11px]">
+              {webhookUrl || "https://YOUR-SITE/api/paypal/webhook"}
+            </code>
+            <Button type="button" variant="outline" size="sm" onClick={() => {
+              navigator.clipboard.writeText(webhookUrl);
+              toast.success("Webhook URL copied");
+            }}>
+              <AppIcon name="copy" size={13} /> Copy
+            </Button>
+          </div>
+          <p className="mt-2">
+            Then set the <code className="rounded bg-background px-1">PAYPAL_WEBHOOK_ID</code> env var
+            (from the webhook details page) so events are signature-verified.
+          </p>
         </div>
 
         <div className="flex justify-end gap-2">

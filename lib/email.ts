@@ -70,6 +70,40 @@ export async function sendEmail(payload: EmailPayload) {
   await sendViaSmtp(payload);
 }
 
+/** True when either SMTP or Resend credentials are configured. */
+export function isEmailConfigured(): boolean {
+  if (process.env.RESEND_API_KEY) return true;
+  return Boolean(
+    process.env.SMTP_HOST &&
+      process.env.SMTP_USER &&
+      process.env.SMTP_PASS
+  );
+}
+
+/**
+ * Send to many recipients independently — one failure never blocks the rest.
+ * Returns per-recipient results for campaign tracking.
+ */
+export async function sendBulkEmail(
+  payload: Omit<EmailPayload, "to">,
+  recipientsList: string[]
+): Promise<{ email: string; ok: boolean; error?: string }[]> {
+  const results: { email: string; ok: boolean; error?: string }[] = [];
+  for (const email of recipientsList) {
+    try {
+      await sendEmail({ ...payload, to: email });
+      results.push({ email, ok: true });
+    } catch (err) {
+      results.push({
+        email,
+        ok: false,
+        error: err instanceof Error ? err.message : String(err),
+      });
+    }
+  }
+  return results;
+}
+
 /* ── Notification templates ─────────────────────────────────────────── */
 
 function shell(body: string) {

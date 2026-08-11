@@ -802,6 +802,361 @@ export interface Database {
         };
         Relationships: [];
       };
+      /* ── Email marketing + PayPal features ────────────────── */
+      newsletter_subscribers: {
+        Row: {
+          id: string;
+          email: string;
+          name: string | null;
+          source: string;
+          status: string;
+          unsub_token: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          email: string;
+          name?: string | null;
+          source?: string;
+          status?: string;
+          unsub_token?: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          email?: string;
+          name?: string | null;
+          source?: string;
+          status?: string;
+          unsub_token?: string;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      email_campaigns: {
+        Row: {
+          id: string;
+          subject: string;
+          body_html: string;
+          audience: string;
+          custom_emails: Json;
+          status: string;
+          scheduled_for: string | null;
+          sent_at: string | null;
+          recipients_count: number;
+          sent_count: number;
+          failed_count: number;
+          created_by: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          subject: string;
+          body_html: string;
+          audience?: string;
+          custom_emails?: Json;
+          status?: string;
+          scheduled_for?: string | null;
+          sent_at?: string | null;
+          recipients_count?: number;
+          sent_count?: number;
+          failed_count?: number;
+          created_by?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          subject?: string;
+          body_html?: string;
+          audience?: string;
+          custom_emails?: Json;
+          status?: string;
+          scheduled_for?: string | null;
+          sent_at?: string | null;
+          recipients_count?: number;
+          sent_count?: number;
+          failed_count?: number;
+          created_by?: string | null;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      campaign_recipients: {
+        Row: {
+          id: string;
+          campaign_id: string;
+          email: string;
+          status: string;
+          error: string | null;
+          sent_at: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          campaign_id: string;
+          email: string;
+          status?: string;
+          error?: string | null;
+          sent_at?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          campaign_id?: string;
+          email?: string;
+          status?: string;
+          error?: string | null;
+          sent_at?: string | null;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      payouts: {
+        Row: {
+          id: string;
+          recipient_email: string;
+          recipient_name: string | null;
+          amount: number;
+          currency: string;
+          note: string | null;
+          status: string;
+          paypal_payout_batch_id: string | null;
+          paypal_payout_item_id: string | null;
+          error: string | null;
+          created_by: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          recipient_email: string;
+          recipient_name?: string | null;
+          amount: number;
+          currency?: string;
+          note?: string | null;
+          status?: string;
+          paypal_payout_batch_id?: string | null;
+          paypal_payout_item_id?: string | null;
+          error?: string | null;
+          created_by?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          recipient_email?: string;
+          recipient_name?: string | null;
+          amount?: number;
+          currency?: string;
+          note?: string | null;
+          status?: string;
+          paypal_payout_batch_id?: string | null;
+          paypal_payout_item_id?: string | null;
+          error?: string | null;
+          created_by?: string | null;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      subscription_plans: {
+        Row: {
+          id: string;
+          name: string;
+          slug: string;
+          description: string | null;
+          amount: number;
+          currency: string;
+          interval: string;
+          paypal_plan_id: string | null;
+          features: Json;
+          active: boolean;
+          sort_order: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          slug: string;
+          description?: string | null;
+          amount: number;
+          currency?: string;
+          interval?: string;
+          paypal_plan_id?: string | null;
+          features?: Json;
+          active?: boolean;
+          sort_order?: number;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          slug?: string;
+          description?: string | null;
+          amount?: number;
+          currency?: string;
+          interval?: string;
+          paypal_plan_id?: string | null;
+          features?: Json;
+          active?: boolean;
+          sort_order?: number;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      paypal_subscriptions: {
+        Row: {
+          id: string;
+          plan_id: string | null;
+          paypal_plan_id: string | null;
+          paypal_subscription_id: string | null;
+          customer_name: string | null;
+          customer_email: string | null;
+          amount: number;
+          currency: string;
+          interval: string;
+          status: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          plan_id?: string | null;
+          paypal_plan_id?: string | null;
+          paypal_subscription_id?: string | null;
+          customer_name?: string | null;
+          customer_email?: string | null;
+          amount: number;
+          currency?: string;
+          interval?: string;
+          status?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          plan_id?: string | null;
+          paypal_plan_id?: string | null;
+          paypal_subscription_id?: string | null;
+          customer_name?: string | null;
+          customer_email?: string | null;
+          amount?: number;
+          currency?: string;
+          interval?: string;
+          status?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      payment_methods: {
+        Row: {
+          id: string;
+          customer_email: string | null;
+          paypal_payment_token_id: string | null;
+          instrument_type: string | null;
+          brand: string | null;
+          last4: string | null;
+          is_default: boolean;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          customer_email?: string | null;
+          paypal_payment_token_id?: string | null;
+          instrument_type?: string | null;
+          brand?: string | null;
+          last4?: string | null;
+          is_default?: boolean;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          customer_email?: string | null;
+          paypal_payment_token_id?: string | null;
+          instrument_type?: string | null;
+          brand?: string | null;
+          last4?: string | null;
+          is_default?: boolean;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      paypal_disputes: {
+        Row: {
+          id: string;
+          dispute_id: string;
+          state: string | null;
+          reason: string | null;
+          amount: number | null;
+          currency: string | null;
+          buyer_email: string | null;
+          status: string;
+          evidence: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          dispute_id: string;
+          state?: string | null;
+          reason?: string | null;
+          amount?: number | null;
+          currency?: string | null;
+          buyer_email?: string | null;
+          status?: string;
+          evidence?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          dispute_id?: string;
+          state?: string | null;
+          reason?: string | null;
+          amount?: number | null;
+          currency?: string | null;
+          buyer_email?: string | null;
+          status?: string;
+          evidence?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      webhook_events: {
+        Row: {
+          id: string;
+          event_id: string | null;
+          event_type: string;
+          provider: string;
+          payload: Json;
+          processed: boolean;
+          processed_at: string | null;
+          error: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          event_id?: string | null;
+          event_type: string;
+          provider?: string;
+          payload?: Json;
+          processed?: boolean;
+          processed_at?: string | null;
+          error?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          event_id?: string | null;
+          event_type?: string;
+          provider?: string;
+          payload?: Json;
+          processed?: boolean;
+          processed_at?: string | null;
+          error?: string | null;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
       /* ── Client portal tables ───────────────────────────────── */
       client_projects: {
         Row: {
@@ -845,39 +1200,63 @@ export interface Database {
       invoices: {
         Row: {
           id: string;
-          client_id: string;
-          project_id: string | null;
           invoice_number: string;
+          client_id: string | null;
+          client_name: string | null;
+          client_email: string | null;
+          project_id: string | null;
           amount: number;
+          currency: string;
           status: string;
+          description: string | null;
+          line_items: Json;
           due_date: string | null;
+          sent_at: string | null;
           paid_at: string | null;
+          paypal_invoice_id: string | null;
           pdf_url: string | null;
           created_at: string;
+          updated_at: string;
         };
         Insert: {
           id?: string;
-          client_id: string;
-          project_id?: string | null;
           invoice_number: string;
+          client_id?: string | null;
+          client_name?: string | null;
+          client_email?: string | null;
+          project_id?: string | null;
           amount: number;
+          currency?: string;
           status?: string;
+          description?: string | null;
+          line_items?: Json;
           due_date?: string | null;
+          sent_at?: string | null;
           paid_at?: string | null;
+          paypal_invoice_id?: string | null;
           pdf_url?: string | null;
           created_at?: string;
+          updated_at?: string;
         };
         Update: {
           id?: string;
-          client_id?: string;
-          project_id?: string | null;
           invoice_number?: string;
+          client_id?: string | null;
+          client_name?: string | null;
+          client_email?: string | null;
+          project_id?: string | null;
           amount?: number;
+          currency?: string;
           status?: string;
+          description?: string | null;
+          line_items?: Json;
           due_date?: string | null;
+          sent_at?: string | null;
           paid_at?: string | null;
+          paypal_invoice_id?: string | null;
           pdf_url?: string | null;
           created_at?: string;
+          updated_at?: string;
         };
         Relationships: [];
       };

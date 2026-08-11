@@ -75,8 +75,7 @@ export async function resolvePaypalConfig(): Promise<PaypalConfig> {
 }
 
 /** Env-only snapshot (synchronous) — useful before any DB round-trip. */
-export function envPaypalConfig(): PaypalConfig {
-  const env: PaypalEnv =
+export function envPaypalConfig(): PaypalConfig {  const env: PaypalEnv =
     (process.env.PAYPAL_ENV as PaypalEnv | undefined) === "live"
       ? "live"
       : "sandbox";
@@ -299,4 +298,39 @@ export async function capturePayPalOrder(
     grossAmount: capture?.amount?.value ? Number(capture.amount.value) : null,
     currency: capture?.amount?.currency_code ?? "USD",
   };
+}
+
+/* ── Shared helpers for other PayPal features (subscriptions, invoicing,
+     payouts, disputes, vault, reporting) ─────────────────────────────── */
+
+/** Server-only access token (cached). Throws PAYPAL_NOT_CONFIGURED if unset. */
+export async function getPaypalAccessToken(): Promise<string> {
+  const cfg = await resolvePaypalConfig();
+  return getAccessToken(cfg);
+}
+
+/** Resolved API base (sandbox vs live). */
+export async function getPaypalApiBase(): Promise<string> {
+  return (await resolvePaypalConfig()).apiBase;
+}
+
+/** Authed JSON fetch against the PayPal REST API (v1/v2 paths). */
+export async function paypalApi<T>(
+  path: string,
+  init: { method?: string; body?: unknown; headers?: Record<string, string> } = {}
+): Promise<{ ok: boolean; status: number; data: T }> {
+  const base = await getPaypalApiBase();
+  const token = await getPaypalAccessToken();
+  const res = await fetch(`${base}${path}`, {
+    method: init.method ?? "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+      ...(init.headers ?? {}),
+    },
+    body: init.body !== undefined ? JSON.stringify(init.body) : undefined,
+    cache: "no-store",
+  });
+  const data = (await res.json().catch(() => ({}))) as T;
+  return { ok: res.ok, status: res.status, data };
 }

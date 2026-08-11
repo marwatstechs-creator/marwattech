@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { Logo } from "@/components/marketing/logo";
+import { NewsletterSignup } from "@/components/marketing/newsletter-signup";
 import { AppIcon } from "@/components/app-icon";
 import { SERVICES, LEGAL_LINKS, SITE } from "@/lib/constants";
 import type { IconName } from "@/lib/icons";
@@ -19,6 +20,7 @@ const SOCIALS: { label: string; icon: IconName; href: string }[] = [
 const COMPANY_LINKS = [
   { label: "About Us", href: "/about" },
   { label: "Portfolio", href: "/portfolio" },
+  { label: "Pricing", href: "/pricing" },
   { label: "Testimonials", href: "/testimonials" },
   { label: "Careers", href: "/careers" },
   { label: "Blog", href: "/blog" },
@@ -84,6 +86,12 @@ export function Footer() {
                   <AppIcon name={s.icon} size={16} />
                 </a>
               ))}
+            </div>
+            <div className="space-y-2">
+              <p className="text-sm font-semibold text-foreground">
+                Get tips &amp; updates
+              </p>
+              <NewsletterSignup compact />
             </div>
           </div>
 

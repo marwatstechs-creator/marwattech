@@ -90,6 +90,7 @@ import Table01Icon from "@hugeicons/core-free-icons/Table01Icon";
 import Copy01Icon from "@hugeicons/core-free-icons/Copy01Icon";
 import Home01Icon from "@hugeicons/core-free-icons/Home01Icon";
 import Cancel01Icon from "@hugeicons/core-free-icons/Cancel01Icon";
+import Megaphone01Icon from "@hugeicons/core-free-icons/Megaphone01Icon";
 
 // Social / brand
 import Linkedin01Icon from "@hugeicons/core-free-icons/Linkedin01Icon";
@@ -191,6 +192,7 @@ export const ICONS = {
   copy: Copy01Icon,
   homeAdmin: Home01Icon,
   close: Cancel01Icon,
+  megaphone: Megaphone01Icon,
 
   // Social
   linkedin: Linkedin01Icon,
