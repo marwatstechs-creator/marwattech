@@ -93,10 +93,10 @@ export async function sendSmtpTest() {
   const { session } = await requireStaff();
   const to = session.user.email;
   if (!to) return { error: "Your account has no email address." };
-  if (!isEmailConfigured()) {
+  if (!(await isEmailConfigured())) {
     return {
       error:
-        "SMTP is not configured. Add SMTP_HOST, SMTP_USER, SMTP_PASS (and SMTP_PORT/SMTP_SECURE) to enable email.",
+        "SMTP is not configured. Add your SMTP credentials in Admin → Settings → Email to enable sending.",
     };
   }
   try {
@@ -125,7 +125,7 @@ export async function sendCampaign(input: z.infer<typeof campaignSchema>) {
   const parsed = campaignSchema.safeParse(input);
   if (!parsed.success) return { error: "Please check the campaign details." };
 
-  if (!isEmailConfigured()) {
+  if (!(await isEmailConfigured())) {
     return {
       error:
         "Email is not configured yet. Add your SMTP credentials (Admin → Settings → Email) before sending campaigns.",

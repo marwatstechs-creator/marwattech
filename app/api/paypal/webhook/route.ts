@@ -96,7 +96,8 @@ async function verifyWebhook(
   request: Request,
   raw: string
 ): Promise<{ ok: boolean; reason?: string }> {
-  const webhookId = process.env.PAYPAL_WEBHOOK_ID;
+  const cfg = await resolvePaypalConfig();
+  const webhookId = cfg.webhookId;
   if (!webhookId) {
     // No webhook id configured — accept (sandbox/testing mode).
     return { ok: true };
@@ -111,7 +112,6 @@ async function verifyWebhook(
     return { ok: false, reason: "Missing transmission headers" };
   }
 
-  const cfg = await resolvePaypalConfig();
   const res = await fetch(`${cfg.apiBase}/v1/notifications/verify-webhook-signature`, {
     method: "POST",
     headers: {

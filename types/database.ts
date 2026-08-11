@@ -782,6 +782,7 @@ export interface Database {
           env: string;
           client_id: string | null;
           secret: string | null;
+          webhook_id: string | null;
           updated_at: string;
         };
         Insert: {
@@ -790,6 +791,7 @@ export interface Database {
           env?: string;
           client_id?: string | null;
           secret?: string | null;
+          webhook_id?: string | null;
           updated_at?: string;
         };
         Update: {
@@ -798,6 +800,40 @@ export interface Database {
           env?: string;
           client_id?: string | null;
           secret?: string | null;
+          webhook_id?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      mail_settings: {
+        Row: {
+          id: boolean;
+          host: string | null;
+          port: number | null;
+          secure: boolean;
+          user: string | null;
+          pass: string | null;
+          from_email: string | null;
+          updated_at: string;
+        };
+        Insert: {
+          id?: boolean;
+          host?: string | null;
+          port?: number | null;
+          secure?: boolean;
+          user?: string | null;
+          pass?: string | null;
+          from_email?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          id?: boolean;
+          host?: string | null;
+          port?: number | null;
+          secure?: boolean;
+          user?: string | null;
+          pass?: string | null;
+          from_email?: string | null;
           updated_at?: string;
         };
         Relationships: [];

@@ -18,13 +18,15 @@ export type GatewayStatus = {
   source: "env" | "db" | "none";
   hasClientId: boolean;
   hasSecret: boolean;
-  stored: { env: string | null; client_id: string | null; hasSecret: boolean } | null;
+  webhookId: string | null;
+  stored: { env: string | null; client_id: string | null; hasSecret: boolean; webhook_id: string | null } | null;
 };
 
 export function PaymentGatewaySettings({ status }: { status: GatewayStatus }) {
   const [env, setEnv] = React.useState<"sandbox" | "live">(status.stored?.env === "live" ? "live" : "sandbox");
   const [clientId, setClientId] = React.useState("");
   const [secret, setSecret] = React.useState("");
+  const [webhookId, setWebhookId] = React.useState(status.stored?.webhook_id ?? status.webhookId ?? "");
   const [clearSecret, setClearSecret] = React.useState(false);
   const [pending, setPending] = React.useState(false);
 
@@ -40,6 +42,7 @@ export function PaymentGatewaySettings({ status }: { status: GatewayStatus }) {
       clientId,
       secret,
       clearSecret,
+      webhookId,
     });
     setPending(false);
     if (!res.ok) {
@@ -119,6 +122,19 @@ export function PaymentGatewaySettings({ status }: { status: GatewayStatus }) {
               Remove the currently saved secret (disables the gateway)
             </label>
           )}
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="gw-webhook">PayPal Webhook ID (optional)</Label>
+          <Input
+            id="gw-webhook"
+            placeholder="e.g. 1FH...WE"
+            value={webhookId}
+            onChange={(e) => setWebhookId(e.target.value)}
+          />
+          <p className="text-xs text-muted-foreground">
+            From your webhook&apos;s details page — enables signature verification.
+          </p>
         </div>
 
         <div className="rounded-xl border bg-muted/40 p-4 text-xs leading-relaxed text-muted-foreground">

@@ -29,6 +29,7 @@ export type PaypalConfig = {
   hasSecret: boolean;
   apiBase: string;
   source: "env" | "db" | "none";
+  webhookId: string | null;
 };
 
 function apiBaseFor(env: PaypalEnv): string {
@@ -45,19 +46,21 @@ export async function resolvePaypalConfig(): Promise<PaypalConfig> {
       : "sandbox";
   let clientId = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID || null;
   let secret = process.env.PAYPAL_CLIENT_SECRET || null;
+  let webhookId = process.env.PAYPAL_WEBHOOK_ID || null;
   let source: PaypalConfig["source"] = clientId && secret ? "env" : "none";
 
   try {
     const db = createAdminClient();
     const { data } = await db
       .from("payment_gateways")
-      .select("env, client_id, secret")
+      .select("env, client_id, secret, webhook_id")
       .eq("id", true)
       .maybeSingle();
     if (data) {
       if (data.env === "live" || data.env === "sandbox") env = data.env;
       if (data.client_id) clientId = data.client_id;
       if (data.secret) secret = data.secret;
+      if (data.webhook_id) webhookId = data.webhook_id;
       if (clientId && secret) source = "db";
     }
   } catch {
@@ -71,6 +74,7 @@ export async function resolvePaypalConfig(): Promise<PaypalConfig> {
     hasSecret: Boolean(secret),
     apiBase: apiBaseFor(env),
     source,
+    webhookId,
   };
 }
 
@@ -88,6 +92,7 @@ export function envPaypalConfig(): PaypalConfig {  const env: PaypalEnv =
     hasSecret: Boolean(secret),
     apiBase: apiBaseFor(env),
     source: clientId && secret ? "env" : "none",
+    webhookId: process.env.PAYPAL_WEBHOOK_ID || null,
   };
 }
 

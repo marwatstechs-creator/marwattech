@@ -13,6 +13,88 @@ export type EmailPayload = {
 const recipients = (to: string | string[]) =>
   (Array.isArray(to) ? to : [to]).join(", ");
 
+/* ── Effective mail config: env vars first, then the DB override ──────── */
+
+export type MailConfig = {
+  provider: "smtp" | "resend";
+  configured: boolean;
+  host: string | null;
+  port: number;
+  secure: boolean;
+  user: string | null;
+  pass: string | null;
+  fromEmail: string | null;
+};
+
+let cachedMailConfig: { at: number; cfg: MailConfig } | null = null;
+
+/** Resolve effective SMTP/Resend settings (env OR Admin → Settings → Email). */
+export async function resolveMailConfig(): Promise<MailConfig> {
+  const resendKey = process.env.RESEND_API_KEY;
+  const envHost = process.env.SMTP_HOST || null;
+  const envUser = process.env.SMTP_USER || null;
+  const envPass = process.env.SMTP_PASS || null;
+
+  if (resendKey || (envHost && envUser && envPass)) {
+    return {
+      provider: resendKey ? "resend" : "smtp",
+      configured: true,
+      host: envHost,
+      port: Number(process.env.SMTP_PORT ?? 465),
+      secure: process.env.SMTP_SECURE !== "false",
+      user: envUser,
+      pass: envPass,
+      fromEmail: process.env.SMTP_FROM_EMAIL || null,
+    };
+  }
+
+  // Try the DB override (staff-editable from Settings).
+  const cacheMs = 10_000;
+  if (cachedMailConfig && Date.now() - cachedMailConfig.at < cacheMs) {
+    return cachedMailConfig.cfg;
+  }
+  try {
+    const { createAdminClient } = await import("@/lib/supabase/admin");
+    const db = createAdminClient();
+    const { data } = await db
+      .from("mail_settings")
+      .select("host, port, secure, user, pass, from_email")
+      .eq("id", true)
+      .maybeSingle();
+    if (data?.host && data.user && data.pass) {
+      const cfg: MailConfig = {
+        provider: "smtp",
+        configured: true,
+        host: data.host,
+        port: data.port ?? 465,
+        secure: data.secure,
+        user: data.user,
+        pass: data.pass,
+        fromEmail: data.from_email || null,
+      };
+      cachedMailConfig = { at: Date.now(), cfg };
+      return cfg;
+    }
+  } catch {
+    // DB unreachable — fall through to not-configured.
+  }
+  return {
+    provider: "smtp",
+    configured: false,
+    host: envHost,
+    port: Number(process.env.SMTP_PORT ?? 465),
+    secure: process.env.SMTP_SECURE !== "false",
+    user: envUser,
+    pass: envPass,
+    fromEmail: null,
+  };
+}
+
+/** True when either SMTP or Resend credentials are available. */
+export async function isEmailConfigured(): Promise<boolean> {
+  return (await resolveMailConfig()).configured;
+}
+
 /** Resend HTTP API — edge friendly, use as an alternative to SMTP. */
 async function sendViaResend(payload: EmailPayload) {
   const res = await fetch("https://api.resend.com/emails", {
@@ -37,23 +119,23 @@ async function sendViaResend(payload: EmailPayload) {
 }
 
 /** SMTP via cPanel mail server (Node runtime — used by email route). */
-async function sendViaSmtp(payload: EmailPayload) {
-  const host = process.env.SMTP_HOST;
-  const user = process.env.SMTP_USER;
-  const pass = process.env.SMTP_PASS;
+async function sendViaSmtp(payload: EmailPayload, cfg: MailConfig) {
+  const { host, port, secure, user, pass } = cfg;
   if (!host || !user || !pass) {
-    throw new Error("SMTP_HOST, SMTP_USER and SMTP_PASS are required.");
+    throw new Error("SMTP credentials are required.");
   }
 
   const transporter = nodemailer.createTransport({
     host,
-    port: Number(process.env.SMTP_PORT ?? 465),
-    secure: process.env.SMTP_SECURE !== "false",
+    port,
+    secure,
     auth: { user, pass },
   });
 
+  const from = payload.from ?? cfg.fromEmail ?? `"${SITE.name}" <${user}>`;
+
   await transporter.sendMail({
-    from: payload.from ?? `"${SITE.name}" <${user}>`,
+    from,
     to: recipients(payload.to),
     replyTo: payload.replyTo,
     subject: payload.subject,
@@ -63,21 +145,12 @@ async function sendViaSmtp(payload: EmailPayload) {
 }
 
 export async function sendEmail(payload: EmailPayload) {
-  if (process.env.RESEND_API_KEY) {
+  const cfg = await resolveMailConfig();
+  if (cfg.provider === "resend") {
     await sendViaResend(payload);
     return;
   }
-  await sendViaSmtp(payload);
-}
-
-/** True when either SMTP or Resend credentials are configured. */
-export function isEmailConfigured(): boolean {
-  if (process.env.RESEND_API_KEY) return true;
-  return Boolean(
-    process.env.SMTP_HOST &&
-      process.env.SMTP_USER &&
-      process.env.SMTP_PASS
-  );
+  await sendViaSmtp(payload, cfg);
 }
 
 /**

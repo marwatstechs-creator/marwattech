@@ -190,7 +190,17 @@ function CampaignsTab({ campaigns, emailConfigured }: { campaigns: CampaignRow[]
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <p className="text-sm text-muted-foreground">
-          {emailConfigured ? "SMTP is configured and ready." : "Email is not configured yet — add SMTP credentials before sending."}
+          {emailConfigured ? (
+            "SMTP is configured and ready."
+          ) : (
+            <>
+              Email is not configured yet — add your SMTP credentials in{" "}
+              <a href="/admin/settings#email" className="text-primary underline">
+                Settings → Email / SMTP
+              </a>{" "}
+              before sending.
+            </>
+          )}
         </p>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" onClick={async () => {

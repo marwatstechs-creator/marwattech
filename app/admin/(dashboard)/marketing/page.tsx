@@ -33,7 +33,7 @@ export default async function AdminMarketingPage() {
       <MarketingAdmin
         subscribers={subscribers}
         campaigns={campaigns}
-        emailConfigured={isEmailConfigured()}
+        emailConfigured={await isEmailConfigured()}
       />
     </>
   );

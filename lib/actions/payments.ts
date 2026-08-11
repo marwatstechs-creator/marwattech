@@ -173,12 +173,12 @@ export async function capturePayPalCheckout(
 export async function getPaymentGatewayStatus() {
   await requireStaff();
   const cfg = await resolvePaypalConfig();
-  let stored: { env: string | null; client_id: string | null; hasSecret: boolean } | null = null;
+  let stored: { env: string | null; client_id: string | null; hasSecret: boolean; webhook_id: string | null } | null = null;
   try {
     const db = createAdminClient();
     const { data } = await db
       .from("payment_gateways")
-      .select("env, client_id, secret")
+      .select("env, client_id, secret, webhook_id")
       .eq("id", true)
       .maybeSingle();
     stored = data
@@ -186,6 +186,7 @@ export async function getPaymentGatewayStatus() {
           env: data.env,
           client_id: data.client_id,
           hasSecret: Boolean(data.secret),
+          webhook_id: data.webhook_id,
         }
       : null;
   } catch {
@@ -197,6 +198,7 @@ export async function getPaymentGatewayStatus() {
     source: cfg.source,
     hasClientId: Boolean(cfg.clientId),
     hasSecret: cfg.hasSecret,
+    webhookId: cfg.webhookId,
     stored,
   };
 }
@@ -208,6 +210,7 @@ const gatewaySchema = z.object({
   clientId: z.string().max(300).optional().or(z.literal("")),
   secret: z.string().max(300).optional().or(z.literal("")),
   clearSecret: z.boolean().optional(),
+  webhookId: z.string().max(300).optional().or(z.literal("")),
 });
 
 export async function savePaymentGateway(input: z.infer<typeof gatewaySchema>) {
@@ -219,16 +222,19 @@ export async function savePaymentGateway(input: z.infer<typeof gatewaySchema>) {
     env: string;
     client_id?: string | null;
     secret?: string | null;
+    webhook_id?: string | null;
   } = { env: parsed.data.env };
   if (parsed.data.clientId) patch.client_id = parsed.data.clientId.trim();
   if (parsed.data.clearSecret) patch.secret = null;
   else if (parsed.data.secret) patch.secret = parsed.data.secret.trim();
+  if (parsed.data.webhookId) patch.webhook_id = parsed.data.webhookId.trim();
+  else if (input.webhookId === "") patch.webhook_id = null;
 
   const { data, error } = await db
     .from("payment_gateways")
     .update(patch)
     .eq("id", true)
-    .select("env, client_id, secret")
+    .select("env, client_id, secret, webhook_id")
     .single();
   if (error) return { error: error.message };
 
@@ -236,6 +242,7 @@ export async function savePaymentGateway(input: z.infer<typeof gatewaySchema>) {
     env: data.env,
     has_client_id: Boolean(data.client_id),
     has_secret: Boolean(data.secret),
+    has_webhook_id: Boolean(data.webhook_id),
   });
   revalidatePath("/admin/settings");
   revalidatePath("/payment");
