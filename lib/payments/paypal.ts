@@ -339,3 +339,19 @@ export async function paypalApi<T>(
   const data = (await res.json().catch(() => ({}))) as T;
   return { ok: res.ok, status: res.status, data };
 }
+
+/** Resolve the client secret (env or the admin-stored gateway row). */
+export async function getPaypalSecret(): Promise<string | null> {
+  if (process.env.PAYPAL_CLIENT_SECRET) return process.env.PAYPAL_CLIENT_SECRET;
+  try {
+    const db = createAdminClient();
+    const { data } = await db
+      .from("payment_gateways")
+      .select("secret")
+      .eq("id", true)
+      .maybeSingle();
+    return data?.secret ?? null;
+  } catch {
+    return null;
+  }
+}

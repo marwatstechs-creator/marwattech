@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
 import { AppIcon } from "@/components/app-icon";
 import { GoogleSignIn } from "@/components/admin/google-sign-in";
+import { PayPalSignIn } from "@/components/admin/paypal-sign-in";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -49,9 +50,14 @@ export default function AdminLoginPage() {
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    if (params.get("error") === "auth_callback") {
+    const err = params.get("error");
+    if (err === "auth_callback") {
       toast.error(
         "Google sign-in could not be completed. Ask an administrator to enable Google in Supabase → Authentication → Providers."
+      );
+    } else if (err === "paypal" || err === "paypal_no_email") {
+      toast.error(
+        "PayPal sign-in could not be completed. Make sure the PayPal gateway is configured and Log in with PayPal is enabled for your app."
       );
     }
   }, []);
@@ -116,6 +122,7 @@ export default function AdminLoginPage() {
         </div>
 
         <GoogleSignIn mode="admin" />
+        <PayPalSignIn mode="admin" />
 
         <p className="mt-4 text-center text-xs text-muted-foreground">
           Authorized staff only. Contact the administrator if you need access.

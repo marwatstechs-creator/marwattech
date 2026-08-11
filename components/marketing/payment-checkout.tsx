@@ -26,6 +26,11 @@ import {
   capturePayPalCheckout,
 } from "@/lib/actions/payments";
 import {
+  getPaypalClientTokenAction,
+  createVaultSetupTokenAction,
+  savePaymentTokenAction,
+} from "@/lib/actions/paypal-features";
+import {
   CURRENCIES,
   PAYMENT_ITEM_TYPES,
   DEFAULT_CURRENCY,
@@ -69,8 +74,12 @@ type PayPalButtonsInstance = {
 type PayPalSdk = {
   Buttons: (options: {
     style?: Record<string, unknown>;
-    createOrder: () => Promise<string>;
-    onApprove: (data: { orderID: string }, actions?: unknown) => void | Promise<void>;
+    createOrder?: () => Promise<string>;
+    createVaultSetupToken?: () => Promise<string>;
+    onApprove?: (
+      data: { orderID: string; vaultSetupToken?: string },
+      actions?: unknown
+    ) => void | Promise<void>;
     onCancel?: () => void;
     onError?: () => void;
   }) => PayPalButtonsInstance;
@@ -112,6 +121,26 @@ function loadPaypalSdk(clientId: string, currency: string): Promise<PayPalSdk> {
     document.body.appendChild(script);
   });
   sdkPromise = { currency, promise };
+  return promise;
+}
+
+/** Load a separate SDK instance for the Vault (save payment method) flow. */
+function loadVaultSdk(clientId: string, clientToken: string): Promise<PayPalSdk> {
+  const script = document.createElement("script");
+  script.src = `https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(
+    clientId
+  )}&components=buttons&intent=capture&enable-funding=card&data-sdk-integration-source=developer-studio`;
+  script.setAttribute("data-paypal-vault", clientToken);
+  script.setAttribute("data-client-token", clientToken);
+  script.async = true;
+  const promise = new Promise<PayPalSdk>((resolve, reject) => {
+    script.onload = () => {
+      if (window.paypal) resolve(window.paypal);
+      else reject(new Error("PayPal Vault SDK failed to load"));
+    };
+    script.onerror = () => reject(new Error("PayPal Vault SDK failed to load"));
+  });
+  document.body.appendChild(script);
   return promise;
 }
 
@@ -191,8 +220,11 @@ export function PaymentCheckout({ configured, clientId, env, initial }: Checkout
   const [customerEmail, setCustomerEmail] = React.useState<string>(initial?.email || "");
   const [status, setStatus] = React.useState<Status>("idle");
   const [error, setError] = React.useState<string | null>(null);
+  const [saveMethod, setSaveMethod] = React.useState(false);
+  const [vaultStatus, setVaultStatus] = React.useState<"idle" | "saving" | "saved" | "error">("idle");
 
   const buttonContainerRef = React.useRef<HTMLDivElement>(null);
+  const vaultContainerRef = React.useRef<HTMLDivElement>(null);
   const internalOrderRef = React.useRef("");
   const valuesRef = React.useRef({ amount, currency, itemType, itemName, description, customerName, customerEmail });
   React.useEffect(() => {
@@ -272,6 +304,64 @@ export function PaymentCheckout({ configured, clientId, env, initial }: Checkout
       }
     };
   }, [configured, clientId, amountNum, currency, status]);
+
+  /* Vault — save a payment method for faster checkout (no charge). */
+  React.useEffect(() => {
+    if (!saveMethod || !configured || !clientId || !vaultContainerRef.current) {
+      return;
+    }
+    let cancelled = false;
+    let vaultButtons: PayPalButtonsInstance | null = null;
+
+    (async () => {
+      try {
+        const tokenRes = await getPaypalClientTokenAction();
+        const clientToken = tokenRes.clientToken;
+        if (!clientToken || cancelled) {
+          setVaultStatus("error");
+          return;
+        }
+        const paypal = await loadVaultSdk(clientId, clientToken);
+        if (cancelled || !vaultContainerRef.current) return;
+        vaultContainerRef.current.innerHTML = "";
+
+        vaultButtons = paypal.Buttons({
+          style: { layout: "vertical", label: "paypal", color: "blue", shape: "pill", height: 44 },
+          createVaultSetupToken: async () => {
+            const res = await createVaultSetupTokenAction();
+            if (!res.setupTokenId) throw new Error("vault setup failed");
+            return res.setupTokenId;
+          },
+          onApprove: async (data) => {
+            if (!data.vaultSetupToken) {
+              setVaultStatus("error");
+              return;
+            }
+            setVaultStatus("saving");
+            const v = valuesRef.current;
+            const res = await savePaymentTokenAction({
+              tokenId: data.vaultSetupToken,
+              customerEmail: v.customerEmail || undefined,
+            });
+            setVaultStatus(res.ok ? "saved" : "error");
+          },
+          onError: () => setVaultStatus("error"),
+        });
+        await vaultButtons.render(vaultContainerRef.current);
+      } catch {
+        if (!cancelled) setVaultStatus("error");
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+      try {
+        vaultButtons?.close?.();
+      } catch {
+        /* ignore */
+      }
+    };
+  }, [saveMethod, configured, clientId]);
 
   return (
     <div className="grid gap-6 lg:grid-cols-5">
@@ -423,6 +513,31 @@ export function PaymentCheckout({ configured, clientId, env, initial }: Checkout
                     <p className="mt-2 text-center text-xs text-muted-foreground">
                       {env === "sandbox" ? "Sandbox mode — test payments only." : "Secure checkout via PayPal."}
                     </p>
+
+                    {/* Save payment method (Vault) */}
+                    <label className="mt-4 flex cursor-pointer items-start gap-2 rounded-xl border bg-muted/40 p-3 text-xs text-muted-foreground">
+                      <input
+                        type="checkbox"
+                        checked={saveMethod}
+                        onChange={(e) => setSaveMethod(e.target.checked)}
+                        className="mt-0.5 size-3.5"
+                      />
+                      <span>
+                        <strong className="text-foreground">Save this payment method</strong> for
+                        faster checkout next time (via PayPal Vault). No charge now.
+                      </span>
+                    </label>
+                    {saveMethod && vaultStatus === "saved" && (
+                      <p className="mt-2 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-xs text-emerald-700 dark:text-emerald-400">
+                        Payment method saved — you&apos;ll see it under Payments → Saved methods.
+                      </p>
+                    )}
+                    {saveMethod && vaultStatus === "error" && (
+                      <p className="mt-2 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-xs text-destructive">
+                        Could not save the payment method. You can still pay below.
+                      </p>
+                    )}
+                    <div ref={vaultContainerRef} className="mt-2 min-h-[40px] [&_iframe]:rounded-xl" />
                   </>
                 ) : null}
               </div>

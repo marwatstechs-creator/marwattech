@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { toast } from "sonner";
 
 import { createClient } from "@/lib/supabase/client";
 import { AppIcon } from "@/components/app-icon";
+import { PayPalSignIn } from "@/components/admin/paypal-sign-in";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -46,6 +47,16 @@ export default function ClientLoginPage() {
     router.push("/client");
     router.refresh();
   };
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const err = params.get("error");
+    if (err === "paypal" || err === "paypal_no_email") {
+      toast.error(
+        "PayPal sign-in could not be completed. Make sure the PayPal gateway is configured and Log in with PayPal is enabled for your app."
+      );
+    }
+  }, []);
 
   return (
     <Card>
@@ -97,8 +108,17 @@ export default function ClientLoginPage() {
             )}
           </Button>
         </form>
+
+        <div className="my-4 flex items-center gap-3 text-xs text-muted-foreground">
+          <span className="h-px flex-1 bg-border" />
+          OR
+          <span className="h-px flex-1 bg-border" />
+        </div>
+
+        <PayPalSignIn mode="client" />
+
         <p className="mt-4 text-center text-sm text-muted-foreground">
-          Don't have an account?{" "}
+          Don&apos;t have an account?{" "}
           <Link href="/client/register" className="font-medium text-primary hover:underline">Create one</Link>
         </p>
       </CardContent>

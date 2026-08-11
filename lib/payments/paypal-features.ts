@@ -306,3 +306,12 @@ export async function createPaymentToken(setupTokenId: string) {
   );
   return data;
 }
+
+/** Client token required to render the Vault SDK (save payment methods). */
+export async function generateClientToken() {
+  await guard();
+  const { data } = await paypalApi<{ client_token?: string }>("/v1/identity/generate-token", {
+    method: "POST",
+  });
+  return data;
+}

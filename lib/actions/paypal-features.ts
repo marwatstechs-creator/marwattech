@@ -359,8 +359,18 @@ export async function searchPaypalTransactions(input: { startDate: string; endDa
 
 /* ── Vault (save payment methods) ─────────────────────────────────────── */
 
+export async function getPaypalClientTokenAction() {
+  const cfg = await resolvePaypalConfig();
+  if (!cfg.enabled) return { notConfigured: true };
+  try {
+    const data = await pp.generateClientToken();
+    return { notConfigured: false, clientToken: data.client_token ?? null };
+  } catch {
+    return { notConfigured: false, clientToken: null };
+  }
+}
+
 export async function createVaultSetupTokenAction() {
-  await requireStaff();
   const cfg = await resolvePaypalConfig();
   if (!cfg.enabled) return { notConfigured: true };
   try {
@@ -372,7 +382,7 @@ export async function createVaultSetupTokenAction() {
 }
 
 export async function savePaymentTokenAction(input: { tokenId: string; customerEmail?: string }) {
-  const { db } = await requireStaff();
+  const db = createAdminClient();
   try {
     const token = await pp.createPaymentToken(input.tokenId);
     const { error } = await db.from("payment_methods").insert({
