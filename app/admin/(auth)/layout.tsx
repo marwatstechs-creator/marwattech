@@ -1,4 +1,5 @@
 import { Logo } from "@/components/marketing/logo";
+import { AuthWaves } from "@/components/marketing/auth-waves";
 
 export default function AdminAuthLayout({
   children,
@@ -11,7 +12,8 @@ export default function AdminAuthLayout({
         aria-hidden
         className="pointer-events-none absolute inset-0 bg-[radial-gradient(50%_40%_at_50%_0%,hsl(var(--brand)/0.1),transparent)]"
       />
-      <div className="relative w-full max-w-sm">
+      <AuthWaves />
+      <div className="relative z-10 w-full max-w-sm">
         <div className="mb-8 flex justify-center">
           <Logo />
         </div>

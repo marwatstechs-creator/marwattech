@@ -94,6 +94,14 @@
   --gold-foreground: #111827;
   --azure: #5f4fa8;
   --azure-foreground: #ffffff;
+
+  /* Auth page wave (light) — layered purple ramp */
+  --wave-a: #efeaf8;
+  --wave-b: #d7cdf2;
+  --wave-c: #b7a6e8;
+  --wave-d: #8b7dd4;
+  --wave-e: #5f4fa8;
+  --wave-f: #4b3ea1;
 }
 
 .dark {
@@ -124,6 +132,14 @@
   --gold-foreground: #111318;
   --azure: #7464c6;
   --azure-foreground: #ffffff;
+
+  /* Auth page wave (dark) — deeper purple ramp */
+  --wave-a: #221e3a;
+  --wave-b: #2b2550;
+  --wave-c: #352d66;
+  --wave-d: #40357e;
+  --wave-e: #4c3f8f;
+  --wave-f: #5a4aa3;
 }
 
 @layer base {
