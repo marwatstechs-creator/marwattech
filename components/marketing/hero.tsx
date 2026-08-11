@@ -4,6 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { AppIcon } from "@/components/app-icon";
+import { Typewriter } from "@/components/marketing/typewriter";
 import { trackEvent } from "@/lib/analytics";
 
 /* ── Dot Grid Canvas ────────────────────────────────────────────────── */
@@ -176,7 +177,9 @@ export function Hero() {
               className="font-display text-center text-5xl font-extrabold tracking-tight sm:text-[56px] sm:leading-[1.05] lg:text-[72px] lg:leading-[1.07]">
               <span className="block">We Build</span>
               <span className="block bg-gradient-to-r from-[#7464c6] via-[#f8c640] to-[#9b8dd4] bg-clip-text text-transparent sm:mt-2">Digital Products</span>
-              <span className="block sm:mt-2">That Drive Growth<span className="font-serif">.</span></span>
+              <span className="block sm:mt-2">
+                That Drive <Typewriter />
+              </span>
             </motion.h1>
 
             {/* Subtitle */}

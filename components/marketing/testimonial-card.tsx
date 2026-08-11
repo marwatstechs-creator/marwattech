@@ -35,7 +35,7 @@ export function TestimonialCard({ t }: { t: Testimonial }) {
           </div>
         </div>
 
-        <blockquote className="flex-1 text-sm leading-relaxed text-foreground/85">
+        <blockquote className="line-clamp-2 flex-1 text-sm leading-relaxed text-foreground/85">
           “{t.quote}”
         </blockquote>
 

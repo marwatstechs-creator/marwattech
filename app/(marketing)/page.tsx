@@ -5,7 +5,7 @@ import { Hero } from "@/components/marketing/hero";
 import { SectionHeader } from "@/components/marketing/section-header";
 import { ServiceCard } from "@/components/marketing/service-card";
 import { PortfolioCard } from "@/components/marketing/portfolio-card";
-import { TestimonialCard } from "@/components/marketing/testimonial-card";
+import { ReviewsMarquee } from "@/components/marketing/reviews-marquee";
 import { LogoWatermark } from "@/components/marketing/logo-watermark";
 import { GoogleReviewsHomeBanner } from "@/components/marketing/google-reviews-home-banner";
 import { BlogCard } from "@/components/marketing/blog-card";
@@ -92,6 +92,14 @@ export default async function HomePage() {
   }> = [];
   let googlePlaceUrl = "https://maps.google.com/?cid=15403920924729213100";
 
+  // Keep every review card the same size: cap the text at the first two sentences.
+  const firstSentences = (text: string, max = 2) => {
+    const cleaned = text.trim();
+    const sentences = cleaned.match(/[^.!?]+[.!?]+/g);
+    if (!sentences || sentences.length <= max) return cleaned;
+    return sentences.slice(0, max).join(" ").trim() + "…";
+  };
+
   try {
     const db = await createClient();
     const [s, p, postsRes] = await Promise.all([
@@ -114,7 +122,7 @@ export default async function HomePage() {
       client_name: r.author_name,
       company: r.relative_time_description ?? null,
       role: "Google Review",
-      quote: r.text || "No written review.",
+      quote: firstSentences(r.text) || "No written review.",
       rating: r.rating,
       avatar_url: r.profile_photo_url,
     }));
@@ -273,11 +281,7 @@ export default async function HomePage() {
             title="What our clients say"
             description="Real feedback straight from our Google Business Profile."
           />
-          <div className="grid gap-6 md:grid-cols-3">
-            {googleReviews.slice(0, 6).map((t) => (
-              <TestimonialCard key={t.id} t={t} />
-            ))}
-          </div>
+          <ReviewsMarquee items={googleReviews.slice(0, 6)} />
           <div className="mt-10 text-center">
             <Link href={googlePlaceUrl} target="_blank" rel="noopener noreferrer">
               <Button variant="outline">

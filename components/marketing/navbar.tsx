@@ -217,14 +217,24 @@ export function Navbar() {
               </div>
 
               {/* Regular nav links */}
-              {[
-                { label: "Portfolio", href: "/portfolio" },
-                { label: "Testimonials", href: "/testimonials" },
-                { label: "Blog", href: "/blog" },
-                { label: "Contact", href: "/contact" },
-              ].map((item) => (
+              {(
+                [
+                  { label: "Portfolio", href: "/portfolio", icon: "grid" },
+                  { label: "Testimonials", href: "/testimonials", icon: "chat" },
+                  { label: "Blog", href: "/blog", icon: "file" },
+                  { label: "Contact", href: "/contact", icon: "mail" },
+                ] as const
+              ).map((item) => (
                 <Link key={item.href} href={item.href}
-                  className={cn("rounded-full px-3 py-2 text-sm font-medium transition-colors", isActive(item.href) ? "text-foreground" : "text-foreground/60 hover:text-foreground")}>
+                  className={cn("inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-sm font-medium transition-colors", isActive(item.href) ? "text-foreground" : "text-foreground/60 hover:text-foreground")}>
+                  {item.href === "/portfolio" ? (
+                    <span className="inline-flex shrink-0">
+                      <img src="/assets/logo-light-square.svg" alt="" className="h-4 w-4 dark:hidden" />
+                      <img src="/assets/logo-dark-square.svg" alt="" className="hidden h-4 w-4 dark:block" />
+                    </span>
+                  ) : (
+                    <AppIcon name={item.icon} size={15} />
+                  )}
                   {item.label}
                 </Link>
               ))}
@@ -327,9 +337,16 @@ export function Navbar() {
                     <li key={item.href}>
                       <Link href={item.href} onClick={() => setMobileOpen(false)}
                         className="group flex min-h-[44px] w-full items-center gap-3 rounded-2xl px-3 text-start text-base font-semibold text-foreground/70 transition-colors hover:bg-accent hover:text-foreground">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-muted-foreground group-hover:text-primary transition-colors">
-                          {item.icon}
-                        </svg>
+                        {item.href === "/portfolio" ? (
+                          <span className="grid size-[18px] shrink-0 place-items-center">
+                            <img src="/assets/logo-light-square.svg" alt="" className="h-[18px] w-[18px] dark:hidden" />
+                            <img src="/assets/logo-dark-square.svg" alt="" className="hidden h-[18px] w-[18px] dark:block" />
+                          </span>
+                        ) : (
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-muted-foreground group-hover:text-primary transition-colors">
+                            {item.icon}
+                          </svg>
+                        )}
                         <span className="flex-1 text-start transition-transform duration-200 group-hover:translate-x-[3px]">{item.label}</span>
                       </Link>
                     </li>
