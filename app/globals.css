@@ -340,29 +340,10 @@
     transform: translateX(0);
   }
 }
+/* All layers flow together, in sync, as one unified wave. */
 .wave-layer {
   will-change: transform;
   animation: wave-flow 9s ease-in-out infinite;
-}
-.wave-layer-b {
-  animation-duration: 11s;
-  animation-delay: -2.5s;
-}
-.wave-layer-c {
-  animation-duration: 8s;
-  animation-delay: -4.2s;
-}
-.wave-layer-d {
-  animation-duration: 12s;
-  animation-delay: -1.4s;
-}
-.wave-layer-e {
-  animation-duration: 10s;
-  animation-delay: -5.6s;
-}
-.wave-layer-f {
-  animation-duration: 13s;
-  animation-delay: -3.1s;
 }
 @media (prefers-reduced-motion: reduce) {
   .wave-layer {
