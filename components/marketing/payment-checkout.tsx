@@ -26,11 +26,6 @@ import {
   capturePayPalCheckout,
 } from "@/lib/actions/payments";
 import {
-  getPaypalClientTokenAction,
-  createVaultSetupTokenAction,
-  savePaymentTokenAction,
-} from "@/lib/actions/paypal-features";
-import {
   CURRENCIES,
   PAYMENT_ITEM_TYPES,
   DEFAULT_CURRENCY,
@@ -64,41 +59,74 @@ type Status =
   | "cancelled"
   | "error";
 
-/* ── PayPal SDK loader (injects the official JS SDK) ──────────────────── */
+/* ── PayPal JS SDK v6 loader (injects the official v6 core script) ────── */
 
-type PayPalButtonsInstance = {
-  render: (el: HTMLElement) => Promise<void>;
-  close: () => void;
+/** Minimal typings for the PayPal JS SDK v6 surface we use. */
+type PayPalV6MethodDetails = {
+  productCode?: string;
+  countryCode?: string;
 };
 
-type PayPalSdk = {
-  Buttons: (options: {
-    style?: Record<string, unknown>;
-    createOrder?: () => Promise<string>;
-    createVaultSetupToken?: () => Promise<string>;
-    onApprove?: (
-      data: { orderID: string; vaultSetupToken?: string },
-      actions?: unknown
-    ) => void | Promise<void>;
-    onCancel?: () => void;
-    onError?: () => void;
-  }) => PayPalButtonsInstance;
+type PayPalV6SessionOptions = {
+  onApprove?: (data: { orderId: string }) => void | Promise<void>;
+  onCancel?: (data?: { orderId?: string }) => void;
+  onError?: (err?: { code?: string; message?: string }) => void;
+};
+
+type PayPalV6Session = {
+  start: (
+    opts: { presentationMode?: string },
+    orderPromise: Promise<{ orderId: string }>
+  ) => Promise<void>;
+};
+
+type PayPalV6Eligibility = {
+  isEligible: (method: string) => boolean;
+  getDetails: (method: string) => PayPalV6MethodDetails;
+};
+
+type PayPalV6Instance = {
+  findEligibleMethods: (opts?: {
+    currencyCode?: string;
+    paymentFlow?: string;
+  }) => Promise<PayPalV6Eligibility>;
+  createPayPalOneTimePaymentSession: (
+    o: PayPalV6SessionOptions
+  ) => PayPalV6Session;
+  createPayLaterOneTimePaymentSession: (
+    o: PayPalV6SessionOptions
+  ) => PayPalV6Session;
+  createPayPalCreditOneTimePaymentSession: (
+    o: PayPalV6SessionOptions
+  ) => PayPalV6Session;
+};
+
+type PayPalV6 = {
+  createInstance: (opts: {
+    clientId?: string;
+    clientToken?: string;
+    components?: string[];
+    pageType?: string;
+    locale?: string;
+    clientMetadataId?: string;
+  }) => Promise<PayPalV6Instance>;
 };
 
 declare global {
   interface Window {
-    paypal?: PayPalSdk;
+    paypal?: PayPalV6;
   }
 }
 
-let sdkPromise: { currency: string; promise: Promise<PayPalSdk> } | null = null;
+let sdkPromise: { env: string; promise: Promise<PayPalV6> } | null = null;
 
-function loadPaypalSdk(clientId: string, currency: string): Promise<PayPalSdk> {
-  if (sdkPromise && sdkPromise.currency === currency) {
+/** Load the v6 core script. Live vs sandbox uses a different script URL. */
+function loadPaypalV6(env: "sandbox" | "live"): Promise<PayPalV6> {
+  if (sdkPromise && sdkPromise.env === env) {
     return sdkPromise.promise;
   }
   document
-    .querySelectorAll("script[data-paypal-sdk]")
+    .querySelectorAll("script[data-paypal-v6]")
     .forEach((s) => s.remove());
   try {
     delete (window as { paypal?: unknown }).paypal;
@@ -106,41 +134,24 @@ function loadPaypalSdk(clientId: string, currency: string): Promise<PayPalSdk> {
     /* ignore */
   }
 
-  const promise = new Promise<PayPalSdk>((resolve, reject) => {
+  const src =
+    env === "live"
+      ? "https://www.paypal.com/web-sdk/v6/core"
+      : "https://www.sandbox.paypal.com/web-sdk/v6/core";
+
+  const promise = new Promise<PayPalV6>((resolve, reject) => {
     const script = document.createElement("script");
-    script.src = `https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(
-      clientId
-    )}&currency=${currency}&intent=capture&components=buttons&enable-funding=card`;
-    script.setAttribute("data-paypal-sdk", currency);
+    script.src = src;
+    script.setAttribute("data-paypal-v6", env);
     script.async = true;
     script.onload = () => {
       if (window.paypal) resolve(window.paypal);
-      else reject(new Error("PayPal SDK failed to load"));
+      else reject(new Error("PayPal v6 SDK failed to load"));
     };
-    script.onerror = () => reject(new Error("PayPal SDK failed to load"));
+    script.onerror = () => reject(new Error("PayPal v6 SDK failed to load"));
     document.body.appendChild(script);
   });
-  sdkPromise = { currency, promise };
-  return promise;
-}
-
-/** Load a separate SDK instance for the Vault (save payment method) flow. */
-function loadVaultSdk(clientId: string, clientToken: string): Promise<PayPalSdk> {
-  const script = document.createElement("script");
-  script.src = `https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(
-    clientId
-  )}&components=buttons&intent=capture&enable-funding=card&data-sdk-integration-source=developer-studio`;
-  script.setAttribute("data-paypal-vault", clientToken);
-  script.setAttribute("data-client-token", clientToken);
-  script.async = true;
-  const promise = new Promise<PayPalSdk>((resolve, reject) => {
-    script.onload = () => {
-      if (window.paypal) resolve(window.paypal);
-      else reject(new Error("PayPal Vault SDK failed to load"));
-    };
-    script.onerror = () => reject(new Error("PayPal Vault SDK failed to load"));
-  });
-  document.body.appendChild(script);
+  sdkPromise = { env, promise };
   return promise;
 }
 
@@ -224,7 +235,6 @@ export function PaymentCheckout({ configured, clientId, env, initial }: Checkout
   const [vaultStatus, setVaultStatus] = React.useState<"idle" | "saving" | "saved" | "error">("idle");
 
   const buttonContainerRef = React.useRef<HTMLDivElement>(null);
-  const vaultContainerRef = React.useRef<HTMLDivElement>(null);
   const internalOrderRef = React.useRef("");
   const valuesRef = React.useRef({ amount, currency, itemType, itemName, description, customerName, customerEmail });
   React.useEffect(() => {
@@ -238,58 +248,133 @@ export function PaymentCheckout({ configured, clientId, env, initial }: Checkout
 
   const valid = amountNum !== null && amountNum >= MIN_AMOUNT && amountNum <= MAX_AMOUNT;
 
-  /* Render PayPal buttons once SDK loads + amount/currency are valid. */
+  /* Render v6 PayPal buttons (PayPal, Pay Later, PayPal Credit) once the SDK
+     loads + amount/currency are valid. Uses the PayPal JS SDK v6 custom
+     elements + payment sessions, with eligibility-based method detection. */
   React.useEffect(() => {
     if (!configured || !clientId || !amountNum || !buttonContainerRef.current || status === "success") {
       return;
     }
     let cancelled = false;
-    let buttons: PayPalButtonsInstance | null = null;
+    const mounted: HTMLElement[] = [];
 
     (async () => {
       try {
-        const paypal = await loadPaypalSdk(clientId, currency);
+        const paypal = await loadPaypalV6(env);
         if (cancelled || !buttonContainerRef.current) return;
-        buttonContainerRef.current.innerHTML = "";
 
-        buttons = paypal.Buttons({
-          style: { layout: "vertical", color: "gold", shape: "pill", label: "paypal", height: 48 },
-          createOrder: async () => {
-            const v = valuesRef.current;
-            const res = await createPayPalCheckout({
-              amount: Number(v.amount),
-              currency: v.currency,
-              itemType: v.itemType,
-              itemName: v.itemName,
-              description: v.description,
-              customerName: v.customerName,
-              customerEmail: v.customerEmail,
-            });
-            if (!res.ok) {
-              if (res.notConfigured) {
-                setError("The payment gateway isn't configured yet. Please contact us.");
-              } else {
-                setError(res.error || "Could not start payment.");
-              }
-              throw new Error(res.error || "create failed");
+        const sdkInstance = await paypal.createInstance({
+          clientId,
+          components: ["paypal-payments"],
+          pageType: "checkout",
+          clientMetadataId:
+            typeof crypto !== "undefined" && crypto.randomUUID
+              ? crypto.randomUUID()
+              : `mts-${Date.now()}`,
+        });
+        if (cancelled || !buttonContainerRef.current) return;
+
+        const eligibility = await sdkInstance.findEligibleMethods({
+          currencyCode: currency,
+        });
+        if (cancelled || !buttonContainerRef.current) return;
+
+        const container = buttonContainerRef.current;
+        container.innerHTML = "";
+
+        // v6 requires createOrder to resolve to { orderId } (NOT a plain string).
+        const createOrderFor = () => async (): Promise<{ orderId: string }> => {
+          const v = valuesRef.current;
+          const res = await createPayPalCheckout({
+            amount: Number(v.amount),
+            currency: v.currency,
+            itemType: v.itemType,
+            itemName: v.itemName,
+            description: v.description,
+            customerName: v.customerName,
+            customerEmail: v.customerEmail,
+            saveMethod,
+          });
+          if (!res.ok) {
+            if (res.notConfigured) {
+              setError("The payment gateway isn't configured yet. Please contact us.");
+            } else {
+              setError(res.error || "Could not start payment.");
             }
-            internalOrderRef.current = res.orderId;
-            setError(null);
-            return res.paypalOrderId;
-          },
-          onApprove: async (data: { orderID: string }) => {
+            throw new Error(res.error || "create failed");
+          }
+          internalOrderRef.current = res.orderId;
+          setError(null);
+          return { orderId: res.paypalOrderId };
+        };
+
+        const sessionOptions: PayPalV6SessionOptions = {
+          onApprove: async ({ orderId }) => {
             setStatus("processing");
             const res = await capturePayPalCheckout(
               internalOrderRef.current,
-              data.orderID
+              orderId,
+              saveMethod
             );
             setStatus(res.ok ? "success" : "error");
+            if (res.ok && saveMethod) setVaultStatus("saved");
           },
           onCancel: () => setStatus("cancelled"),
           onError: () => setStatus("error"),
-        });
-        await buttons.render(buttonContainerRef.current);
-        setStatus("ready");
+        };
+
+        const addButton = (el: HTMLElement, session: PayPalV6Session) => {
+          el.setAttribute("hidden", "");
+          el.style.width = "100%";
+          el.addEventListener("click", async () => {
+            try {
+              // Pass the create-order promise without awaiting it first, so
+              // popups are still allowed (transient activation).
+              await session.start(
+                { presentationMode: "auto" },
+                createOrderFor()()
+              );
+            } catch {
+              setStatus("error");
+            }
+          });
+          container.appendChild(el);
+          mounted.push(el);
+          el.removeAttribute("hidden");
+        };
+
+        if (eligibility.isEligible("paypal")) {
+          addButton(
+            document.createElement("paypal-button"),
+            sdkInstance.createPayPalOneTimePaymentSession(sessionOptions)
+          );
+        }
+        if (eligibility.isEligible("paylater")) {
+          const d = eligibility.getDetails("paylater");
+          const el = document.createElement(
+            "paypal-pay-later-button"
+          ) as HTMLElement & { productCode?: string; countryCode?: string };
+          el.productCode = d.productCode;
+          el.countryCode = d.countryCode;
+          addButton(
+            el,
+            sdkInstance.createPayLaterOneTimePaymentSession(sessionOptions)
+          );
+        }
+        if (eligibility.isEligible("credit")) {
+          const d = eligibility.getDetails("credit");
+          const el = document.createElement(
+            "paypal-credit-button"
+          ) as HTMLElement & { countryCode?: string };
+          el.countryCode = d.countryCode;
+          addButton(
+            el,
+            sdkInstance.createPayPalCreditOneTimePaymentSession(sessionOptions)
+          );
+        }
+
+        if (!mounted.length) setStatus("error");
+        else setStatus("ready");
       } catch {
         if (!cancelled) setStatus("error");
       }
@@ -297,71 +382,16 @@ export function PaymentCheckout({ configured, clientId, env, initial }: Checkout
 
     return () => {
       cancelled = true;
-      try {
-        buttons?.close?.();
-      } catch {
-        /* ignore */
-      }
-    };
-  }, [configured, clientId, amountNum, currency, status]);
-
-  /* Vault — save a payment method for faster checkout (no charge). */
-  React.useEffect(() => {
-    if (!saveMethod || !configured || !clientId || !vaultContainerRef.current) {
-      return;
-    }
-    let cancelled = false;
-    let vaultButtons: PayPalButtonsInstance | null = null;
-
-    (async () => {
-      try {
-        const tokenRes = await getPaypalClientTokenAction();
-        const clientToken = tokenRes.clientToken;
-        if (!clientToken || cancelled) {
-          setVaultStatus("error");
-          return;
+      mounted.forEach((el) => {
+        try {
+          el.remove();
+        } catch {
+          /* ignore */
         }
-        const paypal = await loadVaultSdk(clientId, clientToken);
-        if (cancelled || !vaultContainerRef.current) return;
-        vaultContainerRef.current.innerHTML = "";
-
-        vaultButtons = paypal.Buttons({
-          style: { layout: "vertical", label: "paypal", color: "blue", shape: "pill", height: 44 },
-          createVaultSetupToken: async () => {
-            const res = await createVaultSetupTokenAction();
-            if (!res.setupTokenId) throw new Error("vault setup failed");
-            return res.setupTokenId;
-          },
-          onApprove: async (data) => {
-            if (!data.vaultSetupToken) {
-              setVaultStatus("error");
-              return;
-            }
-            setVaultStatus("saving");
-            const v = valuesRef.current;
-            const res = await savePaymentTokenAction({
-              tokenId: data.vaultSetupToken,
-              customerEmail: v.customerEmail || undefined,
-            });
-            setVaultStatus(res.ok ? "saved" : "error");
-          },
-          onError: () => setVaultStatus("error"),
-        });
-        await vaultButtons.render(vaultContainerRef.current);
-      } catch {
-        if (!cancelled) setVaultStatus("error");
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-      try {
-        vaultButtons?.close?.();
-      } catch {
-        /* ignore */
-      }
+      });
+      if (buttonContainerRef.current) buttonContainerRef.current.innerHTML = "";
     };
-  }, [saveMethod, configured, clientId]);
+  }, [configured, clientId, amountNum, currency, env, status, saveMethod]);
 
   return (
     <div className="grid gap-6 lg:grid-cols-5">
@@ -514,7 +544,7 @@ export function PaymentCheckout({ configured, clientId, env, initial }: Checkout
                       {env === "sandbox" ? "Sandbox mode — test payments only." : "Secure checkout via PayPal."}
                     </p>
 
-                    {/* Save payment method (Vault) */}
+                    {/* Save payment method (v6 vault-with-purchase) */}
                     <label className="mt-4 flex cursor-pointer items-start gap-2 rounded-xl border bg-muted/40 p-3 text-xs text-muted-foreground">
                       <input
                         type="checkbox"
@@ -524,7 +554,8 @@ export function PaymentCheckout({ configured, clientId, env, initial }: Checkout
                       />
                       <span>
                         <strong className="text-foreground">Save this payment method</strong> for
-                        faster checkout next time (via PayPal Vault). No charge now.
+                        faster checkout next time — your PayPal method is saved to the vault when
+                        this payment completes.
                       </span>
                     </label>
                     {saveMethod && vaultStatus === "saved" && (
@@ -537,7 +568,6 @@ export function PaymentCheckout({ configured, clientId, env, initial }: Checkout
                         Could not save the payment method. You can still pay below.
                       </p>
                     )}
-                    <div ref={vaultContainerRef} className="mt-2 min-h-[40px] [&_iframe]:rounded-xl" />
                   </>
                 ) : null}
               </div>

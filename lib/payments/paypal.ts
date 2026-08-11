@@ -166,6 +166,11 @@ export type CreateOrderInput = {
   currency?: string;
   itemName?: string;
   description?: string;
+  /** v6 SDK: save the buyer's PayPal method to the vault on successful capture. */
+  storeInVault?: boolean;
+  /** Required by PayPal when storeInVault is set (RETURN_URL_REQUIRED). */
+  returnUrl?: string;
+  cancelUrl?: string;
 };
 
 export type CreateOrderResult = {
@@ -208,6 +213,41 @@ export async function createPayPalOrder(
     ];
   }
 
+  const requestBody: Record<string, unknown> = {
+    intent: "CAPTURE",
+    purchase_units: [purchaseUnits],
+  };
+  if (input.storeInVault) {
+    // v6 SDK vault-with-purchase: save the buyer's PayPal method on success.
+    requestBody.payment_source = {
+      paypal: {
+        experience_context: {
+          brand_name: "Marwat Tech",
+          landing_page: "BILLING",
+          user_action: "PAY_NOW",
+          shipping_preference: "NO_SHIPPING",
+          // PayPal rejects vaulting without a return_url (RETURN_URL_REQUIRED).
+          return_url: input.returnUrl ?? "https://www.marwattech.com/payment",
+          cancel_url: input.cancelUrl ?? "https://www.marwattech.com/payment",
+        },
+        attributes: {
+          vault: {
+            store_in_vault: "ON_SUCCESS",
+            usage_type: "MERCHANT",
+            customer_type: "CONSUMER",
+          },
+        },
+      },
+    };
+  } else {
+    requestBody.application_context = {
+      brand_name: "Marwat Tech",
+      landing_page: "BILLING",
+      user_action: "PAY_NOW",
+      shipping_preference: "NO_SHIPPING",
+    };
+  }
+
   const res = await fetch(`${cfg.apiBase}/v2/checkout/orders`, {
     method: "POST",
     headers: {
@@ -215,16 +255,7 @@ export async function createPayPalOrder(
       "Content-Type": "application/json",
       "PayPal-Request-Id": `mt-${input.orderId}-${Date.now()}`,
     },
-    body: JSON.stringify({
-      intent: "CAPTURE",
-      purchase_units: [purchaseUnits],
-      application_context: {
-        brand_name: "Marwat Tech",
-        landing_page: "BILLING",
-        user_action: "PAY_NOW",
-        shipping_preference: "NO_SHIPPING",
-      },
-    }),
+    body: JSON.stringify(requestBody),
     cache: "no-store",
   });
 
@@ -256,6 +287,8 @@ export type CaptureOrderResult = {
   payerEmail: string | null;
   grossAmount: number | null;
   currency: string;
+  /** v6 vault-with-purchase: vault payment token id (if saved). */
+  vaultToken: string | null;
 };
 
 export async function capturePayPalOrder(
@@ -290,6 +323,9 @@ export async function capturePayPalOrder(
       name?: { given_name?: string; surname?: string };
       email_address?: string;
     };
+    payment_source?: {
+      paypal?: { attributes?: { vault?: { id?: string } } };
+    };
   };
 
   if (!res.ok) {
@@ -308,7 +344,32 @@ export async function capturePayPalOrder(
     payerEmail: data.payer?.email_address ?? null,
     grossAmount: capture?.amount?.value ? Number(capture.amount.value) : null,
     currency: capture?.amount?.currency_code ?? "USD",
+    vaultToken: data.payment_source?.paypal?.attributes?.vault?.id ?? null,
   };
+}
+
+/**
+ * v6 vault-with-purchase: after a successful capture, GET the order to surface
+ * the vault token at payment_source.paypal.attributes.vault.id (it isn't always
+ * present in the capture response). Returns null when nothing was vaulted.
+ */
+export async function getOrderVaultToken(
+  paypalOrderId: string
+): Promise<string | null> {
+  const cfg = await resolvePaypalConfig();
+  const token = await getAccessToken(cfg);
+  const res = await fetch(`${cfg.apiBase}/v2/checkout/orders/${paypalOrderId}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    cache: "no-store",
+  });
+  if (!res.ok) return null;
+  const data = (await res.json()) as {
+    payment_source?: { paypal?: { attributes?: { vault?: { id?: string } } } };
+  };
+  return data.payment_source?.paypal?.attributes?.vault?.id ?? null;
 }
 
 /* ── Shared helpers for other PayPal features (subscriptions, invoicing,

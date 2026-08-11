@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { createAdminClient } from "@/lib/supabase/admin";
-import { resolvePaypalConfig } from "@/lib/payments/paypal";
+import { resolvePaypalConfig, getPaypalAccessToken } from "@/lib/payments/paypal";
 import type { Database, Json } from "@/types/database";
 type DB = SupabaseClient<Database>;
 
@@ -115,7 +115,7 @@ async function verifyWebhook(
   const res = await fetch(`${cfg.apiBase}/v1/notifications/verify-webhook-signature`, {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${await getTokenForVerify(cfg)}`,
+      Authorization: `Bearer ${await getPaypalAccessToken()}`,
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
@@ -134,29 +134,6 @@ async function verifyWebhook(
     return { ok: false, reason: `Status ${data.verification_status}` };
   }
   return { ok: true };
-}
-
-// Reuse the OAuth token without exposing internals of lib/payments/paypal.
-let verifyToken: { token: string; expiresAt: number } | null = null;
-async function getTokenForVerify(cfg: { apiBase: string }): Promise<string> {
-  const clientId = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID;
-  const secret = process.env.PAYPAL_CLIENT_SECRET;
-  if (!clientId || !secret) throw new Error("PAYPAL_NOT_CONFIGURED");
-  if (verifyToken && verifyToken.expiresAt > Date.now() + 30_000) {
-    return verifyToken.token;
-  }
-  const auth = Buffer.from(`${clientId}:${secret}`).toString("base64");
-  const res = await fetch(`${cfg.apiBase}/v1/oauth2/token`, {
-    method: "POST",
-    headers: {
-      Authorization: `Basic ${auth}`,
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-    body: "grant_type=client_credentials",
-  });
-  const data = (await res.json()) as { access_token: string; expires_in: number };
-  verifyToken = { token: data.access_token, expiresAt: Date.now() + data.expires_in * 1000 };
-  return verifyToken.token;
 }
 
 /* ── Event dispatch ───────────────────────────────────────────────────── */

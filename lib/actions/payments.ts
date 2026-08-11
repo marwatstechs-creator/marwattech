@@ -2,12 +2,14 @@
 
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
+import { headers } from "next/headers";
 
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requireStaff, requireSuperAdmin, logActivity } from "@/lib/actions/admin/helpers";
 import {
   createPayPalOrder,
   capturePayPalOrder,
+  getOrderVaultToken,
   resolvePaypalConfig,
 } from "@/lib/payments/paypal";
 import {
@@ -32,6 +34,8 @@ const checkoutSchema = z.object({
   description: z.string().max(2000).optional().or(z.literal("")),
   customerName: z.string().max(200).optional().or(z.literal("")),
   customerEmail: z.string().email().max(320).optional().or(z.literal("")),
+  // v6 SDK: save the buyer's PayPal method to the vault on successful capture.
+  saveMethod: z.boolean().optional().default(false),
 });
 
 export type CheckoutResult =
@@ -52,8 +56,18 @@ export async function createPayPalCheckout(
     return { ok: false, notConfigured: true };
   }
 
-  const { amount, currency, itemType, itemName, description, customerName, customerEmail } =
+  const { amount, currency, itemType, itemName, description, customerName, customerEmail, saveMethod } =
     parsed.data;
+
+  let origin = "https://www.marwattech.com";
+  try {
+    const h = await headers();
+    const host = h.get("host");
+    const proto = h.get("x-forwarded-proto") ?? "https";
+    if (host) origin = `${proto}://${host}`;
+  } catch {
+    /* keep default */
+  }
 
   try {
     const orderId = generateOrderId();
@@ -80,13 +94,34 @@ export async function createPayPalCheckout(
       return { ok: false, error: "Could not start your order. Please try again." };
     }
 
-    const paypal = await createPayPalOrder({
-      orderId,
-      amount,
-      currency,
-      itemName: itemName || undefined,
-      description: description || undefined,
-    });
+    let paypal;
+    try {
+      paypal = await createPayPalOrder({
+        orderId,
+        amount,
+        currency,
+        itemName: itemName || undefined,
+        description: description || undefined,
+        storeInVault: Boolean(saveMethod),
+        returnUrl: `${origin}/payment`,
+        cancelUrl: `${origin}/payment`,
+      });
+    } catch (createErr) {
+      if (saveMethod) {
+        // Vaulting not enabled on the app — fall back to a normal order so the
+        // payment still goes through (the method just isn't saved).
+        paypal = await createPayPalOrder({
+          orderId,
+          amount,
+          currency,
+          itemName: itemName || undefined,
+          description: description || undefined,
+          storeInVault: false,
+        });
+      } else {
+        throw createErr;
+      }
+    }
 
     // Store the PayPal order id on the row.
     await db
@@ -112,7 +147,8 @@ export type CaptureResult =
 
 export async function capturePayPalCheckout(
   internalOrderId: string,
-  paypalOrderId: string
+  paypalOrderId: string,
+  saveMethod = false
 ): Promise<CaptureResult> {
   const cfg = await resolvePaypalConfig();
   if (!cfg.enabled) {
@@ -148,6 +184,29 @@ export async function capturePayPalCheckout(
           },
         })
         .eq("id", row.id);
+
+      // v6 vault-with-purchase: persist the saved payment token.
+      if (saveMethod) {
+        try {
+          const vaultToken =
+            capture.vaultToken ?? (await getOrderVaultToken(paypalOrderId));
+          if (vaultToken) {
+            await db.from("payment_methods").upsert(
+              {
+                paypal_payment_token_id: vaultToken,
+                instrument_type: "paypal",
+                brand: null,
+                last4: null,
+                customer_email: capture.payerEmail ?? null,
+              },
+              { onConflict: "paypal_payment_token_id" }
+            );
+          }
+        } catch {
+          /* best-effort — payment already succeeded */
+        }
+      }
+
       return {
         ok: true,
         orderId: internalOrderId,
