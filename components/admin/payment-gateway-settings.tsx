@@ -149,8 +149,13 @@ export function PaymentGatewaySettings({ status }: { status: GatewayStatus }) {
             </li>
             <li>Copy the <strong>Client ID</strong> and <strong>Secret</strong> into the fields above and save.</li>
             <li>
-              For the live gateway, add your site URL to the app&apos;s redirect list — no webhook is
-              required for our flow (orders are captured server-side).
+              For the live gateway, open your app (Live) in the PayPal dashboard and add <strong>both</strong> of
+              these under <em>App Settings → Return URLs / JavaScript origins</em> so the buttons work on
+              every domain visitors use:
+              <code className="mt-1 block rounded-lg border bg-background px-2 py-1 text-[11px]">https://marwattech.com</code>
+              <code className="mt-1 block rounded-lg border bg-background px-2 py-1 text-[11px]">https://www.marwattech.com</code>
+              Orders are captured server-side, so a webhook is optional — but adding one is recommended so
+              payments still reconcile even if a customer closes the tab mid-payment.
             </li>
           </ol>
         </div>

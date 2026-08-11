@@ -182,6 +182,7 @@ export async function createPayPalOrder(
   const currency = (input.currency || "USD").toUpperCase();
   const amount = Number(input.amount.toFixed(2));
 
+  const itemTotal = amount.toFixed(2);
   const purchaseUnits: Record<string, unknown> = {
     reference_id: input.orderId,
     custom_id: input.orderId,
@@ -189,14 +190,19 @@ export async function createPayPalOrder(
     description: input.description || input.itemName || undefined,
     amount: {
       currency_code: currency,
-      value: amount.toFixed(2),
+      value: itemTotal,
+      // PayPal requires amount.breakdown.item_total whenever items are present
+      // (otherwise orders with an item name fail with 422 ITEM_TOTAL_REQUIRED).
+      ...(input.itemName
+        ? { breakdown: { item_total: { currency_code: currency, value: itemTotal } } }
+        : {}),
     },
   };
   if (input.itemName) {
     purchaseUnits.items = [
       {
         name: input.itemName.slice(0, 127),
-        unit_amount: { currency_code: currency, value: amount.toFixed(2) },
+        unit_amount: { currency_code: currency, value: itemTotal },
         quantity: "1",
       },
     ];
