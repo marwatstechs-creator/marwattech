@@ -80,6 +80,36 @@ type PayPalV6Session = {
   ) => Promise<void>;
 };
 
+type GooglePayV6Session = {
+  getGooglePayConfig: () => Promise<{
+    apiVersion: number;
+    apiVersionMinor: number;
+    allowedPaymentMethods: unknown[];
+    merchantInfo?: unknown;
+    countryCode?: string;
+  }>;
+  confirmOrder: (opts: {
+    orderId: string;
+    paymentMethodData: unknown;
+  }) => Promise<{ status: string }>;
+};
+
+type ApplePayV6Session = {
+  config: () => Promise<{
+    merchantCapabilities: string[];
+    supportedNetworks: string[];
+  }>;
+  validateMerchant: (opts: { validationUrl: string }) => Promise<{
+    merchantSession: unknown;
+  }>;
+  confirmOrder: (opts: {
+    orderId: string;
+    token: unknown;
+    billingContact?: unknown;
+    shippingContact?: unknown;
+  }) => Promise<{ status: string }>;
+};
+
 type PayPalV6Eligibility = {
   isEligible: (method: string) => boolean;
   getDetails: (method: string) => PayPalV6MethodDetails;
@@ -105,6 +135,8 @@ type PayPalV6Instance = {
   createPayPalGuestOneTimePaymentSession: (
     o: PayPalV6SessionOptions
   ) => PayPalV6Session;
+  createGooglePayOneTimePaymentSession: () => GooglePayV6Session;
+  createApplePayOneTimePaymentSession: () => ApplePayV6Session;
 };
 
 type PayPalV6 = {
@@ -159,6 +191,20 @@ function loadPaypalV6(env: "sandbox" | "live"): Promise<PayPalV6> {
   });
   sdkPromise = { env, promise };
   return promise;
+}
+
+/** Inject an external wallet SDK (Google Pay / Apple Pay) once. */
+function loadWalletScript(src: string, attr: string): Promise<void> {
+  return new Promise((resolve, reject) => {
+    if (document.querySelector(`script[${attr}]`)) return resolve();
+    const script = document.createElement("script");
+    script.src = src;
+    script.setAttribute(attr, "1");
+    script.async = true;
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error("wallet sdk failed to load"));
+    document.body.appendChild(script);
+  });
 }
 
 /* ── Status summary card ──────────────────────────────────────────────── */
@@ -275,6 +321,8 @@ export function PaymentCheckout({ configured, clientId, env, initial }: Checkout
             "paypal-payments",
             "venmo-payments",
             "paypal-guest-payments",
+            "googlepay-payments",
+            "applepay-payments",
           ],
           pageType: "checkout",
           clientMetadataId:
@@ -411,6 +459,205 @@ export function PaymentCheckout({ configured, clientId, env, initial }: Checkout
           cardWrap.appendChild(cardBtn);
           container.appendChild(cardWrap);
           mounted.push(cardWrap);
+        }
+        // Google Pay (shows when eligible + Google Pay available)
+        if (eligibility.isEligible("googlepay")) {
+          try {
+            await loadWalletScript(
+              "https://pay.google.com/gp/p/js/pay.js",
+              "data-googlepay-sdk"
+            );
+            const gwin = window as unknown as {
+              google?: {
+                payments?: {
+                  api?: {
+                    PaymentsClient: new (
+                      opts: Record<string, unknown>
+                    ) => {
+                      isReadyToPay: (o: unknown) => Promise<{ result?: boolean }>;
+                      createButton: (o: Record<string, unknown>) => HTMLElement;
+                      loadPaymentData: (o: unknown) => Promise<unknown>;
+                    };
+                  };
+                };
+              };
+            };
+            const PaymentsClient = gwin.google?.payments?.api?.PaymentsClient;
+            if (PaymentsClient) {
+              const gSession =
+                sdkInstance.createGooglePayOneTimePaymentSession();
+              const gConfig = await gSession.getGooglePayConfig();
+              const paymentsClient = new PaymentsClient({
+                environment: env === "live" ? "PRODUCTION" : "TEST",
+                paymentDataCallbacks: {
+                  onPaymentAuthorized: async (paymentData: {
+                    paymentMethodData?: unknown;
+                  }) => {
+                    try {
+                      const { orderId } = await createOrderFor()();
+                      const res = await gSession.confirmOrder({
+                        orderId,
+                        paymentMethodData: paymentData.paymentMethodData,
+                      });
+                      if (res.status !== "PAYER_ACTION_REQUIRED") {
+                        const capt = await capturePayPalCheckout(
+                          internalOrderRef.current,
+                          orderId,
+                          saveMethod
+                        );
+                        setStatus(capt.ok ? "success" : "error");
+                        return capt.ok
+                          ? { transactionState: "SUCCESS" }
+                          : { transactionState: "ERROR" };
+                      }
+                      return { transactionState: "ERROR" };
+                    } catch {
+                      return { transactionState: "ERROR" };
+                    }
+                  },
+                },
+              });
+              const ready = await paymentsClient.isReadyToPay({
+                apiVersion: gConfig.apiVersion,
+                apiVersionMinor: gConfig.apiVersionMinor,
+                allowedPaymentMethods: gConfig.allowedPaymentMethods,
+              });
+              if (ready?.result) {
+                const buildReq = () => ({
+                  apiVersion: gConfig.apiVersion,
+                  apiVersionMinor: gConfig.apiVersionMinor,
+                  allowedPaymentMethods: gConfig.allowedPaymentMethods,
+                  merchantInfo: gConfig.merchantInfo,
+                  transactionInfo: {
+                    countryCode: gConfig.countryCode ?? "US",
+                    currencyCode: currency,
+                    totalPriceStatus: "FINAL",
+                    totalPrice: amountNum.toFixed(2),
+                  },
+                  callbackIntents: ["PAYMENT_AUTHORIZATION"],
+                });
+                const gpBtn = paymentsClient.createButton({
+                  onClick: () => paymentsClient.loadPaymentData(buildReq()),
+                });
+                gpBtn.style.width = "100%";
+                gpBtn.style.marginTop = "8px";
+                container.appendChild(gpBtn);
+                mounted.push(gpBtn);
+              }
+            }
+          } catch {
+            /* Google Pay not available — skip silently */
+          }
+        }
+        // Apple Pay (shows when eligible + Apple Pay available in this browser)
+        if (eligibility.isEligible("applepay")) {
+          try {
+            await loadWalletScript(
+              "https://applepay.cdn-apple.com/jsapi/v1/apple-pay-sdk.js",
+              "data-applepay-sdk"
+            );
+            const awin = window as unknown as {
+              ApplePaySession?: {
+                canMakePayments: () => boolean;
+                STATUS_SUCCESS: number;
+                STATUS_FAILURE: number;
+                new (
+                  version: number,
+                  request: Record<string, unknown>
+                ): {
+                  begin: () => void;
+                  abort: () => void;
+                  completeMerchantValidation: (s: unknown) => void;
+                  completePaymentMethodSelection: (o: unknown) => void;
+                  completePayment: (o: unknown) => void;
+                  onvalidatemerchant:
+                    | ((e: { validationURL: string }) => void)
+                    | null;
+                  onpaymentmethodselected: (() => void) | null;
+                  onpaymentauthorized:
+                    | ((e: {
+                        payment: {
+                          token: unknown;
+                          billingContact?: unknown;
+                          shippingContact?: unknown;
+                        };
+                      }) => void)
+                    | null;
+                  oncancel: (() => void) | null;
+                };
+              };
+            };
+            const APS = awin.ApplePaySession;
+            if (APS && APS.canMakePayments()) {
+              const aSession =
+                sdkInstance.createApplePayOneTimePaymentSession();
+              const { merchantCapabilities, supportedNetworks } =
+                await aSession.config();
+              const apBtn = document.createElement("apple-pay-button");
+              apBtn.setAttribute("buttonstyle", "black");
+              apBtn.setAttribute("type", "buy");
+              apBtn.setAttribute("locale", "en");
+              apBtn.style.width = "100%";
+              apBtn.style.marginTop = "8px";
+              apBtn.addEventListener("click", () => {
+                const paymentRequest = {
+                  countryCode: "US",
+                  currencyCode: currency,
+                  merchantCapabilities,
+                  supportedNetworks,
+                  total: {
+                    label: "Marwat Tech",
+                    amount: amountNum.toFixed(2),
+                    type: "final",
+                  },
+                };
+                const session = new APS(4, paymentRequest);
+                session.onvalidatemerchant = (event) => {
+                  aSession
+                    .validateMerchant({ validationUrl: event.validationURL })
+                    .then((p) =>
+                      session.completeMerchantValidation(p.merchantSession)
+                    )
+                    .catch(() => session.abort());
+                };
+                session.onpaymentmethodselected = () =>
+                  session.completePaymentMethodSelection({
+                    newTotal: paymentRequest.total,
+                  });
+                session.onpaymentauthorized = async (event) => {
+                  try {
+                    const { orderId } = await createOrderFor()();
+                    await aSession.confirmOrder({
+                      orderId,
+                      token: event.payment.token,
+                      billingContact: event.payment.billingContact,
+                      shippingContact: event.payment.shippingContact,
+                    });
+                    const capt = await capturePayPalCheckout(
+                      internalOrderRef.current,
+                      orderId,
+                      saveMethod
+                    );
+                    session.completePayment({
+                      status: capt.ok
+                        ? APS.STATUS_SUCCESS
+                        : APS.STATUS_FAILURE,
+                    });
+                    setStatus(capt.ok ? "success" : "error");
+                  } catch {
+                    session.completePayment({ status: APS.STATUS_FAILURE });
+                    setStatus("error");
+                  }
+                };
+                session.oncancel = () => setStatus("cancelled");
+                session.begin();
+              });
+              container.appendChild(apBtn);
+              mounted.push(apBtn);
+            }
+          } catch {
+            /* Apple Pay not available — skip silently */
+          }
         }
 
         if (!mounted.length) setStatus("error");
