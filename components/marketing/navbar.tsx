@@ -20,7 +20,7 @@ function ThemeToggle() {
   return (
     <button type="button" aria-label="Toggle theme"
       onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
-      className="grid size-8 place-items-center rounded-lg text-foreground/50 hover:bg-accent/20 hover:text-foreground transition-colors">
+      className="grid size-8 place-items-center rounded-lg text-foreground/50 hover:bg-accent-hover hover:text-foreground transition-colors">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="hidden dark:block">
         <circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>
       </svg>
@@ -35,7 +35,7 @@ function ThemeToggle() {
 
 function MegaItem({ icon, title, desc, href }: { icon: React.ReactNode; title: string; desc: string; href: string }) {
   return (
-    <Link href={href} className="group flex w-full items-center gap-3 rounded-2xl px-2 py-1.5 text-start transition-colors hover:bg-accent">
+    <Link href={href} className="group flex w-full items-center gap-3 rounded-2xl px-2 py-1.5 text-start transition-colors hover:bg-accent-hover">
       <span className="flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-xl border bg-card text-foreground/50 transition-all duration-200 ease-out group-hover:-translate-y-[3px] group-hover:border-primary group-hover:text-primary group-hover:shadow-[0_8px_14px_-6px_rgba(116,100,198,0.35)]">
         {icon}
       </span>
@@ -278,7 +278,7 @@ export function Navbar() {
               className="relative ml-auto mr-4 mt-[84px] flex max-h-[calc(100%-102px)] w-[calc(100%-2rem)] max-w-md flex-col overflow-hidden rounded-3xl border bg-popover shadow-2xl outline-none sm:mr-6"
             >
               {/* Close button */}
-              <button onClick={() => setMobileOpen(false)} className="absolute right-3 top-3 grid size-9 place-items-center rounded-full border hover:bg-accent z-10">
+              <button onClick={() => setMobileOpen(false)} className="absolute right-3 top-3 grid size-9 place-items-center rounded-full border hover:bg-accent-hover z-10">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
               </button>
 
@@ -287,7 +287,7 @@ export function Navbar() {
                 <ul className="flex flex-col gap-1">
                   {/* Explore (mobile) */}
                   <li className="flex flex-col">
-                    <button className="group flex min-h-[44px] w-full items-center gap-3 rounded-2xl px-3 text-start text-base font-semibold text-foreground/70 transition-colors hover:bg-accent hover:text-foreground"
+                    <button className="group flex min-h-[44px] w-full items-center gap-3 rounded-2xl px-3 text-start text-base font-semibold text-foreground/70 transition-colors hover:bg-accent-hover hover:text-foreground"
                       onClick={() => setMobileExploreOpen((v) => !v)}>
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" className="shrink-0 text-muted-foreground group-hover:text-primary transition-colors">
                         <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>
@@ -336,7 +336,7 @@ export function Navbar() {
                   ].map((item) => (
                     <li key={item.href}>
                       <Link href={item.href} onClick={() => setMobileOpen(false)}
-                        className="group flex min-h-[44px] w-full items-center gap-3 rounded-2xl px-3 text-start text-base font-semibold text-foreground/70 transition-colors hover:bg-accent hover:text-foreground">
+                        className="group flex min-h-[44px] w-full items-center gap-3 rounded-2xl px-3 text-start text-base font-semibold text-foreground/70 transition-colors hover:bg-accent-hover hover:text-foreground">
                         {item.href === "/portfolio" ? (
                           <span className="grid size-[18px] shrink-0 place-items-center">
                             <img src="/assets/logo-light-square.svg" alt="" className="h-[18px] w-[18px] dark:hidden" />

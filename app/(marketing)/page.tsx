@@ -232,7 +232,7 @@ export default async function HomePage() {
               {STEPS.map((s) => (
                 <article
                   key={s.step}
-                  className="group relative flex min-h-[278px] flex-col justify-between overflow-hidden rounded-2xl border bg-card p-6 transition-[color,background-color,border-color,box-shadow,transform] duration-200 hover:border-primary/40 hover:bg-accent/40"
+                  className="group relative flex min-h-[278px] flex-col justify-between overflow-hidden rounded-2xl border bg-card p-6 transition-[color,background-color,border-color,box-shadow,transform] duration-200 hover:border-primary/40 hover:bg-accent-hover"
                 >
                   <LogoWatermark className="bottom-0 right-0 h-24 w-24 translate-x-5 translate-y-5" />
                   <span

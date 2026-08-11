@@ -15,7 +15,7 @@ const buttonVariants = cva(
         outline: "btn-3d-outline",
         secondary:
           "rounded-md bg-secondary text-secondary-foreground shadow-xs hover:bg-secondary/80",
-        ghost: "rounded-md hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
+        ghost: "rounded-md hover:bg-accent-hover hover:text-accent-foreground dark:hover:bg-accent-hover",
         gold: "btn-3d-gold",
         link: "text-primary underline-offset-4 hover:underline",
       },

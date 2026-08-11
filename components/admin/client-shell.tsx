@@ -60,7 +60,7 @@ export function ClientShell({
                   "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
                   active
                     ? "bg-primary text-primary-foreground"
-                    : "text-foreground/70 hover:bg-accent hover:text-foreground"
+                    : "text-foreground/70 hover:bg-accent-hover hover:text-foreground"
                 )}
               >
                 <AppIcon name={item.icon} size={18} />
@@ -73,7 +73,7 @@ export function ClientShell({
           <Link
             href="/"
             target="_blank"
-            className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-foreground/70 transition-colors hover:bg-accent"
+            className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-foreground/70 transition-colors hover:bg-accent-hover"
           >
             <AppIcon name="globe" size={18} />
             View site

@@ -18,6 +18,8 @@
   --color-muted-foreground: var(--muted-foreground);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
+  /* Glassy hover — transparent + light, iPhone-style. Used via hover:bg-accent-hover */
+  --color-accent-hover: var(--accent-hover);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
   --color-border: var(--border);
@@ -80,6 +82,7 @@
   /* Accent = #9b8dd4 — lighter purple */
   --accent: #9b8dd4;
   --accent-foreground: #111827;
+  --accent-hover: #404f6d0f; /* day-mode glassy hover (transparent blue-gray) */
   /* Destructive = #b32e24 — logo's red accent */
   --destructive: #b32e24;
   --destructive-foreground: #ffffff;
@@ -120,6 +123,7 @@
   --muted-foreground: #9ca3af;
   --accent: #7464c6;
   --accent-foreground: #ffffff;
+  --accent-hover: rgba(255, 255, 255, 0.09); /* night-mode glassy hover */
   --destructive: #cf3a30;
   --destructive-foreground: #ffffff;
   --border: #2d2e3a;

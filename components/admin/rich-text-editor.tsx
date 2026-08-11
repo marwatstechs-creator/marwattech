@@ -83,7 +83,7 @@ function ToolbarBtn({
         "grid h-8 min-w-8 place-items-center rounded-md px-1.5 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-40",
         active
           ? "bg-primary text-primary-foreground shadow-sm"
-          : "text-foreground/80 hover:bg-accent hover:text-foreground",
+          : "text-foreground/80 hover:bg-accent-hover hover:text-foreground",
         className
       )}
     >
@@ -162,7 +162,7 @@ function ColorMenu({
           <button
             type="button"
             onClick={onClear}
-            className="mt-1 w-full rounded-md border border-border px-2 py-1 text-xs font-medium text-foreground/70 hover:bg-accent"
+            className="mt-1 w-full rounded-md border border-border px-2 py-1 text-xs font-medium text-foreground/70 hover:bg-accent-hover"
           >
             {clearLabel}
           </button>
@@ -428,28 +428,28 @@ export function RichTextEditor({
               className="absolute left-0 top-9 z-50 flex w-44 flex-col gap-1 rounded-lg border bg-popover p-2 shadow-xl"
               onMouseDown={(e) => e.preventDefault()}
             >
-              <button type="button" onClick={insertTable} className="rounded-md px-2 py-1.5 text-left text-xs font-medium hover:bg-accent">
+              <button type="button" onClick={insertTable} className="rounded-md px-2 py-1.5 text-left text-xs font-medium hover:bg-accent-hover">
                 Insert 3×3 table
               </button>
               {isInTable && (
                 <>
                   <div className="my-0.5 h-px bg-border" />
-                  <button type="button" onClick={() => editor.chain().focus().addRowAfter().run()} className="rounded-md px-2 py-1.5 text-left text-xs hover:bg-accent">
+                  <button type="button" onClick={() => editor.chain().focus().addRowAfter().run()} className="rounded-md px-2 py-1.5 text-left text-xs hover:bg-accent-hover">
                     Add row below
                   </button>
-                  <button type="button" onClick={() => editor.chain().focus().addColumnAfter().run()} className="rounded-md px-2 py-1.5 text-left text-xs hover:bg-accent">
+                  <button type="button" onClick={() => editor.chain().focus().addColumnAfter().run()} className="rounded-md px-2 py-1.5 text-left text-xs hover:bg-accent-hover">
                     Add column right
                   </button>
-                  <button type="button" onClick={() => editor.chain().focus().deleteRow().run()} className="rounded-md px-2 py-1.5 text-left text-xs hover:bg-accent">
+                  <button type="button" onClick={() => editor.chain().focus().deleteRow().run()} className="rounded-md px-2 py-1.5 text-left text-xs hover:bg-accent-hover">
                     Delete row
                   </button>
-                  <button type="button" onClick={() => editor.chain().focus().deleteColumn().run()} className="rounded-md px-2 py-1.5 text-left text-xs hover:bg-accent">
+                  <button type="button" onClick={() => editor.chain().focus().deleteColumn().run()} className="rounded-md px-2 py-1.5 text-left text-xs hover:bg-accent-hover">
                     Delete column
                   </button>
-                  <button type="button" onClick={() => editor.chain().focus().mergeOrSplit().run()} className="rounded-md px-2 py-1.5 text-left text-xs hover:bg-accent">
+                  <button type="button" onClick={() => editor.chain().focus().mergeOrSplit().run()} className="rounded-md px-2 py-1.5 text-left text-xs hover:bg-accent-hover">
                     Merge / split cells
                   </button>
-                  <button type="button" onClick={() => editor.chain().focus().toggleHeaderRow().run()} className="rounded-md px-2 py-1.5 text-left text-xs hover:bg-accent">
+                  <button type="button" onClick={() => editor.chain().focus().toggleHeaderRow().run()} className="rounded-md px-2 py-1.5 text-left text-xs hover:bg-accent-hover">
                     Toggle header row
                   </button>
                   <button type="button" onClick={() => editor.chain().focus().deleteTable().run()} className="rounded-md px-2 py-1.5 text-left text-xs text-destructive hover:bg-destructive/10">

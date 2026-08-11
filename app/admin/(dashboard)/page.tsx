@@ -117,7 +117,7 @@ export default async function AdminDashboardPage() {
                 <Link
                   key={m.id}
                   href={`/admin/messages?view=contact`}
-                  className="flex items-center gap-3 rounded-lg border p-3 transition-colors hover:bg-accent"
+                  className="flex items-center gap-3 rounded-lg border p-3 transition-colors hover:bg-accent-hover"
                 >
                   <Avatar className="size-9">
                     <AvatarFallback className="bg-primary/10 text-xs font-bold text-primary">
