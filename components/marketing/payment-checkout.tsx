@@ -99,6 +99,12 @@ type PayPalV6Instance = {
   createPayPalCreditOneTimePaymentSession: (
     o: PayPalV6SessionOptions
   ) => PayPalV6Session;
+  createVenmoOneTimePaymentSession: (
+    o: PayPalV6SessionOptions
+  ) => PayPalV6Session;
+  createPayPalGuestOneTimePaymentSession: (
+    o: PayPalV6SessionOptions
+  ) => PayPalV6Session;
 };
 
 type PayPalV6 = {
@@ -265,7 +271,11 @@ export function PaymentCheckout({ configured, clientId, env, initial }: Checkout
 
         const sdkInstance = await paypal.createInstance({
           clientId,
-          components: ["paypal-payments"],
+          components: [
+            "paypal-payments",
+            "venmo-payments",
+            "paypal-guest-payments",
+          ],
           pageType: "checkout",
           clientMetadataId:
             typeof crypto !== "undefined" && crypto.randomUUID
@@ -371,6 +381,36 @@ export function PaymentCheckout({ configured, clientId, env, initial }: Checkout
             el,
             sdkInstance.createPayPalCreditOneTimePaymentSession(sessionOptions)
           );
+        }
+        // Venmo (US-only; shows when eligible)
+        if (eligibility.isEligible("venmo")) {
+          const el = document.createElement("venmo-button");
+          el.setAttribute("type", "pay");
+          addButton(
+            el,
+            sdkInstance.createVenmoOneTimePaymentSession(sessionOptions)
+          );
+        }
+        // Guest Debit / Credit Card button (shows when eligible)
+        if (eligibility.isEligible("card")) {
+          const cardBtn = document.createElement("paypal-basic-card-button");
+          const cardWrap = document.createElement("paypal-basic-card-container");
+          cardBtn.style.width = "100%";
+          const guestSession =
+            sdkInstance.createPayPalGuestOneTimePaymentSession(sessionOptions);
+          cardBtn.addEventListener("click", async () => {
+            try {
+              await guestSession.start(
+                { presentationMode: "auto" },
+                createOrderFor()()
+              );
+            } catch {
+              setStatus("error");
+            }
+          });
+          cardWrap.appendChild(cardBtn);
+          container.appendChild(cardWrap);
+          mounted.push(cardWrap);
         }
 
         if (!mounted.length) setStatus("error");
