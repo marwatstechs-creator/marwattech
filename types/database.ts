@@ -20,6 +20,12 @@ export type ApplicationStatus =
   | "hired";
 export type MessageStatus = "new" | "read" | "replied" | "archived";
 export type TicketPriority = "low" | "normal" | "high" | "urgent";
+export type PaymentStatus =
+  | "pending"
+  | "completed"
+  | "failed"
+  | "refunded"
+  | "cancelled";
 
 export interface Database {
   public: {
@@ -693,6 +699,109 @@ export interface Database {
         };
         Relationships: [];
       };
+      /* ── Payments (PayPal Orders API v2 + client portal) ───── */
+      payments: {
+        Row: {
+          id: string;
+          order_id: string;
+          paypal_order_id: string | null;
+          paypal_capture_id: string | null;
+          amount: number;
+          currency: string;
+          status: PaymentStatus;
+          item_type: string | null;
+          item_name: string | null;
+          description: string | null;
+          customer_name: string | null;
+          customer_email: string | null;
+          payer_name: string | null;
+          payer_email: string | null;
+          metadata: Json;
+          client_id: string | null;
+          project_id: string | null;
+          method: string | null;
+          transaction_id: string | null;
+          paid_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          order_id: string;
+          paypal_order_id?: string | null;
+          paypal_capture_id?: string | null;
+          amount: number;
+          currency?: string;
+          status?: PaymentStatus;
+          item_type?: string | null;
+          item_name?: string | null;
+          description?: string | null;
+          customer_name?: string | null;
+          customer_email?: string | null;
+          payer_name?: string | null;
+          payer_email?: string | null;
+          metadata?: Json;
+          client_id?: string | null;
+          project_id?: string | null;
+          method?: string | null;
+          transaction_id?: string | null;
+          paid_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          order_id?: string;
+          paypal_order_id?: string | null;
+          paypal_capture_id?: string | null;
+          amount?: number;
+          currency?: string;
+          status?: PaymentStatus;
+          item_type?: string | null;
+          item_name?: string | null;
+          description?: string | null;
+          customer_name?: string | null;
+          customer_email?: string | null;
+          payer_name?: string | null;
+          payer_email?: string | null;
+          metadata?: Json;
+          client_id?: string | null;
+          project_id?: string | null;
+          method?: string | null;
+          transaction_id?: string | null;
+          paid_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      payment_gateways: {
+        Row: {
+          id: boolean;
+          provider: string;
+          env: string;
+          client_id: string | null;
+          secret: string | null;
+          updated_at: string;
+        };
+        Insert: {
+          id?: boolean;
+          provider?: string;
+          env?: string;
+          client_id?: string | null;
+          secret?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          id?: boolean;
+          provider?: string;
+          env?: string;
+          client_id?: string | null;
+          secret?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       /* ── Client portal tables ───────────────────────────────── */
       client_projects: {
         Row: {
@@ -730,48 +839,6 @@ export interface Database {
           end_date?: string | null;
           created_at?: string;
           updated_at?: string;
-        };
-        Relationships: [];
-      };
-      payments: {
-        Row: {
-          id: string;
-          client_id: string;
-          project_id: string | null;
-          amount: number;
-          currency: string;
-          status: string;
-          method: string | null;
-          transaction_id: string | null;
-          description: string | null;
-          paid_at: string | null;
-          created_at: string;
-        };
-        Insert: {
-          id?: string;
-          client_id: string;
-          project_id?: string | null;
-          amount: number;
-          currency?: string;
-          status?: string;
-          method?: string | null;
-          transaction_id?: string | null;
-          description?: string | null;
-          paid_at?: string | null;
-          created_at?: string;
-        };
-        Update: {
-          id?: string;
-          client_id?: string;
-          project_id?: string | null;
-          amount?: number;
-          currency?: string;
-          status?: string;
-          method?: string | null;
-          transaction_id?: string | null;
-          description?: string | null;
-          paid_at?: string | null;
-          created_at?: string;
         };
         Relationships: [];
       };

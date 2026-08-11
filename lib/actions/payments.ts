@@ -1,0 +1,343 @@
+"use server";
+
+import { z } from "zod";
+import { revalidatePath } from "next/cache";
+
+import { createAdminClient } from "@/lib/supabase/admin";
+import { requireStaff, requireSuperAdmin, logActivity } from "@/lib/actions/admin/helpers";
+import {
+  createPayPalOrder,
+  capturePayPalOrder,
+  resolvePaypalConfig,
+} from "@/lib/payments/paypal";
+import {
+  CURRENCIES,
+  PAYMENT_ITEM_TYPE_VALUES,
+  MIN_AMOUNT,
+  MAX_AMOUNT,
+  DEFAULT_CURRENCY,
+  generateOrderId,
+} from "@/lib/payments/config";
+import type { PaymentStatus } from "@/types/database";
+
+/* ── Shared validation ────────────────────────────────────────────────── */
+
+const currencyEnum = z.enum(CURRENCIES);
+
+const checkoutSchema = z.object({
+  amount: z.number().min(MIN_AMOUNT).max(MAX_AMOUNT),
+  currency: currencyEnum.default(DEFAULT_CURRENCY),
+  itemType: z.enum(PAYMENT_ITEM_TYPE_VALUES).default("custom"),
+  itemName: z.string().max(200).optional().or(z.literal("")),
+  description: z.string().max(2000).optional().or(z.literal("")),
+  customerName: z.string().max(200).optional().or(z.literal("")),
+  customerEmail: z.string().email().max(320).optional().or(z.literal("")),
+});
+
+export type CheckoutResult =
+  | { ok: true; orderId: string; paypalOrderId: string; amount: number; currency: string }
+  | { ok: false; notConfigured?: boolean; error?: string };
+
+/* ── Public: create a PayPal order (server-side, amount is authoritative) ── */
+
+export async function createPayPalCheckout(
+  input: z.infer<typeof checkoutSchema>
+): Promise<CheckoutResult> {
+  const parsed = checkoutSchema.safeParse(input);
+  if (!parsed.success) {
+    return { ok: false, error: "Please check the payment details." };
+  }
+  const cfg = await resolvePaypalConfig();
+  if (!cfg.enabled) {
+    return { ok: false, notConfigured: true };
+  }
+
+  const { amount, currency, itemType, itemName, description, customerName, customerEmail } =
+    parsed.data;
+
+  try {
+    const orderId = generateOrderId();
+    const db = createAdminClient();
+
+    // Reserve the internal order row first (status pending).
+    const { data: row, error } = await db
+      .from("payments")
+      .insert({
+        order_id: orderId,
+        amount,
+        currency,
+        status: "pending",
+        item_type: itemType,
+        item_name: itemName || null,
+        description: description || null,
+        customer_name: customerName || null,
+        customer_email: customerEmail || null,
+      })
+      .select("id")
+      .single();
+
+    if (error || !row) {
+      return { ok: false, error: "Could not start your order. Please try again." };
+    }
+
+    const paypal = await createPayPalOrder({
+      orderId,
+      amount,
+      currency,
+      itemName: itemName || undefined,
+      description: description || undefined,
+    });
+
+    // Store the PayPal order id on the row.
+    await db
+      .from("payments")
+      .update({ paypal_order_id: paypal.id })
+      .eq("id", row.id);
+
+    return { ok: true, orderId, paypalOrderId: paypal.id, amount, currency };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Unknown error";
+    if (message === "PAYPAL_NOT_CONFIGURED" || message.startsWith("PAYPAL_AUTH_FAILED")) {
+      return { ok: false, notConfigured: true };
+    }
+    return { ok: false, error: "Payment could not be started. Please try again." };
+  }
+}
+
+/* ── Public: capture an approved PayPal order ─────────────────────────── */
+
+export type CaptureResult =
+  | { ok: true; orderId: string; status: "completed"; amount: number; currency: string }
+  | { ok: false; error?: string; notConfigured?: boolean };
+
+export async function capturePayPalCheckout(
+  internalOrderId: string,
+  paypalOrderId: string
+): Promise<CaptureResult> {
+  const cfg = await resolvePaypalConfig();
+  if (!cfg.enabled) {
+    return { ok: false, notConfigured: true };
+  }
+  const db = createAdminClient();
+  try {
+    const capture = await capturePayPalOrder(paypalOrderId);
+
+    const { data: row } = await db
+      .from("payments")
+      .select("id, amount, currency")
+      .eq("order_id", internalOrderId)
+      .single();
+
+    if (!row) return { ok: false, error: "Order not found." };
+
+    if (capture.status === "COMPLETED") {
+      await db
+        .from("payments")
+        .update({
+          status: "completed",
+          method: "paypal",
+          paid_at: new Date().toISOString(),
+          paypal_capture_id: capture.captureId,
+          payer_name: capture.payerName,
+          payer_email: capture.payerEmail,
+          metadata: {
+            captured_at: new Date().toISOString(),
+            paypal_status: capture.status,
+            gross_amount: capture.grossAmount,
+            currency: capture.currency,
+          },
+        })
+        .eq("id", row.id);
+      return {
+        ok: true,
+        orderId: internalOrderId,
+        status: "completed",
+        amount: Number(row.amount),
+        currency: row.currency,
+      };
+    }
+
+    await db.from("payments").update({ status: "failed" }).eq("id", row.id);
+    return { ok: false, error: "The payment was not completed." };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "";
+    if (message === "PAYPAL_NOT_CONFIGURED" || message.startsWith("PAYPAL_AUTH_FAILED")) {
+      return { ok: false, notConfigured: true };
+    }
+    return { ok: false, error: "We could not confirm your payment. Please contact support." };
+  }
+}
+
+/* ── Admin: PayPal gateway status (for settings/dashboard) ────────────── */
+
+export async function getPaymentGatewayStatus() {
+  await requireStaff();
+  const cfg = await resolvePaypalConfig();
+  let stored: { env: string | null; client_id: string | null; hasSecret: boolean } | null = null;
+  try {
+    const db = createAdminClient();
+    const { data } = await db
+      .from("payment_gateways")
+      .select("env, client_id, secret")
+      .eq("id", true)
+      .maybeSingle();
+    stored = data
+      ? {
+          env: data.env,
+          client_id: data.client_id,
+          hasSecret: Boolean(data.secret),
+        }
+      : null;
+  } catch {
+    stored = null;
+  }
+  return {
+    configured: cfg.enabled,
+    env: cfg.env,
+    source: cfg.source,
+    hasClientId: Boolean(cfg.clientId),
+    hasSecret: cfg.hasSecret,
+    stored,
+  };
+}
+
+/* ── Admin: save PayPal gateway keys (add later from Settings) ─────────── */
+
+const gatewaySchema = z.object({
+  env: z.enum(["sandbox", "live"]),
+  clientId: z.string().max(300).optional().or(z.literal("")),
+  secret: z.string().max(300).optional().or(z.literal("")),
+  clearSecret: z.boolean().optional(),
+});
+
+export async function savePaymentGateway(input: z.infer<typeof gatewaySchema>) {
+  const { session, db } = await requireSuperAdmin();
+  const parsed = gatewaySchema.safeParse(input);
+  if (!parsed.success) return { error: "Invalid gateway details." };
+
+  const patch: {
+    env: string;
+    client_id?: string | null;
+    secret?: string | null;
+  } = { env: parsed.data.env };
+  if (parsed.data.clientId) patch.client_id = parsed.data.clientId.trim();
+  if (parsed.data.clearSecret) patch.secret = null;
+  else if (parsed.data.secret) patch.secret = parsed.data.secret.trim();
+
+  const { data, error } = await db
+    .from("payment_gateways")
+    .update(patch)
+    .eq("id", true)
+    .select("env, client_id, secret")
+    .single();
+  if (error) return { error: error.message };
+
+  await logActivity(db, session, "gateway_update", "payment_gateway", "paypal", {
+    env: data.env,
+    has_client_id: Boolean(data.client_id),
+    has_secret: Boolean(data.secret),
+  });
+  revalidatePath("/admin/settings");
+  revalidatePath("/payment");
+  return { ok: true };
+}
+
+/* ── Admin: record a manual / offline payment ─────────────────────────── */
+
+const manualSchema = z.object({
+  amount: z.number().min(MIN_AMOUNT).max(MAX_AMOUNT),
+  currency: currencyEnum.default(DEFAULT_CURRENCY),
+  status: z.enum(["completed", "pending"]).default("completed"),
+  itemType: z.enum(PAYMENT_ITEM_TYPE_VALUES).default("custom"),
+  itemName: z.string().max(200).optional().or(z.literal("")),
+  description: z.string().max(2000).optional().or(z.literal("")),
+  customerName: z.string().max(200).optional().or(z.literal("")),
+  customerEmail: z.string().email().max(320).optional().or(z.literal("")),
+});
+
+export async function recordManualPayment(input: z.infer<typeof manualSchema>) {
+  const { session, db } = await requireStaff();
+  const parsed = manualSchema.safeParse(input);
+  if (!parsed.success) return { error: "Invalid payment details." };
+
+  const { data, error } = await db
+    .from("payments")
+    .insert({
+      order_id: generateOrderId(),
+      amount: parsed.data.amount,
+      currency: parsed.data.currency,
+      status: parsed.data.status,
+      item_type: parsed.data.itemType,
+      item_name: parsed.data.itemName || null,
+      description: parsed.data.description || null,
+      customer_name: parsed.data.customerName || null,
+      customer_email: parsed.data.customerEmail || null,
+      method: "manual",
+      paid_at: parsed.data.status === "completed" ? new Date().toISOString() : null,
+      metadata: { source: "manual" },
+    })
+    .select("id, order_id")
+    .single();
+
+  if (error) return { error: error.message };
+  await logActivity(db, session, "payment_record", "payment", data.id, {
+    order_id: data.order_id,
+    source: "manual",
+  });
+  revalidatePath("/admin/payments");
+  revalidatePath("/admin");
+  return { ok: true };
+}
+
+/* ── Admin: change a payment's status (refund / cancel / complete) ─────── */
+
+const STATUS_TRANSITIONS: Record<PaymentStatus, PaymentStatus[]> = {
+  pending: ["completed", "cancelled", "failed"],
+  completed: ["refunded"],
+  failed: ["cancelled"],
+  cancelled: [],
+  refunded: [],
+};
+
+export async function updatePaymentStatus(id: string, status: PaymentStatus) {
+  const { session, db } = await requireStaff();
+  if (!(status in STATUS_TRANSITIONS)) return { error: "Invalid status" };
+
+  const { data: current } = await db
+    .from("payments")
+    .select("status, order_id")
+    .eq("id", id)
+    .single();
+  if (!current) return { error: "Payment not found" };
+
+  const allowed = STATUS_TRANSITIONS[current.status as PaymentStatus];
+  if (!allowed.includes(status)) {
+    return { error: `Cannot change ${current.status} → ${status}` };
+  }
+
+  const { error } = await db
+    .from("payments")
+    .update({ status, metadata: { status_changed_by: session.user.email, changed_at: new Date().toISOString() } })
+    .eq("id", id);
+  if (error) return { error: error.message };
+
+  await logActivity(db, session, "payment_status", "payment", id, {
+    from: current.status,
+    to: status,
+  });
+  revalidatePath("/admin/payments");
+  revalidatePath("/admin");
+  return { ok: true };
+}
+
+/* ── Admin (super): delete a payment record ────────────────────────────── */
+
+export async function deletePayment(id: string) {
+  const { session, db } = await requireSuperAdmin();
+  const { error } = await db.from("payments").delete().eq("id", id);
+  if (error) return { error: error.message };
+  await logActivity(db, session, "payment_delete", "payment", id);
+  revalidatePath("/admin/payments");
+  revalidatePath("/admin");
+  return { ok: true };
+}

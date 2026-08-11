@@ -38,6 +38,7 @@ const NAV: NavItem[] = [
   { label: "Careers", href: "/admin/careers", icon: "briefcase", roles: ["super_admin", "editor"] },
   { label: "Applications", href: "/admin/applications", icon: "userAdd", roles: ["super_admin", "editor"] },
   { label: "Messages", href: "/admin/messages", icon: "message", roles: ["super_admin", "editor", "support"] },
+  { label: "Payments", href: "/admin/payments", icon: "wallet", roles: ["super_admin", "editor", "support"] },
   { label: "Media Library", href: "/admin/media", icon: "image", roles: ["super_admin", "editor"] },
   { label: "Settings", href: "/admin/settings", icon: "settings", roles: ["super_admin"] },
   { label: "Users", href: "/admin/users", icon: "team", roles: ["super_admin"] },

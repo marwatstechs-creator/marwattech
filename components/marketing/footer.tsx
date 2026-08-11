@@ -28,6 +28,7 @@ const COMPANY_LINKS = [
 const SUPPORT_LINKS = [
   { label: "Technical Support", href: "/technical-support" },
   { label: "Free Mockup", href: "/free-mockup" },
+  { label: "Pay Online", href: "/payment" },
   ...LEGAL_LINKS.map((l) => ({ label: l.label, href: l.href })),
 ];
 

@@ -97,14 +97,14 @@ const MEGA_MENU = {
       label: "Services",
       items: [
         { icon: <AppIcon name="code" size={17} />, title: "Web Development", desc: "Custom websites & web apps", href: "/services/web-development" },
-        { icon: <AppIcon name="mobile" size={17} />, title: "Mobile Apps", desc: "iOS & Android development", href: "/services/mobile-apps" },
-        { icon: <AppIcon name="ecommerce" size={17} />, title: "E-Commerce", desc: "Online stores that convert", href: "/services/ecommerce" },
+        { icon: <AppIcon name="mobile" size={17} />, title: "Mobile Apps", desc: "iOS & Android development", href: "/services/mobile-app-development" },
+        { icon: <AppIcon name="ecommerce" size={17} />, title: "E-Commerce", desc: "Online stores that convert", href: "/services/ecommerce-website-design" },
       ],
     },
     {
       label: "Solutions",
       items: [
-        { icon: <AppIcon name="seo" size={17} />, title: "SEO Services", desc: "Rank higher, get more traffic", href: "/services/seo" },
+        { icon: <AppIcon name="seo" size={17} />, title: "SEO Services", desc: "Rank higher, get more traffic", href: "/services/seo-services" },
         { icon: <AppIcon name="ai" size={17} />, title: "AI Solutions", desc: "Automation & intelligence", href: "/services/ai-solutions" },
         { icon: <AppIcon name="design" size={17} />, title: "UI/UX Design", desc: "Beautiful, usable interfaces", href: "/services/ui-ux-design" },
       ],
@@ -363,7 +363,7 @@ export function Navbar() {
                       </svg>
                       Start Your Project
                     </span>
-                    <p className="mt-1.5 text-xs text-muted-foreground">Tell us what you need. We'll plan it and match you with the right team.</p>
+                    <p className="mt-1.5 text-xs text-muted-foreground">Tell us what you need. We&apos;ll plan it and match you with the right team.</p>
                     <Link href="/contact" onClick={() => setMobileOpen(false)}
                       className="group mt-4 flex items-center justify-between rounded-full bg-primary py-1 pl-4 pr-1 text-sm font-medium text-primary-foreground transition-colors hover:opacity-90">
                       Get a Free Quote

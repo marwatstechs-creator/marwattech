@@ -10,6 +10,7 @@ import { createClient } from "@/lib/supabase/server";
 import { canManageContent, isSuperAdmin } from "@/lib/auth";
 import { getSessionUser } from "@/lib/auth";
 import { formatDate, initials } from "@/lib/utils";
+import { formatMoney } from "@/lib/payments/config";
 
 export const revalidate = 60;
 
@@ -22,7 +23,10 @@ export default async function AdminDashboardPage() {
     projects: 0,
     unread: 0,
     clients: 0,
+    payments: 0,
+    paymentsCollected: 0,
   };
+  let collectedCurrencies: string[] = [];
   let recentMessages: {
     id: string;
     name: string;
@@ -40,7 +44,7 @@ export default async function AdminDashboardPage() {
 
   try {
     const db = await createClient();
-    const [services, posts, projects, contact, support, mockup, msg, postRows] =
+    const [services, posts, projects, contact, support, mockup, msg, postRows, paymentRows, payCount] =
       await Promise.all([
         db.from("services").select("id", { count: "exact", head: true }),
         db.from("blog_posts").select("id", { count: "exact", head: true }),
@@ -58,6 +62,11 @@ export default async function AdminDashboardPage() {
           .select("id, title, slug, status, published_at")
           .order("created_at", { ascending: false })
           .limit(5),
+        db
+          .from("payments")
+          .select("amount, currency")
+          .eq("status", "completed"),
+        db.from("payments").select("id", { count: "exact", head: true }),
       ]);
 
     stats.services = services.count ?? 0;
@@ -68,6 +77,10 @@ export default async function AdminDashboardPage() {
       (contact.count ?? 0) + (support.count ?? 0) + (mockup.count ?? 0);
     recentMessages = msg.data ?? [];
     recentPosts = postRows.data ?? [];
+    stats.payments = payCount.count ?? 0;
+    const completed = (paymentRows.data ?? []) as { amount: number; currency: string }[];
+    stats.paymentsCollected = completed.reduce((s, r) => s + Number(r.amount), 0);
+    collectedCurrencies = Array.from(new Set(completed.map((r) => r.currency)));
   } catch {
     // Supabase not configured
   }
@@ -83,7 +96,7 @@ export default async function AdminDashboardPage() {
         description="Here’s what’s happening across your site today."
       />
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
         <StatCard icon="code" label="Services" value={stats.services} />
         <StatCard icon="file" label="Blog posts" value={stats.posts} />
         <StatCard icon="layers" label="Portfolio items" value={stats.projects} />
@@ -92,6 +105,18 @@ export default async function AdminDashboardPage() {
           label="Unread messages"
           value={stats.unread}
           hint="Contact, support & mockups"
+        />
+        <StatCard
+          icon="wallet"
+          label="Payments collected"
+          value={
+            stats.paymentsCollected > 0
+              ? formatMoney(stats.paymentsCollected, collectedCurrencies.length === 1 ? collectedCurrencies[0] : "USD")
+              : stats.payments > 0
+                ? `${stats.payments} tx`
+                : "0"
+          }
+          hint={`${stats.payments} total transactions`}
         />
       </div>
 
@@ -191,6 +216,7 @@ export default async function AdminDashboardPage() {
           <QuickLink href="/admin/services/new" icon="plus" label="New service" />
           <QuickLink href="/admin/portfolio/new" icon="plus" label="New project" />
           <QuickLink href="/admin/blog/new" icon="plus" label="New blog post" />
+          <QuickLink href="/admin/payments" icon="wallet" label="View payments" />
           <QuickLink href="/admin/media" icon="upload" label="Upload media" />
         </div>
       )}
@@ -210,7 +236,7 @@ function QuickLink({
   label,
 }: {
   href: string;
-  icon: "plus" | "upload";
+  icon: "plus" | "upload" | "wallet";
   label: string;
 }) {
   return (

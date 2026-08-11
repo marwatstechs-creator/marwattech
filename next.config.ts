@@ -39,6 +39,27 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  // Redirect legacy/alias service slugs to their canonical URLs so old links
+  // (social, bookmarks, campaigns) never land on a 404.
+  async redirects() {
+    return [
+      {
+        source: "/services/mobile-apps",
+        destination: "/services/mobile-app-development",
+        permanent: true,
+      },
+      {
+        source: "/services/ecommerce",
+        destination: "/services/ecommerce-website-design",
+        permanent: true,
+      },
+      {
+        source: "/services/seo",
+        destination: "/services/seo-services",
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

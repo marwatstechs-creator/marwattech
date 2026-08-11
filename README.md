@@ -17,7 +17,15 @@ A modern, SEO‑optimized corporate website with an integrated admin dashboard a
 - Full CRUD for Services, Portfolio, Blog (rich‑text WYSIWYG editor, tags, categories, featured image, SEO fields), Testimonials, Careers.
 - Messages inbox (contact / support / mockups) with status + internal notes; job applications pipeline.
 - Media library (Supabase Storage uploads), site settings, user/role management.
+- **Payments** — online (PayPal) + manual payment records, revenue stats, status management (refund/cancel), gateway key management.
+- **Google sign‑in** ("Continue with Google") on the admin login.
 - Activity logging and ISR revalidation after content changes.
+
+**Payments** (`/payment`)
+- Professional PayPal checkout page — advanced smart buttons (PayPal, Venmo, Pay Later, cards).
+- Orders are created & captured **server‑side** via the PayPal Orders API v2 (amount can't be tampered with in the browser).
+- Every transaction is stored in the `payments` table (order id, PayPal order/capture ids, payer, amount, status).
+- Admin dashboard shows total collected, pending/refunded/failed counts and full transaction history.
 
 ---
 
@@ -109,6 +117,47 @@ Form submissions and CTA clicks are tracked with `trackEvent` (`lib/analytics.ts
 | `support` | View/manage messages, support tickets, mockup requests, applications |
 
 Roles are enforced by server‑side guards (`lib/auth.ts`, `lib/actions/admin/helpers.ts`) **and** Supabase Row Level Security.
+
+---
+
+## 💳 Payments (PayPal)
+
+**Two ways to add your keys** (DB‑stored keys win):
+
+1. **From the admin UI (recommended):** Admin → Settings → **Payment Gateway**, paste your Client ID + Secret, choose sandbox/live and save. No redeploy needed.
+2. **Via env vars:** `PAYPAL_ENV`, `NEXT_PUBLIC_PAYPAL_CLIENT_ID`, `PAYPAL_CLIENT_SECRET` (secret should also be set as a Worker secret on Cloudflare).
+
+**Get keys:** [developer.paypal.com/dashboard/applications](https://developer.paypal.com/dashboard/applications) → create an app → copy **Client ID** + **Secret**. Start in **Sandbox** mode (use a sandbox buyer account to test), switch to **Live** when ready.
+
+**Flow (server‑side, tamper‑proof):**
+1. Customer fills the `/payment` page → browser calls `createPayPalCheckout` server action → a `payments` row is created (`pending`) and a PayPal order is created server‑side via Orders API v2.
+2. PayPal smart buttons (PayPal / Venmo / Pay Later / card) open.
+3. On approval the browser calls `capturePayPalCheckout` → order is captured server‑side → row marked `completed` with capture + payer details.
+
+**Admin:** Admin → **Payments** shows revenue stats and every transaction; you can mark refunded/cancelled, record manual (offline) payments, and (super admin) delete records.
+
+> Requires the `payments` and `payment_gateways` tables (see `supabase/payments.sql`).
+
+---
+
+## 🔑 Google Sign‑In (admin + client)
+
+The "Continue with Google" button on the admin login uses **Supabase OAuth** — configure Google entirely in the Supabase Dashboard (no app env vars):
+
+1. **Supabase** → Authentication → Providers → **Google** → enable.
+2. Create an OAuth app at [console.cloud.google.com](https://console.cloud.google.com) → paste the **Client ID** + **Secret** into Supabase.
+3. Add the redirect URL to your Google OAuth app:
+   - Production: `https://YOUR-DOMAIN/auth/callback`
+   - Local: `http://localhost:3000/auth/callback`
+
+Google‑signing users get a `profiles` row with role `client`; if their Google email matches an existing staff profile (e.g. `irfanshah@marwattech.com`), they keep the staff role and land in `/admin`.
+
+---
+
+## 📦 Database migrations
+
+- [`supabase/schema.sql`](supabase/schema.sql) — core tables, RLS, storage.
+- [`supabase/payments.sql`](supabase/payments.sql) — `payments` + `payment_gateways` tables (apply after schema.sql).
 
 ---
 

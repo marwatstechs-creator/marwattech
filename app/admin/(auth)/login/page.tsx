@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 import { createClient } from "@/lib/supabase/client";
 import { AppIcon } from "@/components/app-icon";
+import { GoogleSignIn } from "@/components/admin/google-sign-in";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -45,6 +46,15 @@ export default function AdminLoginPage() {
     router.push("/admin");
     router.refresh();
   };
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("error") === "auth_callback") {
+      toast.error(
+        "Google sign-in could not be completed. Ask an administrator to enable Google in Supabase → Authentication → Providers."
+      );
+    }
+  }, []);
 
   return (
     <Card>
@@ -98,6 +108,15 @@ export default function AdminLoginPage() {
             )}
           </Button>
         </form>
+
+        <div className="my-4 flex items-center gap-3 text-xs text-muted-foreground">
+          <span className="h-px flex-1 bg-border" />
+          OR
+          <span className="h-px flex-1 bg-border" />
+        </div>
+
+        <GoogleSignIn mode="admin" />
+
         <p className="mt-4 text-center text-xs text-muted-foreground">
           Authorized staff only. Contact the administrator if you need access.
         </p>
