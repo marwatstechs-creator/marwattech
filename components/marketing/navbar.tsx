@@ -9,6 +9,7 @@ import { Logo } from "@/components/marketing/logo";
 import { AppIcon } from "@/components/app-icon";
 import { cn } from "@/lib/utils";
 import { trackEvent } from "@/lib/analytics";
+import { createClient } from "@/lib/supabase/client";
 
 /* ── Theme Toggle ──────────────────────────────────────────────────── */
 
@@ -128,8 +129,25 @@ export function Navbar() {
   const [megaOpen, setMegaOpen] = React.useState(false);
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const [mobileExploreOpen, setMobileExploreOpen] = React.useState(false);
+  const [isLoggedIn, setIsLoggedIn] = React.useState(false);
   const navRef = React.useRef<HTMLDivElement>(null);
   const closeTimer = React.useRef<ReturnType<typeof setTimeout>>(undefined);
+
+  /* Keep the auth-aware buttons in sync (login / logout anywhere updates them). */
+  React.useEffect(() => {
+    const db = createClient();
+    let active = true;
+    db.auth.getSession().then(({ data }) => {
+      if (active) setIsLoggedIn(!!data.session);
+    });
+    const { data: sub } = db.auth.onAuthStateChange((_event, session) => {
+      if (active) setIsLoggedIn(!!session);
+    });
+    return () => {
+      active = false;
+      sub.subscription.unsubscribe();
+    };
+  }, []);
 
   React.useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -244,8 +262,14 @@ export function Navbar() {
             <div className="flex items-center gap-1.5">
               <div className="hidden items-center gap-1.5 lg:flex">
                 <ThemeToggle />
-                <ArrowBtn href="/client/register" variant="outline" showArrow={false}><AppIcon name="userAdd" size={14} /> Sign Up</ArrowBtn>
-                <ArrowBtn href="/client/login" variant="outline" showArrow={false}><AppIcon name="login" size={14} /> Login</ArrowBtn>
+                {isLoggedIn ? (
+                  <ArrowBtn href="/client" variant="purple">Dashboard</ArrowBtn>
+                ) : (
+                  <>
+                    <ArrowBtn href="/client/register" variant="outline" showArrow={false}><AppIcon name="userAdd" size={14} /> Sign Up</ArrowBtn>
+                    <ArrowBtn href="/client/login" variant="outline" showArrow={false}><AppIcon name="login" size={14} /> Login</ArrowBtn>
+                  </>
+                )}
                 <ArrowBtn href="/contact" variant="gold">Get Started</ArrowBtn>
               </div>
               <button type="button" className="grid size-9 place-items-center rounded-full border bg-background lg:hidden" onClick={() => setMobileOpen(true)} aria-label="Open navigation">
@@ -388,16 +412,26 @@ export function Navbar() {
 
               {/* CTA buttons — uniform size, aligned icons + text */}
               <div className="flex flex-none gap-2.5 p-3">
-                <Link href="/client/register" onClick={() => setMobileOpen(false)}
-                  className="btn-3d-outline inline-flex h-11 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-full px-3 text-sm font-semibold">
-                  <AppIcon name="userAdd" size={17} className="shrink-0" />
-                  Sign Up
-                </Link>
-                <Link href="/client/login" onClick={() => setMobileOpen(false)}
-                  className="btn-3d-outline inline-flex h-11 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-full px-3 text-sm font-semibold">
-                  <AppIcon name="login" size={17} className="shrink-0" />
-                  Login
-                </Link>
+                {isLoggedIn ? (
+                  <Link href="/client" onClick={() => setMobileOpen(false)}
+                    className="btn-3d inline-flex h-11 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-full px-3 text-sm font-semibold">
+                    <AppIcon name="arrowRight" size={17} className="shrink-0" />
+                    Dashboard
+                  </Link>
+                ) : (
+                  <>
+                    <Link href="/client/register" onClick={() => setMobileOpen(false)}
+                      className="btn-3d-outline inline-flex h-11 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-full px-3 text-sm font-semibold">
+                      <AppIcon name="userAdd" size={17} className="shrink-0" />
+                      Sign Up
+                    </Link>
+                    <Link href="/client/login" onClick={() => setMobileOpen(false)}
+                      className="btn-3d-outline inline-flex h-11 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-full px-3 text-sm font-semibold">
+                      <AppIcon name="login" size={17} className="shrink-0" />
+                      Login
+                    </Link>
+                  </>
+                )}
                 <Link href="/contact" onClick={() => setMobileOpen(false)}
                   className="btn-3d-gold inline-flex h-11 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-full px-3 text-sm font-semibold text-black">
                   <AppIcon name="arrowRight" size={17} className="shrink-0" />
