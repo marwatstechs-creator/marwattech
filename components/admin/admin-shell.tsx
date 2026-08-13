@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { AppIcon } from "@/components/app-icon";
@@ -15,12 +15,11 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { AvatarMenu } from "@/components/profile/avatar-menu";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { CollapsibleSidebar, type CollapsibleSidebarItem } from "@/components/admin/collapsible-sidebar";
-import { createClient } from "@/lib/supabase/client";
 import { trackEvent } from "@/lib/analytics";
-import { cn, initials } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import type { UserRole } from "@/types/database";
 
 type NavItem = {
@@ -32,6 +31,7 @@ type NavItem = {
 
 const NAV: NavItem[] = [
   { label: "Dashboard", href: "/admin", icon: "dashboard", roles: ["super_admin", "editor", "support"] },
+  { label: "My Profile", href: "/admin/profile", icon: "edit", roles: ["super_admin", "editor", "support"] },
   { label: "Services", href: "/admin/services", icon: "code", roles: ["super_admin", "editor"] },
   { label: "Portfolio", href: "/admin/portfolio", icon: "layers", roles: ["super_admin", "editor"] },
   { label: "Blog", href: "/admin/blog", icon: "file", roles: ["super_admin", "editor"] },
@@ -111,9 +111,7 @@ export function AdminShell({
   children: React.ReactNode;
   user: { email?: string; full_name: string | null; role: UserRole; avatar_url?: string | null };
 }) {
-  const router = useRouter();
   const pathname = usePathname();
-  const [signingOut, setSigningOut] = useState(false);
   const [pinned, setPinned] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -145,15 +143,6 @@ export function AdminShell({
 
   const isActive = (href: string) =>
     href === "/admin" ? pathname === "/admin" : pathname.startsWith(href);
-
-  const handleSignOut = async () => {
-    setSigningOut(true);
-    const db = createClient();
-    await db.auth.signOut();
-    trackEvent("admin_sign_out");
-    router.push("/admin/login");
-    router.refresh();
-  };
 
   return (
     <div className="flex min-h-screen bg-muted/30">
@@ -227,23 +216,13 @@ export function AdminShell({
               <p className="text-sm font-medium leading-none">{user.full_name ?? "Admin"}</p>
               <p className="mt-1 text-xs text-muted-foreground">{user.email}</p>
             </div>
-            <Avatar className="size-9">
-              {user.avatar_url ? (
-                <AvatarImage src={user.avatar_url} alt={user.full_name ?? "Admin"} />
-              ) : null}
-              <AvatarFallback className="bg-primary/10 text-xs font-bold text-primary">
-                {initials(user.full_name ?? "A")}
-              </AvatarFallback>
-            </Avatar>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleSignOut}
-              disabled={signingOut}
-            >
-              <AppIcon name="logout" size={16} />
-              <span className="hidden sm:inline">{signingOut ? "Signing out…" : "Sign out"}</span>
-            </Button>
+            <AvatarMenu
+              user={user}
+              profileHref="/admin/profile"
+              settingsHref={user.role === "super_admin" ? "/admin/settings" : undefined}
+              signOutHref="/admin/login"
+              onSignedOut={() => trackEvent("admin_sign_out")}
+            />
           </div>
         </header>
 
