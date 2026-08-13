@@ -21,6 +21,45 @@ type Media = {
   created_at: string;
 };
 
+function MediaThumb({ m }: { m: Media }) {
+  const [failed, setFailed] = useState(false);
+  const isImage = m.mime_type?.startsWith("image/") ?? false;
+  const isVideo = m.mime_type?.startsWith("video/") ?? false;
+
+  if (isImage && !failed) {
+    return (
+      <Image
+        src={m.url}
+        alt={m.name}
+        fill
+        sizes="(max-width: 768px) 50vw, 25vw"
+        className="object-cover"
+        onError={() => setFailed(true)}
+      />
+    );
+  }
+
+  // Graceful fallback thumbnail (failed image, video, or any other file)
+  return (
+    <div className="grid h-full w-full place-items-center bg-gradient-to-br from-primary/10 via-background to-gold/10">
+      <div className="flex flex-col items-center gap-1.5 px-2 text-center text-muted-foreground">
+        <span className="grid size-10 place-items-center rounded-full bg-primary/15 text-primary">
+          {isVideo ? (
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M8 5v14l11-7z" />
+            </svg>
+          ) : (
+            <AppIcon name={isImage ? "image" : "file"} size={20} />
+          )}
+        </span>
+        <span className="w-full truncate text-[10px] font-semibold uppercase tracking-wide">
+          {isVideo ? "Video" : isImage ? "Image" : "File"}
+        </span>
+      </div>
+    </div>
+  );
+}
+
 export function MediaLibrary({ items }: { items: Media[] }) {
   const router = useRouter();
   const [uploading, setUploading] = useState(false);
@@ -95,19 +134,7 @@ export function MediaLibrary({ items }: { items: Media[] }) {
           {items.map((m) => (
             <div key={m.id} className="group relative overflow-hidden rounded-xl border bg-card">
               <div className="relative aspect-[4/3] bg-muted/40">
-                {m.mime_type?.startsWith("image/") ? (
-                  <Image
-                    src={m.url}
-                    alt={m.name}
-                    fill
-                    sizes="(max-width: 768px) 50vw, 25vw"
-                    className="object-cover"
-                  />
-                ) : (
-                  <div className="grid h-full place-items-center">
-                    <AppIcon name="file" size={32} className="text-muted-foreground" />
-                  </div>
-                )}
+                <MediaThumb m={m} />
                 <div className="absolute inset-0 flex items-center justify-center gap-2 bg-black/50 opacity-0 transition-opacity group-hover:opacity-100">
                   <Button
                     variant="outline"

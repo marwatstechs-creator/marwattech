@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import Image from "next/image";
 import { toast } from "sonner";
 
@@ -22,7 +22,13 @@ export function ImageField({
   aspect?: string;
 }) {
   const [uploading, setUploading] = useState(false);
+  const [failed, setFailed] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  // Retry the preview whenever the image URL changes.
+  useEffect(() => {
+    setFailed(false);
+  }, [value]);
 
   const upload = async (file: File) => {
     if (!file.type.startsWith("image/")) {
@@ -82,7 +88,19 @@ export function ImageField({
       </div>
       {value && (
         <div className="relative overflow-hidden rounded-md border" style={{ aspectRatio: aspect }}>
-          <Image src={value} alt={label} fill className="object-cover" />
+          {failed ? (
+            <div className="grid h-full w-full place-items-center bg-muted/40 text-muted-foreground">
+              <AppIcon name="image" size={24} />
+            </div>
+          ) : (
+            <Image
+              src={value}
+              alt={label}
+              fill
+              className="object-cover"
+              onError={() => setFailed(true)}
+            />
+          )}
         </div>
       )}
     </div>
