@@ -405,3 +405,36 @@ export function quoteRequestEmail(opts: {
     `,
   });
 }
+
+/** Password-reset link emailed by an admin from the user management panel. */
+export function adminResetPasswordEmail(opts: {
+  name?: string | null;
+  resetUrl: string;
+}): string {
+  return emailLayout({
+    badge: "Password reset",
+    title: "Reset your password",
+    preheader: "A Marwat Tech team member requested a password reset for your account.",
+    body: `
+      <p style="margin:0 0 18px;font-size:14px;line-height:1.65;color:${MUTED};">Hi${opts.name ? ` ${esc(opts.name)}` : ""}, a member of the Marwat Tech team has requested a password reset for your account. Click the button below to choose a new password — the link is valid for a short time only.</p>
+      <p style="margin:0 0 18px;font-size:12px;color:${MUTED};">Didn't request this? You can safely ignore this email — your password won't change unless you use the link.</p>
+    `,
+    cta: { label: "Reset my password", href: opts.resetUrl },
+  });
+}
+
+/** Email-confirmation link resent by an admin from the user management panel. */
+export function adminConfirmationEmail(opts: {
+  name?: string | null;
+  confirmUrl: string;
+}): string {
+  return emailLayout({
+    badge: "Confirm your email",
+    title: "Confirm your email address",
+    preheader: "A Marwat Tech team member has sent you a new confirmation link.",
+    body: `
+      <p style="margin:0 0 18px;font-size:14px;line-height:1.65;color:${MUTED};">Hi${opts.name ? ` ${esc(opts.name)}` : ""}, a member of the Marwat Tech team has sent you a new link to confirm your email address. Click below to finish activating your account.</p>
+    `,
+    cta: { label: "Confirm my email", href: opts.confirmUrl },
+  });
+}
