@@ -43,18 +43,18 @@ export function Logo({
 
       {/* Horizontal logo with text (default + desktop navbar) */}
       {!alwaysMark && (
-        <>
+        <span className={cn("flex items-center", responsive && "hidden lg:block")}>
           <img
             src="/assets/logo-light.svg"
             alt="Marwat Tech"
-            className={cn("h-9 w-auto dark:hidden", responsive && "hidden lg:block")}
+            className="h-9 w-auto dark:hidden"
           />
           <img
             src="/assets/logo-dark.svg"
             alt="Marwat Tech"
-            className={cn("hidden h-9 w-auto dark:block", responsive && "lg:block")}
+            className="hidden h-9 w-auto dark:block"
           />
-        </>
+        </span>
       )}
     </Link>
   );

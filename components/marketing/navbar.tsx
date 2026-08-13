@@ -386,7 +386,7 @@ export function Navbar() {
                 <ThemeToggle />
               </div>
 
-              {/* CTA buttons */}
+              {/* CTA buttons — uniform size, aligned icons + text */}
               <div className="flex flex-none gap-2.5 p-3">
                 <Link href="/client/register" onClick={() => setMobileOpen(false)}
                   className="btn-3d-outline inline-flex h-11 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-full px-3 text-sm font-semibold">
@@ -399,16 +399,9 @@ export function Navbar() {
                   Login
                 </Link>
                 <Link href="/contact" onClick={() => setMobileOpen(false)}
-                  className="btn-3d-gold group inline-flex h-[52px] flex-[1.4] items-center justify-between whitespace-nowrap overflow-hidden rounded-full pl-6 pr-2.5 text-base font-semibold text-black">
+                  className="btn-3d-gold inline-flex h-11 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-full px-3 text-sm font-semibold text-black">
+                  <AppIcon name="arrowRight" size={17} className="shrink-0" />
                   Get Started
-                  <span className="relative inline-flex h-9 w-[52px] shrink-0 items-center justify-center overflow-hidden rounded-full bg-black/10">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="transition-transform duration-300 ease-out group-hover:translate-x-[220%]">
-                      <path d="M5 12h14M12 5l7 7-7 7"/>
-                    </svg>
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="absolute inset-0 m-auto -translate-x-[220%] transition-transform duration-300 ease-out group-hover:translate-x-0">
-                      <path d="M5 12h14M12 5l7 7-7 7"/>
-                    </svg>
-                  </span>
                 </Link>
               </div>
             </motion.div>
