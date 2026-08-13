@@ -340,13 +340,16 @@ export function PaymentCheckout({ configured, clientId, env, initial }: Checkout
         const container = buttonContainerRef.current;
         container.innerHTML = "";
 
-        // Loading skeleton shown while the SDK checks available methods.
+        // Ghost skeleton shown while the SDK checks available methods.
         const skeleton = document.createElement("div");
         skeleton.id = "mt-loading";
-        skeleton.className =
-          "flex min-h-[120px] items-center justify-center gap-2 text-sm text-muted-foreground";
-        skeleton.innerHTML =
-          '<span class="size-4 animate-spin rounded-full border-2 border-foreground/15 border-t-foreground"></span><span>Loading payment options…</span>';
+        skeleton.className = "mt-pay-skeleton space-y-3";
+        skeleton.innerHTML = [
+          '<div class="h-4 w-full rounded-md bg-foreground/10 skeleton-shimmer"></div>',
+          '<div class="h-12 w-full rounded-lg bg-foreground/10 skeleton-shimmer"></div>',
+          '<div class="h-12 w-full rounded-lg bg-foreground/10 skeleton-shimmer"></div>',
+          '<div class="h-3 w-full rounded-md bg-foreground/10 skeleton-shimmer"></div>',
+        ].join("");
         container.appendChild(skeleton);
         const hideSkeleton = () => {
           const s = container.querySelector("#mt-loading");

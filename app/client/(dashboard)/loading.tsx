@@ -1,18 +1,18 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Skeleton,
-  SkeletonAvatarList,
   SkeletonButton,
+  SkeletonList,
   SkeletonPageHeader,
   SkeletonStatCard,
 } from "@/components/ui/skeletons";
 
-export default function AdminLoading() {
+export default function ClientDashboardLoading() {
   return (
     <>
       <SkeletonPageHeader />
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-        {Array.from({ length: 5 }).map((_, i) => (
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {Array.from({ length: 4 }).map((_, i) => (
           <SkeletonStatCard key={i} />
         ))}
       </div>
@@ -24,8 +24,8 @@ export default function AdminLoading() {
             </CardTitle>
             <SkeletonButton className="h-8 w-16" />
           </CardHeader>
-          <CardContent className="space-y-4">
-            <SkeletonAvatarList items={4} />
+          <CardContent className="space-y-3">
+            <SkeletonList items={3} />
           </CardContent>
         </Card>
         <Card>
@@ -35,8 +35,8 @@ export default function AdminLoading() {
             </CardTitle>
             <SkeletonButton className="h-8 w-16" />
           </CardHeader>
-          <CardContent className="space-y-4">
-            <SkeletonAvatarList items={4} />
+          <CardContent className="space-y-3">
+            <SkeletonList items={3} />
           </CardContent>
         </Card>
       </div>

@@ -37,7 +37,7 @@ export function StatCard({
   hint?: string;
 }) {
   return (
-    <div className="rounded-xl border bg-card p-5">
+    <div className="card-3d lift-3d rounded-xl border bg-card p-5">
       <div className="flex items-center justify-between">
         <span className="grid size-10 place-items-center rounded-lg bg-primary/10 text-primary">
           <AppIcon name={icon} size={20} />

@@ -164,7 +164,7 @@ export function Navbar() {
                 onMouseEnter={() => { clearTimeout(closeTimer.current); setMegaOpen(true); }}
                 onMouseLeave={() => { closeTimer.current = setTimeout(() => setMegaOpen(false), 200); }}>
                 <button
-                  className={cn("inline-flex items-center gap-1 whitespace-nowrap rounded-full px-3 py-2 text-sm font-medium transition-colors", megaOpen ? "text-foreground" : "text-foreground/60 hover:text-foreground")}>
+                  className={cn("nav-link-3d inline-flex items-center gap-1 whitespace-nowrap rounded-full px-3 py-2 text-sm font-medium transition-colors", megaOpen ? "text-foreground" : "text-foreground/60 hover:text-foreground")}>
                   Explore
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"
                     className={cn("transition-transform duration-200", megaOpen && "rotate-180")}>
@@ -226,7 +226,7 @@ export function Navbar() {
                 ] as const
               ).map((item) => (
                 <Link key={item.href} href={item.href}
-                  className={cn("inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-2 text-sm font-medium transition-colors", isActive(item.href) ? "text-foreground" : "text-foreground/60 hover:text-foreground")}>
+                  className={cn("nav-link-3d inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-2 text-sm font-medium transition-colors", isActive(item.href) ? "text-foreground" : "text-foreground/60 hover:text-foreground")}>
                   {item.href === "/portfolio" ? (
                     <span className="inline-flex shrink-0">
                       <img src="/assets/logo-light-square.svg" alt="" className="h-4 w-4 dark:hidden" />

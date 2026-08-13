@@ -45,7 +45,7 @@ export function PricingSubscribe({ plans }: { plans: PlanCardData[] }) {
         return (
           <div
             key={p.id}
-            className="group relative flex flex-col rounded-3xl border bg-card p-8 transition-all hover:-translate-y-1 hover:shadow-xl"
+            className="card-3d group relative flex flex-col rounded-3xl border bg-card p-8 transition-all hover:-translate-y-1 hover:shadow-xl"
           >
             <div
               aria-hidden

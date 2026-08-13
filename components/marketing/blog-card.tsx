@@ -19,7 +19,7 @@ export function BlogCard({ post }: { post: Post }) {
 
   return (
     <Link href={href} className="group block h-full">
-      <article className="flex h-full flex-col overflow-hidden rounded-xl border bg-card transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-lg">
+      <article className="card-3d flex h-full flex-col overflow-hidden rounded-xl border bg-card transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-lg">
         <div className="relative aspect-[16/9] overflow-hidden bg-muted/40">
           {post.cover_image ? (
             <Image

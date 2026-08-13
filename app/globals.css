@@ -478,3 +478,163 @@
     animation: none;
   }
 }
+
+/* ── Skeleton shimmer (ghost / lazy-load placeholders) ─────────────── */
+@keyframes skeleton-shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+.skeleton-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+.skeleton-shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.55) 50%,
+    transparent 100%
+  );
+  animation: skeleton-shimmer 1.8s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-shimmer::after {
+    animation: none;
+  }
+}
+
+/* ── 3D depth system (Shopify / Canva / Linear style) ───────────────── */
+:root {
+  --shadow-3d-sm: 0 1px 2px rgba(15, 23, 42, 0.06), 0 4px 14px rgba(15, 23, 42, 0.07);
+  --shadow-3d: 0 2px 4px rgba(15, 23, 42, 0.07), 0 10px 28px rgba(15, 23, 42, 0.1), 0 24px 56px rgba(15, 23, 42, 0.08);
+  --shadow-3d-lg: 0 2px 6px rgba(15, 23, 42, 0.08), 0 16px 40px rgba(15, 23, 42, 0.12), 0 40px 90px rgba(15, 23, 42, 0.1);
+  --highlight-3d: inset 0 1px 0 rgba(255, 255, 255, 0.45);
+  --edge-3d: inset 0 -1px 0 rgba(15, 23, 42, 0.06);
+}
+.dark {
+  --shadow-3d-sm: 0 1px 2px rgba(0, 0, 0, 0.5), 0 4px 14px rgba(0, 0, 0, 0.4);
+  --shadow-3d: 0 2px 4px rgba(0, 0, 0, 0.5), 0 10px 28px rgba(0, 0, 0, 0.45), 0 24px 56px rgba(0, 0, 0, 0.35);
+  --shadow-3d-lg: 0 2px 6px rgba(0, 0, 0, 0.55), 0 16px 40px rgba(0, 0, 0, 0.5), 0 40px 90px rgba(0, 0, 0, 0.45);
+  --highlight-3d: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  --edge-3d: inset 0 -1px 0 rgba(0, 0, 0, 0.3);
+}
+
+/* Cards — soft layered depth + tactile press */
+[data-slot="card"] {
+  box-shadow: var(--shadow-3d-sm), var(--highlight-3d), var(--edge-3d);
+  transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
+}
+[data-slot="card"]:hover {
+  box-shadow: var(--shadow-3d), var(--highlight-3d), var(--edge-3d);
+  border-color: color-mix(in srgb, var(--border) 55%, var(--foreground) 15%);
+}
+[data-slot="card"]:active {
+  transform: scale(0.99);
+  box-shadow: var(--shadow-3d-sm), var(--highlight-3d), var(--edge-3d);
+}
+/* Raw cards that don't use the <Card> component */
+.card-3d {
+  box-shadow: var(--shadow-3d-sm), var(--highlight-3d), var(--edge-3d);
+  transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
+}
+.card-3d:hover {
+  box-shadow: var(--shadow-3d), var(--highlight-3d), var(--edge-3d);
+  border-color: color-mix(in srgb, var(--border) 55%, var(--foreground) 15%);
+}
+.card-3d:active {
+  transform: scale(0.99);
+  box-shadow: var(--shadow-3d-sm), var(--highlight-3d), var(--edge-3d);
+}
+.lift-3d:hover {
+  transform: translateY(-3px);
+}
+
+/* Buttons — universal tactile press (default/gold/outline already use .btn-3d) */
+[data-slot="button"]:active:not(:disabled):not([aria-disabled="true"]) {
+  transform: translateY(1px) scale(0.98);
+}
+.btn-3d-plain {
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08), 0 4px 12px rgba(15, 23, 42, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  transition: transform 0.1s linear, box-shadow 0.1s linear;
+}
+.btn-3d-plain:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(15, 23, 42, 0.1), 0 8px 20px rgba(15, 23, 42, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+.btn-3d-plain:active {
+  transform: translateY(1px) scale(0.98);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06), inset 0 0 0 transparent;
+}
+.dark .btn-3d-plain {
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5), 0 4px 12px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* Inputs — inset depth, focus glow */
+[data-slot="input"] {
+  box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.05), var(--edge-3d);
+  transition: box-shadow 0.16s ease;
+}
+[data-slot="input"]:focus-visible {
+  box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.04), 0 0 0 3px color-mix(in srgb, var(--ring) 22%, transparent);
+}
+
+/* Badges — subtle 3D chip */
+[data-slot="badge"] {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 1px 2px rgba(15, 23, 42, 0.08);
+}
+
+/* Avatars — soft depth ring */
+[data-slot="avatar"] {
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.14), inset 0 0 0 1px rgba(255, 255, 255, 0.35);
+}
+
+/* Navbar links — raised pill on hover, tactile press */
+.nav-link-3d {
+  transition: transform 0.14s ease, box-shadow 0.14s ease, background-color 0.14s ease, color 0.14s ease;
+}
+.nav-link-3d:hover {
+  background-color: color-mix(in srgb, var(--foreground) 6%, transparent);
+  box-shadow: var(--shadow-3d-sm), var(--highlight-3d);
+}
+.nav-link-3d:active {
+  transform: translateY(1px) scale(0.97);
+  box-shadow: none;
+}
+
+/* Tabs — active tab raises (3D chip), inactive press on click */
+[data-slot="tabs-trigger"] {
+  transition: transform 0.14s ease, box-shadow 0.14s ease, background-color 0.14s ease;
+}
+[data-slot="tabs-trigger"]:hover:not([data-state="active"]) {
+  background-color: color-mix(in srgb, var(--foreground) 6%, transparent);
+}
+[data-slot="tabs-trigger"][data-state="active"] {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-3d-sm), var(--highlight-3d);
+}
+[data-slot="tabs-trigger"]:active:not([data-state="active"]) {
+  transform: translateY(1px) scale(0.97);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-slot="card"],
+  [data-slot="button"],
+  .card-3d,
+  .btn-3d-plain {
+    transition: none;
+  }
+  [data-slot="card"]:hover,
+  [data-slot="card"]:active,
+  .card-3d:hover,
+  .card-3d:active {
+    transform: none;
+  }
+}

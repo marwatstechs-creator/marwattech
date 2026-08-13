@@ -24,7 +24,7 @@ export function PortfolioCard({
 
   return (
     <Link href={href} className={cn("group block", className)}>
-      <div className="relative overflow-hidden rounded-xl border bg-muted/40">
+      <div className="card-3d relative overflow-hidden rounded-xl border bg-muted/40">
         {project.cover_image ? (
           <Image
             src={project.cover_image}

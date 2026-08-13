@@ -11,10 +11,10 @@ const buttonVariants = cva(
       variant: {
         default: "btn-3d",
         destructive:
-          "rounded-md bg-destructive text-white shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40",
+          "btn-3d-plain rounded-md bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40",
         outline: "btn-3d-outline",
         secondary:
-          "rounded-md bg-secondary text-secondary-foreground shadow-xs hover:bg-secondary/80",
+          "btn-3d-plain rounded-md bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: "rounded-md hover:bg-accent-hover hover:text-accent-foreground dark:hover:bg-accent-hover",
         gold: "btn-3d-gold",
         link: "text-primary underline-offset-4 hover:underline",
