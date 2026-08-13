@@ -183,7 +183,7 @@ export function AdminShell({
       {/* Main */}
       <div className="flex min-w-0 flex-1 flex-col">
         {/* Topbar */}
-        <header className="topbar-3d sticky top-0 z-30 flex h-16 items-center justify-between gap-4 border-b bg-background/90 px-4 backdrop-blur sm:px-6">
+        <header className="topbar-3d glass-strong sticky top-0 z-30 flex h-16 items-center justify-between gap-4 border-b px-4 sm:px-6">
           <div className="flex items-center gap-3">
             {/* Sidebar toggle (desktop) — menu icon becomes close when open */}
             <div className="hidden lg:block">

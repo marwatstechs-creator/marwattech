@@ -42,7 +42,7 @@ export function CollapsibleSidebar({
 
   return (
     <aside
-      className="sticky top-0 hidden h-screen shrink-0 overflow-hidden border-r bg-background transition-[width] duration-300 ease-in-out lg:block"
+      className="glass sticky top-0 hidden h-screen shrink-0 overflow-hidden border-r transition-[width] duration-300 ease-in-out lg:block"
       style={{ width: open ? "16rem" : "4rem" }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}

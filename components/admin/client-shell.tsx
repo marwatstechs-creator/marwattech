@@ -101,7 +101,7 @@ export function ClientShell({
 
       {/* Main */}
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="topbar-3d sticky top-0 z-30 flex h-16 items-center justify-between gap-4 border-b bg-background/90 px-4 backdrop-blur sm:px-6">
+        <header className="topbar-3d glass-strong sticky top-0 z-30 flex h-16 items-center justify-between gap-4 border-b px-4 sm:px-6">
           <div className="flex items-center gap-3">
             <div className="hidden lg:block">
               <Button
@@ -141,7 +141,7 @@ export function ClientShell({
       </div>
 
       {/* Mobile bottom nav */}
-      <nav className="fixed inset-x-0 bottom-0 z-40 flex items-center justify-around border-t bg-background px-2 py-1.5 lg:hidden">
+      <nav className="glass-strong fixed inset-x-0 bottom-0 z-40 flex items-center justify-around border-t px-2 py-1.5 lg:hidden">
         {NAV.map((item) => {
           const active = item.href === "/client" ? pathname === "/client" : pathname.startsWith(item.href);
           return (
