@@ -59,16 +59,18 @@ export function CollapsibleSidebar({
             <Logo markClassName="size-8" className="[&>span:last-child]:text-base" />
           ) : (
             <Link href="/" aria-label="Marwat Tech — Home" className="grid place-items-center">
-              <img
-                src="/assets/logo-light-square.svg"
-                alt="Marwat Tech"
-                className="size-8 dark:hidden"
-              />
-              <img
-                src="/assets/logo-dark-square.svg"
-                alt="Marwat Tech"
-                className="hidden size-8 dark:block"
-              />
+              <span className="grid size-8 place-items-center overflow-hidden rounded-xl border bg-card shadow-sm ring-1 ring-black/5 dark:ring-white/10">
+                <img
+                  src="/assets/logo-light-square.svg"
+                  alt="Marwat Tech"
+                  className="h-full w-full object-contain p-0.5 dark:hidden"
+                />
+                <img
+                  src="/assets/logo-dark-square.svg"
+                  alt="Marwat Tech"
+                  className="hidden h-full w-full object-contain p-0.5 dark:block"
+                />
+              </span>
             </Link>
           )}
         </div>

@@ -19,12 +19,12 @@ export function Logo({
       aria-label="Marwat Tech — Home"
       className={cn("flex shrink-0 items-center", className)}
     >
-      {/* Square logo mark (circle on mobile navbar, rounded box elsewhere) */}
+      {/* Square logo mark (rounded-corner square — mobile navbar + admin shells) */}
       {showMark && (
         <span
           className={cn(
-            "grid shrink-0 place-items-center overflow-hidden border bg-card shadow-sm ring-1 ring-black/5 dark:ring-white/10",
-            responsive ? "rounded-full lg:hidden" : "rounded-xl",
+            "grid shrink-0 place-items-center overflow-hidden rounded-xl border bg-card shadow-sm ring-1 ring-black/5 dark:ring-white/10",
+            responsive && "lg:hidden",
             markClassName ?? "size-9"
           )}
         >

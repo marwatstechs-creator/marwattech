@@ -27,10 +27,11 @@ export function NewsletterSignup({ compact = false }: { compact?: boolean }) {
   };
 
   return (
-    <form onSubmit={submit} className="flex w-full max-w-sm gap-2">
-      <div className="relative flex-1">
-        <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-          <AppIcon name="mail" size={15} />
+    <form onSubmit={submit} className="w-full max-w-sm">
+      {/* Single combined card: email field + subscribe button inside one modern pill */}
+      <div className="card-3d flex items-center gap-1.5 rounded-full border bg-card p-1.5 pl-4 transition-[border-color,box-shadow] focus-within:border-primary/40 focus-within:ring-2 focus-within:ring-primary/15">
+        <span className="shrink-0 text-muted-foreground">
+          <AppIcon name="mail" size={16} />
         </span>
         <Input
           type="email"
@@ -38,13 +39,25 @@ export function NewsletterSignup({ compact = false }: { compact?: boolean }) {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder={compact ? "Email address" : "Enter your email"}
-          className="pl-9"
+          className="input-flush h-10 min-w-0 flex-1 px-2"
           aria-label="Email address"
         />
+        <Button
+          type="submit"
+          variant="gold"
+          disabled={pending}
+          className="h-10 shrink-0 rounded-full px-4 sm:px-5"
+        >
+          {pending ? (
+            "…"
+          ) : (
+            <>
+              Subscribe
+              <AppIcon name="arrowRight" size={15} className="shrink-0" />
+            </>
+          )}
+        </Button>
       </div>
-      <Button type="submit" variant="gold" disabled={pending} className="shrink-0">
-        {pending ? "…" : "Subscribe"}
-      </Button>
     </form>
   );
 }

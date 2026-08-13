@@ -54,23 +54,23 @@ export function GoogleReviewsCarousel({ reviews }: { reviews: GoogleReview[] }) 
     if (el) el.scrollTo({ left: el.scrollLeft, behavior: "auto" });
   }, []);
 
+  const pause = useCallback(() => {
+    setIsPaused(true);
+    cancelScroll();
+  }, [cancelScroll]);
+  const resume = useCallback(() => setIsPaused(false), []);
+
   if (!reviews.length) return null;
 
   return (
     <div
       className="relative"
-      onMouseEnter={() => {
-        setIsPaused(true);
-        cancelScroll();
-      }}
-      onMouseLeave={() => setIsPaused(false)}
-      onTouchStart={() => {
-        setIsPaused(true);
-        cancelScroll();
-      }}
+      onMouseEnter={pause}
+      onMouseLeave={resume}
+      onTouchStart={pause}
       onTouchEnd={() => {
         // Resume a little while after the touch ends so it doesn't fight swiping.
-        setTimeout(() => setIsPaused(false), 3000);
+        setTimeout(resume, 3000);
       }}
     >
       {/* Scroll track */}
@@ -80,7 +80,12 @@ export function GoogleReviewsCarousel({ reviews }: { reviews: GoogleReview[] }) 
         style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
       >
         {doubled.map((review, i) => (
-          <div key={i} className="w-[85vw] shrink-0 snap-center sm:w-[380px] lg:w-[400px]">
+          <div
+            key={i}
+            onMouseEnter={pause}
+            onMouseLeave={resume}
+            className="w-[85vw] shrink-0 snap-center sm:w-[380px] lg:w-[400px]"
+          >
             <ReviewSlide review={review} />
           </div>
         ))}
