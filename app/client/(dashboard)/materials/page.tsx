@@ -32,7 +32,7 @@ export default async function ClientMaterialsPage() {
           {materials.map(m => (
             <Card key={m.id} className="h-full">
               <CardContent className="flex flex-col gap-3 p-5">
-                <span className="grid size-10 place-items-center rounded-lg bg-primary/10 text-primary"><AppIcon name="file" size={20} /></span>
+                <span className="icon-3d-tile grid size-10 place-items-center rounded-lg bg-primary/10 text-primary"><AppIcon name="file" size={20} /></span>
                 <h3 className="font-display font-semibold">{m.title}</h3>
                 {m.description && <p className="line-clamp-2 text-sm text-muted-foreground">{m.description}</p>}
                 <div className="mt-auto flex items-center justify-between text-xs text-muted-foreground">

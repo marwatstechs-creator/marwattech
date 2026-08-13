@@ -19,7 +19,7 @@ export function ServiceCard({ service }: { service: Service }) {
       <Card className="relative h-full overflow-hidden transition-all duration-300 group-hover:-translate-y-1 group-hover:border-primary/40 group-hover:shadow-lg">
         <LogoWatermark className="bottom-0 right-0 h-28 w-28 translate-x-6 translate-y-6" />
         <CardContent className="relative flex flex-col gap-4 p-6">
-          <span className="grid size-12 place-items-center rounded-xl bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
+          <span className="icon-3d-tile grid size-12 place-items-center rounded-xl bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
             <AppIcon name={iconName} size={24} />
           </span>
           <h3 className="font-display text-lg font-semibold text-foreground">

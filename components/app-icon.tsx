@@ -1,5 +1,6 @@
 import { HugeiconsIcon } from "@hugeicons/react";
 import { ICONS, type IconName } from "@/lib/icons";
+import { cn } from "@/lib/utils";
 
 type AppIconProps = {
   name: IconName | string;
@@ -28,7 +29,7 @@ export function AppIcon({
       size={size}
       strokeWidth={strokeWidth}
       color={color}
-      className={className}
+      className={cn("icon-3d", className)}
     />
   );
 }

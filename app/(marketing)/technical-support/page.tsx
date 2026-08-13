@@ -64,7 +64,7 @@ export default function SupportPage() {
             const inner = (
               <Card className="h-full transition-shadow hover:shadow-md">
                 <CardContent className="flex flex-col items-start gap-3 p-6">
-                  <span className="grid size-11 place-items-center rounded-xl bg-primary/10 text-primary">
+                  <span className="icon-3d-tile grid size-11 place-items-center rounded-xl bg-primary/10 text-primary">
                     <AppIcon name={c.icon} size={22} />
                   </span>
                   <h3 className="font-display font-semibold">{c.title}</h3>

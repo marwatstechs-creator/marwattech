@@ -73,7 +73,7 @@ export function MailSettings({ status }: { status: MailSettingsStatus }) {
     <Card id="email" className="scroll-mt-24">
       <CardHeader>
         <div className="flex items-center gap-3">
-          <span className="grid size-10 place-items-center rounded-lg bg-primary/10 text-primary">
+          <span className="icon-3d-tile grid size-10 place-items-center rounded-lg bg-primary/10 text-primary">
             <AppIcon name="mail" size={20} />
           </span>
           <div>

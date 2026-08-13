@@ -35,7 +35,7 @@ export default async function UnsubscribePage({ searchParams }: { searchParams: 
       <section className="mx-auto max-w-2xl px-4 pb-16 pt-6 sm:px-6">
         <Card>
           <CardContent className="flex flex-col items-center gap-4 p-10 text-center">
-            <span className="grid size-14 place-items-center rounded-2xl bg-primary/10 text-primary">
+            <span className="icon-3d-tile grid size-14 place-items-center rounded-2xl bg-primary/10 text-primary">
               <AppIcon name={done ? "check" : "mail"} size={28} />
             </span>
             <p className="text-sm text-muted-foreground">

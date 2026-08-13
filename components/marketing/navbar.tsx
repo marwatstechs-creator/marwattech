@@ -36,7 +36,7 @@ function ThemeToggle() {
 function MegaItem({ icon, title, desc, href }: { icon: React.ReactNode; title: string; desc: string; href: string }) {
   return (
     <Link href={href} className="dropdown-item-3d group flex w-full items-center gap-3 rounded-2xl px-2 py-1.5 text-start transition-colors hover:bg-accent-hover">
-      <span className="flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-xl border bg-card text-foreground/50 transition-all duration-200 ease-out group-hover:-translate-y-[3px] group-hover:border-primary group-hover:text-primary group-hover:shadow-[0_8px_14px_-6px_rgba(116,100,198,0.35)]">
+      <span className="icon-3d-tile flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-xl border bg-card text-foreground/50 transition-all duration-200 ease-out group-hover:-translate-y-[3px] group-hover:border-primary group-hover:text-primary group-hover:shadow-[0_8px_14px_-6px_rgba(116,100,198,0.35)]">
         {icon}
       </span>
       <span className="flex min-w-0 flex-col gap-0.5">

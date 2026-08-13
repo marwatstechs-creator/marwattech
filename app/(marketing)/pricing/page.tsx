@@ -46,7 +46,7 @@ export default async function PricingPage() {
       <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         {plans.length === 0 ? (
           <div className="mx-auto max-w-xl rounded-3xl border border-dashed bg-muted/30 p-12 text-center">
-            <span className="mx-auto grid size-14 place-items-center rounded-2xl bg-primary/10 text-primary">
+            <span className="icon-3d-tile mx-auto grid size-14 place-items-center rounded-2xl bg-primary/10 text-primary">
               <AppIcon name="sparkles" size={26} />
             </span>
             <h2 className="font-display mt-4 text-xl font-bold">Plans are being prepared</h2>

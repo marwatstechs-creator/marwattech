@@ -64,7 +64,7 @@ function DotGrid() {
 function FloatCard({ quote, name, deg }: { quote: string; name: string; deg: number }) {
   return (
     <div style={{ transform: `rotate(${deg}deg)` }}>
-      <article className="pointer-events-auto w-full rounded-4xl border bg-card p-6 shadow-sm transition-shadow hover:shadow-md">
+      <article className="pointer-events-auto card-3d-matte w-full rounded-4xl border bg-card p-6">
         <div className="flex items-start justify-between gap-3">
           <p className="text-xs leading-relaxed text-foreground/70">&ldquo;{quote}&rdquo;</p>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-muted-foreground/30">

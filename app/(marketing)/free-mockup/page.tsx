@@ -63,7 +63,7 @@ export default function FreeMockupPage() {
             <Card key={s.step} className="h-full">
               <CardContent className="p-6">
                 <div className="mb-4 flex items-center justify-between">
-                  <span className="grid size-11 place-items-center rounded-xl bg-gold/15 text-gold">
+                  <span className="icon-3d-tile grid size-11 place-items-center rounded-xl bg-gold/15 text-gold">
                     <AppIcon name={s.icon} size={22} />
                   </span>
                   <span className="font-display text-3xl font-extrabold text-primary/20">
