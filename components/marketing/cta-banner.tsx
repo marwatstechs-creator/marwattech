@@ -23,7 +23,7 @@ export function CtaBanner() {
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
             <Link href="/free-mockup">
-              <span className="btn-3d-gold group min-h-[64px] justify-between pl-6 pr-2.5">
+              <span className="btn-3d-gold group min-h-[64px] justify-between rounded-full pl-6 pr-2.5">
                 <span className="min-w-0">Get a Free Mockup</span>
                 <span className="relative inline-flex h-9 w-[52px] shrink-0 items-center justify-center overflow-hidden rounded-full bg-black/10">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
@@ -38,7 +38,7 @@ export function CtaBanner() {
               </span>
             </Link>
             <Link href="/contact">
-              <span className="btn-3d-outline group min-h-[64px] justify-between border-white/50 text-white pl-6 pr-2.5 hover:bg-white/10">
+              <span className="btn-3d-outline group min-h-[64px] justify-between rounded-full border-white/50 text-white pl-6 pr-2.5 hover:bg-white/10">
                 <span className="min-w-0">Contact Us</span>
                 <span className="relative inline-flex h-9 w-[52px] shrink-0 items-center justify-center overflow-hidden rounded-full bg-white/10">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"

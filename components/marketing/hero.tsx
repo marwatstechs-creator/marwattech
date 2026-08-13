@@ -115,7 +115,7 @@ function TrustBadge({ icon, rating, label }: { icon: "trustpilot" | "google" | "
 function ArrowButton({ href, children }: { href: string; children: React.ReactNode }) {
   return (
     <Link href={href} onClick={() => trackEvent("cta_click", { cta: "hero_primary" })}>
-      <span className="btn-3d group min-h-[64px] pl-6 pr-2.5">
+      <span className="btn-3d group min-h-[64px] rounded-full pl-6 pr-2.5">
         <span className="min-w-0 flex-1">{children}</span>
         <span className="relative inline-flex h-9 w-[52px] shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary-foreground/15">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
@@ -144,7 +144,7 @@ export function Hero() {
           {/* Left floating cards - xl only */}
           <div className="pointer-events-none hidden xl:flex absolute inset-y-0 z-0 w-[260px] items-center overflow-hidden left-0 justify-start">
             <div className="flex w-[260px] flex-col gap-6 py-8 pl-2">
-              <FloatCard deg={4} quote="Marwat Tech delivered our website on time, within budget. Professional team, great communication." name="Home Plantings" />
+              <FloatCard deg={4} quote="Marwat Tech delivered our website on time, within budget. Professional team, great communication." name="Abdullah Khan" />
               <FloatCard deg={0} quote="Excellent service! They built our e-commerce site exactly how we wanted. Highly recommended." name="Muhammad Ali" />
               <FloatCard deg={-4} quote="They helped us with SEO and website redesign. Traffic increased significantly within weeks." name="Bilal Hussain" />
             </div>
@@ -153,8 +153,8 @@ export function Hero() {
           {/* Right floating cards - xl only */}
           <div className="pointer-events-none hidden xl:flex absolute inset-y-0 z-0 w-[260px] items-center overflow-hidden right-0 justify-end">
             <div className="flex w-[260px] flex-col gap-6 py-8 pr-2">
-              <FloatCard deg={-4} quote="Professional, responsive and technically excellent. The app was approved on first submission." name="David Chen" />
-              <FloatCard deg={0} quote="From mockup to launch in three weeks. A smooth process that brings us real leads." name="James Okafor" />
+              <FloatCard deg={-4} quote="Professional, responsive and technically excellent. The app was approved on first submission." name="Usman Farooq" />
+              <FloatCard deg={0} quote="From mockup to launch in three weeks. A smooth process that brings us real leads." name="Hassan Raza" />
               <FloatCard deg={4} quote="The free mockup impressed us immediately — we knew we were in good hands." name="Ayesha Malik" />
             </div>
           </div>
@@ -193,7 +193,7 @@ export function Hero() {
               className="flex w-full max-w-[280px] flex-col items-center gap-3 md:max-w-none md:flex-row md:justify-center">
               <ArrowButton href="/contact">Get Started</ArrowButton>
               <Link href="/portfolio">
-                <span className="btn-3d-outline group min-h-[64px] pl-6 pr-2.5">
+                <span className="btn-3d-outline group min-h-[64px] rounded-full pl-6 pr-2.5">
                   View Portfolio
                   <span className="relative inline-flex h-9 w-[52px] shrink-0 items-center justify-center overflow-hidden rounded-full bg-foreground/5">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"

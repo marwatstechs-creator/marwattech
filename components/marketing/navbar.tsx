@@ -152,10 +152,10 @@ export function Navbar() {
       </div>
 
       {/* ── Header ──────────────────────────────────────────── */}
-      <header ref={navRef} className={cn("sticky top-0 z-40 w-full py-2 transition-colors sm:py-3", scrolled ? "glass backdrop-blur-2xl" : "bg-transparent")}>
+      <header ref={navRef} className={cn("sticky top-0 z-40 w-full py-2 transition-colors sm:py-3", scrolled ? "glass-bar" : "bg-transparent")}>
         <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="glass-panel relative flex items-center justify-between gap-3 rounded-full border px-5 py-2 transition-all">
-            <Logo />
+          <div className="glass-pill relative flex items-center justify-between gap-3 rounded-full border px-5 py-2 transition-all">
+            <Logo responsive />
 
             {/* Desktop nav */}
             <nav className="hidden items-center gap-1 lg:flex">
@@ -177,7 +177,7 @@ export function Navbar() {
                   onMouseEnter={() => { clearTimeout(closeTimer.current); setMegaOpen(true); }}
                   onMouseLeave={() => { closeTimer.current = setTimeout(() => setMegaOpen(false), 200); }}
                   className={cn("pointer-events-none absolute left-0 top-full z-50 pt-2 transition-all duration-200", megaOpen ? "pointer-events-auto visible translate-y-0 opacity-100" : "invisible translate-y-1 opacity-0")}>
-                  <div className="card-3d flex w-[560px] lg:w-[900px] max-w-[calc(100vw-2rem)] items-stretch gap-2.5 rounded-4xl border bg-popover p-3 shadow-lg">
+                  <div className="card-3d glass-strong flex w-[560px] lg:w-[900px] max-w-[calc(100vw-2rem)] items-stretch gap-2.5 rounded-4xl border p-3 shadow-lg">
                     {/* Featured card - hidden on small screens */}
                     <div className="card-3d hidden lg:flex flex-col rounded-2xl bg-accent/30 w-[250px] shrink-0 p-5">
                       <span className="self-start rounded-full bg-primary px-3 py-1 text-[11px] font-semibold uppercase text-primary-foreground">{MEGA_MENU.featured.badge}</span>
@@ -228,7 +228,10 @@ export function Navbar() {
                 <Link key={item.href} href={item.href}
                   className={cn("nav-link-3d inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-2 text-sm font-medium transition-colors", isActive(item.href) ? "text-foreground" : "text-foreground/60 hover:text-foreground")}>
                   {item.href === "/portfolio" ? (
-                    <AppIcon name="grid" size={15} />
+                    <span className="inline-flex shrink-0">
+                      <img src="/assets/logo-light-square.svg" alt="" className="h-4 w-4 dark:hidden" />
+                      <img src="/assets/logo-dark-square.svg" alt="" className="hidden h-4 w-4 dark:block" />
+                    </span>
                   ) : (
                     <AppIcon name={item.icon} size={15} />
                   )}
@@ -272,7 +275,7 @@ export function Navbar() {
               exit={{ opacity: 0, scale: 0.95, y: -10 }}
               transition={{ duration: 0.2 }}
               onClick={(e) => e.stopPropagation()}
-              className="card-3d relative ml-auto mr-4 mt-[84px] flex max-h-[calc(100%-102px)] w-[calc(100%-2rem)] max-w-md flex-col overflow-hidden rounded-3xl border bg-popover shadow-2xl outline-none sm:mr-6"
+              className="card-3d glass-strong relative ml-auto mr-4 mt-[84px] flex max-h-[calc(100%-102px)] w-[calc(100%-2rem)] max-w-md flex-col overflow-hidden rounded-3xl border shadow-2xl outline-none sm:mr-6"
             >
               {/* Close button */}
               <button onClick={() => setMobileOpen(false)} className="absolute right-3 top-3 grid size-9 place-items-center rounded-full border hover:bg-accent-hover z-10">
@@ -334,9 +337,16 @@ export function Navbar() {
                     <li key={item.href}>
                       <Link href={item.href} onClick={() => setMobileOpen(false)}
                         className="dropdown-item-3d group flex min-h-[44px] w-full items-center gap-3 rounded-2xl px-3 text-start text-base font-semibold text-foreground/70 transition-colors hover:bg-accent-hover hover:text-foreground">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-muted-foreground group-hover:text-primary transition-colors">
-                          {item.icon}
-                        </svg>
+                        {item.href === "/portfolio" ? (
+                          <span className="grid size-[18px] shrink-0 place-items-center">
+                            <img src="/assets/logo-light-square.svg" alt="" className="h-[18px] w-[18px] dark:hidden" />
+                            <img src="/assets/logo-dark-square.svg" alt="" className="hidden h-[18px] w-[18px] dark:block" />
+                          </span>
+                        ) : (
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-muted-foreground group-hover:text-primary transition-colors">
+                            {item.icon}
+                          </svg>
+                        )}
                         <span className="flex-1 text-start transition-transform duration-200 group-hover:translate-x-[3px]">{item.label}</span>
                       </Link>
                     </li>
@@ -379,12 +389,12 @@ export function Navbar() {
               {/* CTA buttons */}
               <div className="flex flex-none gap-2.5 p-3">
                 <Link href="/client/register" onClick={() => setMobileOpen(false)}
-                  className="btn-3d-outline inline-flex h-11 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-semibold">
+                  className="btn-3d-outline inline-flex h-11 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-full px-3 text-sm font-semibold">
                   <AppIcon name="userAdd" size={17} className="shrink-0" />
                   Sign Up
                 </Link>
                 <Link href="/client/login" onClick={() => setMobileOpen(false)}
-                  className="btn-3d-outline inline-flex h-11 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-semibold">
+                  className="btn-3d-outline inline-flex h-11 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-full px-3 text-sm font-semibold">
                   <AppIcon name="login" size={17} className="shrink-0" />
                   Login
                 </Link>

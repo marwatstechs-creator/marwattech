@@ -38,23 +38,40 @@ export function GoogleReviewsCarousel({ reviews }: { reviews: GoogleReview[] }) 
     return () => clearInterval(id);
   }, [advance, isPaused]);
 
-  /* Scroll to the current card */
+  /* Scroll to the current card (container-only — never scrolls the page) */
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
-    const cards = el.children;
-    if (cards[current]) {
-      cards[current].scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
-    }
+    const card = el.children[current] as HTMLElement | undefined;
+    if (!card) return;
+    const left = card.offsetLeft - el.offsetLeft - (el.clientWidth - card.clientWidth) / 2;
+    el.scrollTo({ left, behavior: "smooth" });
   }, [current]);
+
+  /* Instantly cancel any in-flight smooth scroll so the hovered card stops cleanly. */
+  const cancelScroll = useCallback(() => {
+    const el = scrollRef.current;
+    if (el) el.scrollTo({ left: el.scrollLeft, behavior: "auto" });
+  }, []);
 
   if (!reviews.length) return null;
 
   return (
     <div
       className="relative"
-      onMouseEnter={() => setIsPaused(true)}
+      onMouseEnter={() => {
+        setIsPaused(true);
+        cancelScroll();
+      }}
       onMouseLeave={() => setIsPaused(false)}
+      onTouchStart={() => {
+        setIsPaused(true);
+        cancelScroll();
+      }}
+      onTouchEnd={() => {
+        // Resume a little while after the touch ends so it doesn't fight swiping.
+        setTimeout(() => setIsPaused(false), 3000);
+      }}
     >
       {/* Scroll track */}
       <div

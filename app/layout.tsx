@@ -4,6 +4,7 @@ import { Inter, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/app/providers";
 import { Analytics } from "@/components/analytics/scripts";
+import { PwaRegister } from "@/components/pwa-register";
 import { SITE } from "@/lib/constants";
 
 const inter = Inter({
@@ -56,7 +57,14 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: "/assets/logo-dark-square.svg",
+    apple: "/icons/apple-touch-icon.png",
   },
+  appleWebApp: {
+    capable: true,
+    title: SITE.name,
+    statusBarStyle: "black-translucent",
+  },
+  manifest: "/manifest.webmanifest",
 };
 
 export const viewport: Viewport = {
@@ -89,6 +97,7 @@ export default function RootLayout({
           {children}
           <Analytics />
         </Providers>
+        <PwaRegister />
       </body>
     </html>
   );
