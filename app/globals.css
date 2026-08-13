@@ -609,6 +609,20 @@
   box-shadow: none;
 }
 
+/* Dropdown menu items — 3D raised pill on hover, tactile press */
+.dropdown-item-3d {
+  transition: transform 0.14s ease, box-shadow 0.14s ease, background-color 0.14s ease;
+}
+.dropdown-item-3d:hover {
+  background-color: color-mix(in srgb, var(--foreground) 5%, transparent);
+  box-shadow: var(--shadow-3d-sm), var(--highlight-3d);
+  transform: translateY(-1px);
+}
+.dropdown-item-3d:active {
+  transform: translateY(1px) scale(0.98);
+  box-shadow: none;
+}
+
 /* Tabs — active tab raises (3D chip), inactive press on click */
 [data-slot="tabs-trigger"] {
   transition: transform 0.14s ease, box-shadow 0.14s ease, background-color 0.14s ease;

@@ -35,7 +35,7 @@ function ThemeToggle() {
 
 function MegaItem({ icon, title, desc, href }: { icon: React.ReactNode; title: string; desc: string; href: string }) {
   return (
-    <Link href={href} className="group flex w-full items-center gap-3 rounded-2xl px-2 py-1.5 text-start transition-colors hover:bg-accent-hover">
+    <Link href={href} className="dropdown-item-3d group flex w-full items-center gap-3 rounded-2xl px-2 py-1.5 text-start transition-colors hover:bg-accent-hover">
       <span className="flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-xl border bg-card text-foreground/50 transition-all duration-200 ease-out group-hover:-translate-y-[3px] group-hover:border-primary group-hover:text-primary group-hover:shadow-[0_8px_14px_-6px_rgba(116,100,198,0.35)]">
         {icon}
       </span>
@@ -177,9 +177,9 @@ export function Navbar() {
                   onMouseEnter={() => { clearTimeout(closeTimer.current); setMegaOpen(true); }}
                   onMouseLeave={() => { closeTimer.current = setTimeout(() => setMegaOpen(false), 200); }}
                   className={cn("pointer-events-none absolute left-0 top-full z-50 pt-2 transition-all duration-200", megaOpen ? "pointer-events-auto visible translate-y-0 opacity-100" : "invisible translate-y-1 opacity-0")}>
-                  <div className="flex w-[560px] lg:w-[900px] max-w-[calc(100vw-2rem)] items-stretch gap-2.5 rounded-4xl border bg-popover p-3 shadow-lg">
+                  <div className="card-3d flex w-[560px] lg:w-[900px] max-w-[calc(100vw-2rem)] items-stretch gap-2.5 rounded-4xl border bg-popover p-3 shadow-lg">
                     {/* Featured card - hidden on small screens */}
-                    <div className="hidden lg:flex flex-col rounded-2xl bg-accent/30 w-[250px] shrink-0 p-5">
+                    <div className="card-3d hidden lg:flex flex-col rounded-2xl bg-accent/30 w-[250px] shrink-0 p-5">
                       <span className="self-start rounded-full bg-primary px-3 py-1 text-[11px] font-semibold uppercase text-primary-foreground">{MEGA_MENU.featured.badge}</span>
                       <span className="mt-3 flex items-center gap-2 text-lg font-bold tracking-tight text-foreground">
                         <span className="text-primary">{MEGA_MENU.featured.icon}</span>
@@ -275,7 +275,7 @@ export function Navbar() {
               exit={{ opacity: 0, scale: 0.95, y: -10 }}
               transition={{ duration: 0.2 }}
               onClick={(e) => e.stopPropagation()}
-              className="relative ml-auto mr-4 mt-[84px] flex max-h-[calc(100%-102px)] w-[calc(100%-2rem)] max-w-md flex-col overflow-hidden rounded-3xl border bg-popover shadow-2xl outline-none sm:mr-6"
+              className="card-3d relative ml-auto mr-4 mt-[84px] flex max-h-[calc(100%-102px)] w-[calc(100%-2rem)] max-w-md flex-col overflow-hidden rounded-3xl border bg-popover shadow-2xl outline-none sm:mr-6"
             >
               {/* Close button */}
               <button onClick={() => setMobileOpen(false)} className="absolute right-3 top-3 grid size-9 place-items-center rounded-full border hover:bg-accent-hover z-10">
@@ -287,7 +287,7 @@ export function Navbar() {
                 <ul className="flex flex-col gap-1">
                   {/* Explore (mobile) */}
                   <li className="flex flex-col">
-                    <button className="group flex min-h-[44px] w-full items-center gap-3 rounded-2xl px-3 text-start text-base font-semibold text-foreground/70 transition-colors hover:bg-accent-hover hover:text-foreground"
+                    <button className="dropdown-item-3d group flex min-h-[44px] w-full items-center gap-3 rounded-2xl px-3 text-start text-base font-semibold text-foreground/70 transition-colors hover:bg-accent-hover hover:text-foreground"
                       onClick={() => setMobileExploreOpen((v) => !v)}>
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" className="shrink-0 text-muted-foreground group-hover:text-primary transition-colors">
                         <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>
@@ -305,7 +305,7 @@ export function Navbar() {
                           transition={{ duration: 0.2 }}
                           className="overflow-hidden"
                         >
-                          <div className="mt-1 flex flex-col gap-1 rounded-2xl border bg-accent/20 p-2">
+                          <div className="card-3d mt-1 flex flex-col gap-1 rounded-2xl border bg-accent/20 p-2">
                             <Link href={MEGA_MENU.featured.href} onClick={() => setMobileOpen(false)} className="flex items-center gap-3 rounded-xl bg-primary p-3 text-sm font-semibold text-primary-foreground">
                               <span className="text-lg">{MEGA_MENU.featured.icon}</span>
                               <span className="flex-1">{MEGA_MENU.featured.title}</span>
@@ -336,7 +336,7 @@ export function Navbar() {
                   ].map((item) => (
                     <li key={item.href}>
                       <Link href={item.href} onClick={() => setMobileOpen(false)}
-                        className="group flex min-h-[44px] w-full items-center gap-3 rounded-2xl px-3 text-start text-base font-semibold text-foreground/70 transition-colors hover:bg-accent-hover hover:text-foreground">
+                        className="dropdown-item-3d group flex min-h-[44px] w-full items-center gap-3 rounded-2xl px-3 text-start text-base font-semibold text-foreground/70 transition-colors hover:bg-accent-hover hover:text-foreground">
                         {item.href === "/portfolio" ? (
                           <span className="grid size-[18px] shrink-0 place-items-center">
                             <img src="/assets/logo-light-square.svg" alt="" className="h-[18px] w-[18px] dark:hidden" />
