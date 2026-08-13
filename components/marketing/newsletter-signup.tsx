@@ -15,8 +15,10 @@ export function NewsletterSignup({ compact = false }: { compact?: boolean }) {
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email.trim()) return;
+    const fd = new FormData(e.currentTarget as HTMLFormElement);
+    const website = String(fd.get("website") || "");
     setPending(true);
-    const res = await subscribeNewsletter({ email });
+    const res = await subscribeNewsletter({ email, website });
     setPending(false);
     if (!res.ok) {
       toast.error(res.error || "Could not subscribe");
@@ -28,6 +30,15 @@ export function NewsletterSignup({ compact = false }: { compact?: boolean }) {
 
   return (
     <form onSubmit={submit} className="w-full max-w-sm">
+      {/* Honeypot — hidden from humans, traps bots */}
+      <input
+        type="text"
+        name="website"
+        tabIndex={-1}
+        autoComplete="off"
+        aria-hidden="true"
+        className="hidden"
+      />
       {/* Single combined card: email field + subscribe button inside one modern pill */}
       <div className="card-3d flex items-center gap-1.5 rounded-full border bg-card p-1.5 pl-4 transition-[border-color,box-shadow] focus-within:border-primary/40 focus-within:ring-2 focus-within:ring-primary/15">
         <span className="shrink-0 text-muted-foreground">

@@ -13,7 +13,9 @@ const emailSchema = z.string().email().max(320).toLowerCase();
 
 /* ── Public: subscribe to the newsletter ──────────────────────────────── */
 
-export async function subscribeNewsletter(input: { email: string; name?: string }) {
+export async function subscribeNewsletter(input: { email: string; name?: string; website?: string }) {
+  // Honeypot: silently drop automated spam submissions.
+  if (input.website) return { ok: true };
   const parsed = emailSchema.safeParse(input.email);
   if (!parsed.success) return { error: "Enter a valid email address." };
   const email = parsed.data;

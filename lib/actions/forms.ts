@@ -48,6 +48,8 @@ export async function submitContact(
   if (!parsed.success) {
     return { success: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
   }
+  // Honeypot: silently drop automated spam submissions.
+  if (parsed.data.website) return { success: true };
 
   const db = await createClient();
   const { error } = await db.from("contact_messages").insert({
@@ -81,6 +83,8 @@ export async function submitSupport(
   if (!parsed.success) {
     return { success: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
   }
+  // Honeypot: silently drop automated spam submissions.
+  if (parsed.data.website) return { success: true };
 
   const db = await createClient();
   const { error } = await db.from("support_tickets").insert({
@@ -112,6 +116,8 @@ export async function submitMockup(input: MockupInput): Promise<ActionResult> {
   if (!parsed.success) {
     return { success: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
   }
+  // Honeypot: silently drop automated spam submissions.
+  if (parsed.data.website) return { success: true };
 
   const db = await createClient();
   const { error } = await db.from("mockup_requests").insert({
@@ -145,6 +151,8 @@ export async function submitApplication(
   if (!parsed.success) {
     return { success: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
   }
+  // Honeypot: silently drop automated spam submissions.
+  if (parsed.data.website) return { success: true };
 
   const db = await createClient();
   const { error } = await db.from("applications").insert({

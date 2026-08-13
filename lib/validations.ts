@@ -7,6 +7,7 @@ export const contactSchema = z.object({
   subject: z.string().max(150).optional().or(z.literal("")),
   service: z.string().max(120).optional().or(z.literal("")),
   message: z.string().min(10, "Message should be at least 10 characters").max(5000),
+  website: z.string().max(200).optional().or(z.literal("")),
 });
 
 export const supportSchema = z.object({
@@ -16,6 +17,7 @@ export const supportSchema = z.object({
   priority: z.enum(["low", "normal", "high", "urgent"]),
   subject: z.string().max(150).optional().or(z.literal("")),
   message: z.string().min(10, "Please describe the issue (min 10 characters)").max(5000),
+  website: z.string().max(200).optional().or(z.literal("")),
 });
 
 export const mockupSchema = z.object({
@@ -25,6 +27,7 @@ export const mockupSchema = z.object({
   website_type: z.string().min(1, "Select a website type"),
   budget_range: z.string().max(50).optional().or(z.literal("")),
   description: z.string().min(20, "Describe your project (min 20 characters)").max(8000),
+  website: z.string().max(200).optional().or(z.literal("")),
 });
 
 export const applicationSchema = z.object({
@@ -34,6 +37,7 @@ export const applicationSchema = z.object({
   cover_letter: z.string().max(8000).optional().or(z.literal("")),
   resume_url: z.string().max(500).optional().or(z.literal("")),
   career_id: z.string().uuid("Invalid job reference"),
+  website: z.string().max(200).optional().or(z.literal("")),
 });
 
 export const newsletterSchema = z.object({

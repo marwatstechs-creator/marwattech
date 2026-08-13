@@ -5,6 +5,7 @@ import "./globals.css";
 import { Providers } from "@/app/providers";
 import { Analytics } from "@/components/analytics/scripts";
 import { PwaRegister } from "@/components/pwa-register";
+import { CookieConsent } from "@/components/marketing/cookie-consent";
 import { SITE } from "@/lib/constants";
 
 const inter = Inter({
@@ -98,6 +99,7 @@ export default function RootLayout({
           <Analytics />
         </Providers>
         <PwaRegister />
+        <CookieConsent />
       </body>
     </html>
   );

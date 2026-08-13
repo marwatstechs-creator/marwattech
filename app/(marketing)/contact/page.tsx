@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import { PageHero } from "@/components/marketing/page-hero";
 import { CtaBanner } from "@/components/marketing/cta-banner";
+import { Faq } from "@/components/marketing/faq";
 import { ContactForm } from "@/components/forms/contact-form";
 import { AppIcon } from "@/components/app-icon";
 import { SITE } from "@/lib/constants";
@@ -113,6 +114,17 @@ export default function ContactPage() {
           </div>
         </div>
       </section>
+
+      <Faq
+        title="Contact — FAQ"
+        description="Quick answers before you reach out."
+        items={[
+          { question: "How quickly will I get a reply?", answer: "We respond to every enquiry within 24 hours — usually much faster on WhatsApp." },
+          { question: "Do you offer free quotes and mockups?", answer: "Yes — we provide a free quote and a free homepage mockup so you can see our quality before committing." },
+          { question: "What should I include in my message?", answer: "Tell us about your project, goals, timeline and budget. The more detail you share, the more accurate your quote." },
+          { question: "Can you handle an urgent project?", answer: "We can. Message us on WhatsApp with your deadline and we'll let you know if we can fit it in." },
+        ]}
+      />
 
       <CtaBanner />
     </>
