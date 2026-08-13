@@ -31,7 +31,7 @@ export function MessagesTable({
 
   return (
     <>
-      <div className="rounded-xl border bg-card">
+      <div className="card-3d rounded-xl border bg-card">
         <Table>
           <TableHeader>
             <TableRow>

@@ -638,6 +638,44 @@
   transform: translateY(1px) scale(0.97);
 }
 
+/* Sidebar / nav items — lift + depth on hover, tactile press */
+.nav-item-3d {
+  transition: transform 0.14s ease, box-shadow 0.14s ease;
+}
+.nav-item-3d:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-3d-sm), var(--highlight-3d);
+}
+.nav-item-3d:active {
+  transform: translateY(1px) scale(0.98);
+  box-shadow: none;
+}
+
+/* Overlays (dialogs, sheets, popovers, dropdowns) — raised 3D depth */
+[data-slot="dialog-content"],
+[data-slot="sheet-content"],
+[data-slot="popover-content"],
+[data-slot="dropdown-menu-content"] {
+  box-shadow: var(--shadow-3d), var(--highlight-3d), var(--edge-3d);
+}
+
+/* Dashboard top nav bar — raised 3D toolbar, deepens on hover (matches front-site navbar) */
+.topbar-3d {
+  box-shadow: var(--shadow-3d-sm), var(--highlight-3d), var(--edge-3d);
+  transition: box-shadow 0.14s ease;
+}
+.topbar-3d:hover {
+  box-shadow: var(--shadow-3d), var(--highlight-3d), var(--edge-3d);
+}
+
+/* Tables — subtle row hover depth */
+[data-slot="table"] tbody tr {
+  transition: background-color 0.12s ease;
+}
+[data-slot="table"] tbody tr:hover {
+  background-color: color-mix(in srgb, var(--foreground) 4%, transparent);
+}
+
 @media (prefers-reduced-motion: reduce) {
   [data-slot="card"],
   [data-slot="button"],

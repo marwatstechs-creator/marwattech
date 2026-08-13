@@ -89,7 +89,7 @@ export function ClientShell({
             target="_blank"
             title={!open ? "View site" : undefined}
             className={cn(
-              "flex items-center rounded-lg text-sm font-medium text-foreground/70 transition-colors hover:bg-accent-hover hover:text-foreground",
+              "nav-item-3d flex items-center rounded-lg text-sm font-medium text-foreground/70 transition-colors hover:bg-accent-hover hover:text-foreground",
               open ? "gap-3 px-3 py-2.5" : "justify-center px-2 py-2.5"
             )}
           >
@@ -101,7 +101,7 @@ export function ClientShell({
 
       {/* Main */}
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-4 border-b bg-background/90 px-4 backdrop-blur sm:px-6">
+        <header className="topbar-3d sticky top-0 z-30 flex h-16 items-center justify-between gap-4 border-b bg-background/90 px-4 backdrop-blur sm:px-6">
           <div className="flex items-center gap-3">
             <div className="hidden lg:block">
               <Button
@@ -149,7 +149,7 @@ export function ClientShell({
               key={item.href}
               href={item.href}
               className={cn(
-                "flex flex-col items-center gap-0.5 rounded-lg px-3 py-1.5 text-xs font-medium",
+                "nav-item-3d flex flex-col items-center gap-0.5 rounded-lg px-3 py-1.5 text-xs font-medium",
                 active ? "text-primary" : "text-muted-foreground"
               )}
             >

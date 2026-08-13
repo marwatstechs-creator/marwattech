@@ -76,7 +76,7 @@ function SidebarContent({
               href={item.href}
               onClick={onNavigate}
               className={cn(
-                "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+                "nav-item-3d flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
                 active
                   ? "bg-primary text-primary-foreground"
                   : "text-foreground/70 hover:bg-accent-hover hover:text-foreground"
@@ -93,7 +93,7 @@ function SidebarContent({
         <Link
           href="/"
           target="_blank"
-          className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-foreground/70 transition-colors hover:bg-accent-hover"
+          className="nav-item-3d flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-foreground/70 transition-colors hover:bg-accent-hover"
         >
           <AppIcon name="globe" size={18} />
           View site
@@ -169,7 +169,7 @@ export function AdminShell({
             target="_blank"
             title={!open ? "View site" : undefined}
             className={cn(
-              "flex items-center rounded-lg text-sm font-medium text-foreground/70 transition-colors hover:bg-accent-hover hover:text-foreground",
+              "nav-item-3d flex items-center rounded-lg text-sm font-medium text-foreground/70 transition-colors hover:bg-accent-hover hover:text-foreground",
               open ? "gap-3 px-3 py-2.5" : "justify-center px-2 py-2.5"
             )}
           >
@@ -183,7 +183,7 @@ export function AdminShell({
       {/* Main */}
       <div className="flex min-w-0 flex-1 flex-col">
         {/* Topbar */}
-        <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-4 border-b bg-background/90 px-4 backdrop-blur sm:px-6">
+        <header className="topbar-3d sticky top-0 z-30 flex h-16 items-center justify-between gap-4 border-b bg-background/90 px-4 backdrop-blur sm:px-6">
           <div className="flex items-center gap-3">
             {/* Sidebar toggle (desktop) — menu icon becomes close when open */}
             <div className="hidden lg:block">

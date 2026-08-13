@@ -83,7 +83,7 @@ export function CollapsibleSidebar({
                 href={item.href}
                 title={!open ? item.label : undefined}
                 className={cn(
-                  "flex items-center rounded-lg text-sm font-medium transition-colors",
+                  "nav-item-3d flex items-center rounded-lg text-sm font-medium transition-colors",
                   open ? "gap-3 px-3 py-2.5" : "justify-center px-2 py-2.5",
                   active
                     ? "bg-primary text-primary-foreground"
