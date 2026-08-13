@@ -51,7 +51,10 @@ export function GoogleReviewsCarousel({ reviews }: { reviews: GoogleReview[] }) 
   /* Instantly cancel any in-flight smooth scroll so the hovered card stops cleanly. */
   const cancelScroll = useCallback(() => {
     const el = scrollRef.current;
-    if (el) el.scrollTo({ left: el.scrollLeft, behavior: "auto" });
+    if (!el) return;
+    // Must be "instant" — NOT "auto". The track has CSS scroll-behavior:smooth,
+    // and "auto" inherits that, so it would animate instead of cancelling.
+    el.scrollTo({ left: el.scrollLeft, behavior: "instant" as ScrollBehavior });
   }, []);
 
   const pause = useCallback(() => {
