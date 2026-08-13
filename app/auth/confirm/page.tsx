@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { AppIcon } from "@/components/app-icon";
 import { Button } from "@/components/ui/button";
+import { sendWelcomeEmail } from "@/lib/actions/mail";
 import {
   Card,
   CardContent,
@@ -36,6 +37,14 @@ export default function ConfirmEmailPage() {
           refresh_token: refreshToken,
         });
         if (!error) {
+          // Fire-and-forget branded welcome email (never blocks the redirect).
+          const { data: { user } } = await db.auth.getUser();
+          if (user?.email) {
+            sendWelcomeEmail({
+              email: user.email,
+              name: (user.user_metadata?.full_name as string | undefined) ?? null,
+            }).catch(() => {});
+          }
           router.push("/client");
           router.refresh();
           return;

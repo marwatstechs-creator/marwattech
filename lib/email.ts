@@ -1,5 +1,16 @@
 import nodemailer from "nodemailer";
 import { SITE } from "@/lib/constants";
+import {
+  emailLayout,
+  infoCard,
+  quoteRequestEmail,
+  esc,
+  PURPLE,
+  INK,
+  MUTED,
+  BORDER,
+  BG,
+} from "@/lib/email/templates";
 
 export type EmailPayload = {
   to: string | string[];
@@ -177,25 +188,16 @@ export async function sendBulkEmail(
   return results;
 }
 
-/* ── Notification templates ─────────────────────────────────────────── */
+/* ── Notification templates (branded — match the web app) ───────────── */
 
-function shell(body: string) {
-  return `
-  <div style="font-family:Inter,Arial,sans-serif;max-width:600px;margin:0 auto;color:#1e293b;">
-    <div style="background:#7464c6;padding:20px 28px;border-radius:12px 12px 0 0;">
-      <h1 style="margin:0;color:#fff;font-size:20px;">${SITE.name}</h1>
-    </div>
-    <div style="border:1px solid #e2e8f0;border-top:0;padding:28px;border-radius:0 0 12px 12px;">
-      ${body}
-      <p style="margin-top:32px;padding-top:16px;border-top:1px solid #e2e8f0;color:#64748b;font-size:13px;">
-        This is an automated notification from ${SITE.name}.
-      </p>
-    </div>
-  </div>`;
+/** Shared branded wrapper for the internal notification emails. */
+function notifyShell(o: { badge: string; title: string; body: string; preheader?: string }): string {
+  return emailLayout({ badge: o.badge, title: o.title, preheader: o.preheader, body: o.body });
 }
 
-function field(label: string, value: string) {
-  return `<p style="margin:6px 0;"><strong>${label}:</strong> ${value}</p>`;
+/** Message callout box used inside notifications. */
+function messageBox(text: string): string {
+  return `<div style="background:${BG};border:1px solid ${BORDER};border-radius:12px;padding:14px 16px;font-size:13px;line-height:1.6;color:${INK};white-space:pre-wrap;">${esc(text)}</div>`;
 }
 
 export async function notifyContact(form: {
@@ -206,16 +208,22 @@ export async function notifyContact(form: {
   service?: string | null;
   message: string;
 }, to: string) {
-  const html = shell(`
-    <h2 style="margin-top:0;">📩 New contact message</h2>
-    ${field("Name", form.name)}
-    ${field("Email", form.email)}
-    ${form.phone ? field("Phone", form.phone) : ""}
-    ${form.subject ? field("Subject", form.subject) : ""}
-    ${form.service ? field("Service", form.service) : ""}
-    <p style="margin:16px 0 6px;"><strong>Message:</strong></p>
-    <p style="background:#f8fafc;padding:12px;border-radius:8px;white-space:pre-wrap;">${form.message}</p>
-  `);
+  const html = notifyShell({
+    badge: "New enquiry",
+    title: "📩 New contact message",
+    preheader: `Contact message from ${form.name}`,
+    body: `
+      <p style="margin:0 0 18px;font-size:14px;line-height:1.65;color:${MUTED};">A new enquiry came in through the website. Reply directly to <a href="mailto:${esc(form.email)}" style="color:${PURPLE};font-weight:700;">${esc(form.email)}</a>.</p>
+      ${infoCard({ rows: [
+        { label: "Name", value: esc(form.name) },
+        { label: "Email", value: esc(form.email) },
+        ...(form.phone ? [{ label: "Phone", value: esc(form.phone) }] : []),
+        ...(form.subject ? [{ label: "Subject", value: esc(form.subject) }] : []),
+        ...(form.service ? [{ label: "Service", value: esc(form.service) }] : []),
+      ]})}
+      ${messageBox(form.message)}
+    `,
+  });
   await sendEmail({
     to,
     subject: `New contact message from ${form.name}`,
@@ -232,16 +240,22 @@ export async function notifySupport(ticket: {
   subject?: string | null;
   message: string;
 }, to: string) {
-  const html = shell(`
-    <h2 style="margin-top:0;">🛠️ New support ticket</h2>
-    ${field("Name", ticket.name)}
-    ${field("Email", ticket.email)}
-    ${field("Issue type", ticket.issue_type)}
-    ${field("Priority", ticket.priority)}
-    ${ticket.subject ? field("Subject", ticket.subject) : ""}
-    <p style="margin:16px 0 6px;"><strong>Message:</strong></p>
-    <p style="background:#f8fafc;padding:12px;border-radius:8px;white-space:pre-wrap;">${ticket.message}</p>
-  `);
+  const html = notifyShell({
+    badge: "Support ticket",
+    title: "🛠️ New support ticket",
+    preheader: `[${ticket.priority.toUpperCase()}] Ticket from ${ticket.name}`,
+    body: `
+      <p style="margin:0 0 18px;font-size:14px;line-height:1.65;color:${MUTED};">A new support ticket was opened by <a href="mailto:${esc(ticket.email)}" style="color:${PURPLE};font-weight:700;">${esc(ticket.email)}</a>.</p>
+      ${infoCard({ rows: [
+        { label: "Name", value: esc(ticket.name) },
+        { label: "Email", value: esc(ticket.email) },
+        { label: "Issue type", value: esc(ticket.issue_type) },
+        { label: "Priority", value: esc(ticket.priority) },
+        ...(ticket.subject ? [{ label: "Subject", value: esc(ticket.subject) }] : []),
+      ]})}
+      ${messageBox(ticket.message)}
+    `,
+  });
   await sendEmail({
     to,
     subject: `[${ticket.priority.toUpperCase()}] Support ticket from ${ticket.name}`,
@@ -258,16 +272,22 @@ export async function notifyMockup(req: {
   budget_range?: string | null;
   description: string;
 }, to: string) {
-  const html = shell(`
-    <h2 style="margin-top:0;">🎨 New free mockup request</h2>
-    ${field("Name", req.name)}
-    ${field("Email", req.email)}
-    ${req.phone ? field("Phone", req.phone) : ""}
-    ${field("Website type", req.website_type)}
-    ${req.budget_range ? field("Budget range", req.budget_range) : ""}
-    <p style="margin:16px 0 6px;"><strong>Project description:</strong></p>
-    <p style="background:#f8fafc;padding:12px;border-radius:8px;white-space:pre-wrap;">${req.description}</p>
-  `);
+  const html = notifyShell({
+    badge: "Free mockup",
+    title: "🎨 New free mockup request",
+    preheader: `Mockup request from ${req.name}`,
+    body: `
+      <p style="margin:0 0 18px;font-size:14px;line-height:1.65;color:${MUTED};">A new free mockup request came in from <a href="mailto:${esc(req.email)}" style="color:${PURPLE};font-weight:700;">${esc(req.email)}</a>.</p>
+      ${infoCard({ rows: [
+        { label: "Name", value: esc(req.name) },
+        { label: "Email", value: esc(req.email) },
+        ...(req.phone ? [{ label: "Phone", value: esc(req.phone) }] : []),
+        { label: "Website type", value: esc(req.website_type) },
+        ...(req.budget_range ? [{ label: "Budget range", value: esc(req.budget_range) }] : []),
+      ]})}
+      ${messageBox(req.description)}
+    `,
+  });
   await sendEmail({
     to,
     subject: `Free mockup request from ${req.name}`,
@@ -283,18 +303,37 @@ export async function notifyApplication(app: {
   career_title: string;
   cover_letter?: string | null;
 }, to: string) {
-  const html = shell(`
-    <h2 style="margin-top:0;">🧑‍💼 New job application</h2>
-    ${field("Applicant", app.applicant_name)}
-    ${field("Email", app.email)}
-    ${app.phone ? field("Phone", app.phone) : ""}
-    ${field("Position", app.career_title)}
-    ${app.cover_letter ? `<p style="margin:16px 0 6px;"><strong>Cover letter:</strong></p><p style="background:#f8fafc;padding:12px;border-radius:8px;white-space:pre-wrap;">${app.cover_letter}</p>` : ""}
-  `);
+  const html = notifyShell({
+    badge: "Job application",
+    title: "🧑‍💼 New job application",
+    preheader: `Application for ${app.career_title} — ${app.applicant_name}`,
+    body: `
+      <p style="margin:0 0 18px;font-size:14px;line-height:1.65;color:${MUTED};">A new job application was submitted by <a href="mailto:${esc(app.email)}" style="color:${PURPLE};font-weight:700;">${esc(app.email)}</a>.</p>
+      ${infoCard({ rows: [
+        { label: "Applicant", value: esc(app.applicant_name) },
+        { label: "Email", value: esc(app.email) },
+        ...(app.phone ? [{ label: "Phone", value: esc(app.phone) }] : []),
+        { label: "Position", value: esc(app.career_title) },
+      ]})}
+      ${app.cover_letter ? messageBox(app.cover_letter) : ""}
+    `,
+  });
   await sendEmail({
     to,
     subject: `Job application for ${app.career_title} — ${app.applicant_name}`,
     html,
     replyTo: app.email,
+  });
+}
+
+/** Customer-facing "we received your quotation request" confirmation. */
+export async function notifyQuoteReceived(
+  to: string,
+  opts: { name?: string | null; service?: string | null }
+) {
+  await sendEmail({
+    to,
+    subject: `Thanks${opts.name ? ` ${opts.name}` : ""} — we've received your request`,
+    html: quoteRequestEmail({ name: opts.name, service: opts.service }),
   });
 }

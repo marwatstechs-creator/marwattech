@@ -84,3 +84,21 @@ export async function saveMailSettings(input: z.infer<typeof mailSchema>) {
   revalidatePath("/admin/marketing");
   return { ok: true };
 }
+
+/** Send the branded welcome email after a user confirms their email. */
+export async function sendWelcomeEmail(input: { email?: string; name?: string | null }) {
+  if (!input.email) return { ok: false };
+  try {
+    const { sendEmail } = await import("@/lib/email");
+    const { welcomeEmail } = await import("@/lib/email/templates");
+    const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://marwattech.com").replace(/\/$/, "");
+    await sendEmail({
+      to: input.email,
+      subject: `Welcome to Marwat Tech 🎉`,
+      html: welcomeEmail({ name: input.name, loginUrl: `${siteUrl}/client/login` }),
+    });
+    return { ok: true };
+  } catch {
+    return { ok: false };
+  }
+}

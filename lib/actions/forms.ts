@@ -16,6 +16,7 @@ import {
   notifySupport,
   notifyMockup,
   notifyApplication,
+  notifyQuoteReceived,
 } from "@/lib/email";
 
 type ActionResult = { success: boolean; error?: string };
@@ -70,6 +71,15 @@ export async function submitContact(
       }
     } catch {
       // Email failure should not block the submission
+    }
+    // Branded confirmation to the enquirer (best-effort).
+    try {
+      await notifyQuoteReceived(parsed.data.email, {
+        name: parsed.data.name,
+        service: parsed.data.service ?? null,
+      });
+    } catch {
+      // ignore
     }
   }
 
@@ -136,6 +146,15 @@ export async function submitMockup(input: MockupInput): Promise<ActionResult> {
       if (to) {
         await notifyMockup(parsed.data, to);
       }
+    } catch {
+      // ignore
+    }
+    // Branded confirmation to the enquirer (best-effort).
+    try {
+      await notifyQuoteReceived(parsed.data.email, {
+        name: parsed.data.name,
+        service: "Free Mockup",
+      });
     } catch {
       // ignore
     }
