@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="x-apple-disable-message-reformatting"/>
+<title>You're invited</title>
+</head>
+<body style="margin:0;padding:0;background:#f4f5f7;font-family:Inter,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#1e293b;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f5f7;padding:28px 12px;">
+    <tr><td align="center">
+      <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;border-radius:22px;overflow:hidden;border:1px solid #e2e8f0;box-shadow:0 10px 30px rgba(30,41,59,0.08);">
+        <tr>
+          <td style="background:linear-gradient(135deg,#8b7dd4 0%,#7464c6 45%,#4b3ea1 100%);padding:28px 32px 22px;box-shadow:inset 0 1px 0 rgba(255,255,255,0.15);">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+              <tr>
+                <td>
+                  <table role="presentation" cellpadding="0" cellspacing="0"><tr>
+                    <td style="border-radius:12px;background:linear-gradient(135deg,#8b7dd4 0%,#4b3ea1 100%);box-shadow:0 4px 10px rgba(75,62,161,0.4);">
+                      <div style="width:38px;height:38px;border-radius:12px;text-align:center;font-size:15px;font-weight:800;color:#ffffff;line-height:38px;letter-spacing:0.5px;">MT</div>
+                    </td>
+                    <td style="padding-left:12px;vertical-align:middle;">
+                      <div style="font-size:20px;font-weight:800;color:#ffffff;letter-spacing:0.5px;line-height:1.1;">MARWAT <span style="color:#f8c640;">TECH</span></div>
+                      <div style="font-size:11px;color:rgba(255,255,255,0.82);margin-top:3px;">Software &amp; web development, done right.</div>
+                    </td>
+                  </tr></table>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+        <tr><td style="height:5px;background:linear-gradient(90deg,#f8c640 0%,#f9d76b 50%,#f8c640 100%);"></td></tr>
+        <tr>
+          <td style="padding:34px 34px 28px;">
+            <div style="display:inline-block;background:#7464c614;color:#7464c6;font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;padding:5px 12px;border-radius:999px;margin-bottom:16px;border:1px solid #7464c622;">You're invited</div>
+            <h1 style="margin:0 0 14px;font-size:23px;line-height:1.25;color:#1e293b;font-weight:800;">You've been invited 🎉</h1>
+            <p style="margin:0 0 18px;font-size:14px;line-height:1.65;color:#64748b;">Hi{{ if .Email }} <strong style="color:#1e293b;">{{ .Email }}</strong>{{ end }}, you've been invited to join Marwat Tech. Click below to accept your invitation and set up your account.</p>
+            <table role="presentation" cellpadding="0" cellspacing="0" style="margin:28px 0 4px;"><tr>
+              <td align="center" style="border-radius:999px;background:linear-gradient(180deg,#8b7dd4 0%,#7464c6 55%,#4b3ea1 100%);box-shadow:0 6px 16px rgba(88,74,176,0.4), inset 0 1px 0 rgba(255,255,255,0.28);">
+                <a href="{{ .ConfirmationURL }}" style="display:inline-block;padding:13px 30px;border-radius:999px;color:#ffffff;font-size:14px;font-weight:700;text-decoration:none;letter-spacing:0.3px;">Accept invitation&nbsp;&nbsp;→</a>
+              </td>
+            </tr></table>
+            <p style="margin:18px 0 0;font-size:12px;color:#64748b;line-height:1.6;">If the button doesn't work, copy and paste this link into your browser:<br/><a href="{{ .ConfirmationURL }}" style="color:#7464c6;text-decoration:none;font-weight:600;">{{ .ConfirmationURL }}</a></p>
+            <p style="margin:16px 0 0;font-size:12px;color:#64748b;">If you weren't expecting this invitation, you can safely ignore this email.</p>
+          </td>
+        </tr>
+        <tr>
+          <td style="background:linear-gradient(180deg,#faf9fe 0%,#f4f5f7 100%);border-top:1px solid #e2e8f0;padding:26px 34px;">
+            <div style="font-size:12px;color:#64748b;line-height:1.8;">
+              <div style="font-size:13px;font-weight:800;color:#1e293b;margin-bottom:2px;">Marwat Tech (Pvt) Ltd.</div>
+              <div>Karachi, Pakistan · <a href="tel:+923104580297" style="color:#7464c6;text-decoration:none;font-weight:600;">+92 310 4580297</a></div>
+              <div><a href="mailto:contact@marwattech.com" style="color:#7464c6;text-decoration:none;font-weight:600;">contact@marwattech.com</a> &nbsp;·&nbsp; <a href="{{ .SiteURL }}" style="color:#7464c6;text-decoration:none;font-weight:600;">marwattech.com</a></div>
+              <div style="margin-top:10px;color:#64748b;font-size:11px;">© 2026 Marwat Tech (Pvt) Ltd. All rights reserved.</div>
+            </div>
+          </td>
+        </tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>
