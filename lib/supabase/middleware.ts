@@ -58,7 +58,13 @@ export async function updateSession(request: NextRequest) {
   const isAuthRoute = pathname === "/client/register";
   const isProtectedRoute = (isAdminRoute || isClientRoute) && !isLoginRoute && !isAuthRoute;
 
-  if (isLoginRoute && user) {
+  // Suspended (banned) accounts must be treated as signed-out, even with a
+  // valid unexpired session, so suspension cannot be bypassed via a stale
+  // cookie or a direct API request.
+  const isBanned =
+    !!user?.banned_until && new Date(user.banned_until).getTime() > Date.now();
+
+  if (isLoginRoute && user && !isBanned) {
     const url = request.nextUrl.clone();
     // Redirect to correct dashboard based on role
     try {
@@ -75,7 +81,7 @@ export async function updateSession(request: NextRequest) {
     return noCache(NextResponse.redirect(url));
   }
 
-  if (isProtectedRoute && !user) {
+  if (isProtectedRoute && (!user || isBanned)) {
     const url = request.nextUrl.clone();
     url.pathname = isClientRoute ? "/client/login" : "/admin/login";
     url.search = "";

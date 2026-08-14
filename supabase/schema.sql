@@ -592,3 +592,6 @@ create index if not exists idx_contact_status on public.contact_messages (status
 create index if not exists idx_support_status on public.support_tickets (status);
 create index if not exists idx_mockup_status on public.mockup_requests (status);
 create index if not exists idx_activity_created on public.activity_logs (created_at desc);
+create index if not exists idx_activity_user on public.activity_logs (entity_id);
+create index if not exists idx_activity_actor on public.activity_logs (user_id);
+create index if not exists idx_activity_action on public.activity_logs (action);

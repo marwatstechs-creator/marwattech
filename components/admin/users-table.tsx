@@ -54,6 +54,11 @@ import {
   getUserActivity,
 } from "@/lib/actions/admin/users";
 import { formatDate, initials } from "@/lib/utils";
+import {
+  describeActivity,
+  isValidPhone,
+  isValidAvatarUrl,
+} from "@/lib/admin/user-validation";
 
 export type AdminUserRow = {
   id: string;
@@ -71,9 +76,11 @@ export type AdminUserRow = {
 
 const ROLES = ["super_admin", "editor", "support", "client"] as const;
 const STAFF = ["super_admin", "editor", "support"];
+type StaffRole = "super_admin" | "editor" | "support";
 
 type ActivityItem = {
   id: string;
+  user_id: string | null;
   action: string;
   entity_type: string | null;
   entity_id: string | null;
@@ -100,7 +107,7 @@ export function UsersTable({ users, currentUserId }: { users: AdminUserRow[]; cu
 
   // Add-user dialog
   const [addOpen, setAddOpen] = React.useState(false);
-  const [form, setForm] = React.useState({ fullName: "", email: "", password: "", role: "editor" as (typeof ROLES)[number] });
+  const [form, setForm] = React.useState({ fullName: "", email: "", password: "", role: "editor" as StaffRole });
 
   // Edit-details dialog
   const [editUser, setEditUser] = React.useState<AdminUserRow | null>(null);
@@ -116,6 +123,19 @@ export function UsersTable({ users, currentUserId }: { users: AdminUserRow[]; cu
 
   // Delete dialog
   const [deleteUser, setDeleteUser] = React.useState<AdminUserRow | null>(null);
+
+  // Suspend / activate confirmation
+  const [confirmAction, setConfirmAction] = React.useState<{ user: AdminUserRow; kind: "suspend" | "activate" } | null>(null);
+
+  // Client-side pagination
+  const PAGE_SIZE = 12;
+  const [page, setPage] = React.useState(0);
+
+  const usersById = React.useMemo(() => new Map(users.map((u) => [u.id, u])), [users]);
+
+  React.useEffect(() => {
+    setPage(0);
+  }, [search, roleFilter]);
 
   React.useEffect(() => {
     if (!detailUser) {
@@ -140,10 +160,16 @@ export function UsersTable({ users, currentUserId }: { users: AdminUserRow[]; cu
       if (!q) return true;
       return (
         (u.full_name ?? "").toLowerCase().includes(q) ||
-        u.email.toLowerCase().includes(q)
+        u.email.toLowerCase().includes(q) ||
+        (u.phone ?? "").toLowerCase().includes(q) ||
+        u.id.toLowerCase().includes(q)
       );
     });
   }, [users, search, roleFilter]);
+
+  const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const safePage = Math.min(page, pageCount - 1);
+  const paged = filtered.slice(safePage * PAGE_SIZE, safePage * PAGE_SIZE + PAGE_SIZE);
 
   const run = async (
     key: string,
@@ -163,6 +189,8 @@ export function UsersTable({ users, currentUserId }: { users: AdminUserRow[]; cu
 
   const saveDetails = () => {
     if (!editUser) return;
+    if (!isValidPhone(editForm.phone)) return toast.error("Enter a valid phone number.");
+    if (!isValidAvatarUrl(editForm.avatar_url)) return toast.error("Enter a valid image URL.");
     run("edit", () =>
       updateUserDetails(editUser.id, {
         full_name: editForm.full_name,
@@ -186,12 +214,17 @@ export function UsersTable({ users, currentUserId }: { users: AdminUserRow[]; cu
   const resendConfirm = (u: AdminUserRow) =>
     run(`confirm-${u.id}`, () => resendConfirmationEmail(u.id), "Confirmation link sent by email");
 
-  const toggleSuspend = (u: AdminUserRow) =>
-    run(
-      `suspend-${u.id}`,
-      () => setUserSuspended(u.id, !isSuspended(u)),
-      isSuspended(u) ? "User activated" : "User suspended"
-    );
+  const confirmToggleSuspend = async () => {
+    if (!confirmAction) return;
+    const { user, kind } = confirmAction;
+    setPending(`suspend-${user.id}`);
+    const res = await setUserSuspended(user.id, kind === "suspend");
+    setPending(null);
+    if ("error" in res && res.error) return toast.error(res.error);
+    toast.success(kind === "suspend" ? "User suspended" : "User activated");
+    setConfirmAction(null);
+    router.refresh();
+  };
 
   const addUser = async () => {
     if (!form.email || form.password.length < 8) {
@@ -267,6 +300,8 @@ export function UsersTable({ users, currentUserId }: { users: AdminUserRow[]; cu
               <TableHead>Contact</TableHead>
               <TableHead>Role</TableHead>
               <TableHead>Status</TableHead>
+              <TableHead>Confirmed</TableHead>
+              <TableHead>Last sign-in</TableHead>
               <TableHead>Joined</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
@@ -274,12 +309,12 @@ export function UsersTable({ users, currentUserId }: { users: AdminUserRow[]; cu
           <TableBody>
             {filtered.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="py-14 text-center text-muted-foreground">
+                <TableCell colSpan={8} className="py-14 text-center text-muted-foreground">
                   No users found.
                 </TableCell>
               </TableRow>
             ) : (
-              filtered.map((u) => (
+              paged.map((u) => (
                 <TableRow key={u.id}>
                   <TableCell>
                     <div className="flex items-center gap-3">
@@ -320,6 +355,14 @@ export function UsersTable({ users, currentUserId }: { users: AdminUserRow[]; cu
                     </Select>
                   </TableCell>
                   <TableCell>{statusBadge(u)}</TableCell>
+                  <TableCell>
+                    {u.confirmed_at ? (
+                      <Badge variant="outline" className="border-emerald-500/40 text-emerald-600 dark:text-emerald-400">Confirmed</Badge>
+                    ) : (
+                      <Badge variant="outline" className="text-muted-foreground">Pending</Badge>
+                    )}
+                  </TableCell>
+                  <TableCell className="text-muted-foreground">{u.last_sign_in_at ? formatDate(u.last_sign_in_at) : "—"}</TableCell>
                   <TableCell className="text-muted-foreground">{formatDate(u.created_at)}</TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
@@ -370,8 +413,8 @@ export function UsersTable({ users, currentUserId }: { users: AdminUserRow[]; cu
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
-                          disabled={isCurrent(u.id) || pending === `suspend-${u.id}`}
-                          onClick={() => toggleSuspend(u)}
+                          disabled={isCurrent(u.id)}
+                          onClick={() => setConfirmAction({ user: u, kind: isSuspended(u) ? "activate" : "suspend" })}
                         >
                           <AppIcon name={isSuspended(u) ? "check" : "shield"} size={15} className="mr-2" />
                           {isSuspended(u) ? "Activate account" : "Suspend account"}
@@ -392,6 +435,28 @@ export function UsersTable({ users, currentUserId }: { users: AdminUserRow[]; cu
           </TableBody>
         </Table>
       </div>
+
+      {/* Pagination */}
+      {pageCount > 1 && (
+        <div className="flex items-center justify-between border-t px-4 py-3">
+          <p className="text-xs text-muted-foreground">
+            Page {safePage + 1} of {pageCount} · {filtered.length} users
+          </p>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" disabled={safePage === 0} onClick={() => setPage((p) => Math.max(0, p - 1))}>
+              Previous
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={safePage >= pageCount - 1}
+              onClick={() => setPage((p) => Math.min(pageCount - 1, p + 1))}
+            >
+              Next
+            </Button>
+          </div>
+        </div>
+      )}
 
       {/* ── Add user dialog ─────────────────────────────── */}
       <Dialog open={addOpen} onOpenChange={setAddOpen}>
@@ -417,7 +482,7 @@ export function UsersTable({ users, currentUserId }: { users: AdminUserRow[]; cu
             </div>
             <div className="space-y-2">
               <Label>Role</Label>
-              <Select value={form.role} onValueChange={(v) => setForm((f) => ({ ...f, role: v as (typeof ROLES)[number] }))}>
+                <Select value={form.role} onValueChange={(v) => setForm((f) => ({ ...f, role: v as StaffRole }))}>
                 <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="editor">Editor</SelectItem>
@@ -520,15 +585,55 @@ export function UsersTable({ users, currentUserId }: { users: AdminUserRow[]; cu
               <p className="text-xs text-muted-foreground">No activity recorded.</p>
             ) : (
               <ul className="max-h-56 space-y-1.5 overflow-y-auto text-xs">
-                {activity.map((a) => (
-                  <li key={a.id} className="flex items-center justify-between gap-2 rounded-md bg-muted/40 px-3 py-2">
-                    <span className="capitalize text-foreground/80">{a.action.replace(/_/g, " ")}</span>
-                    <span className="shrink-0 text-muted-foreground">{formatDate(a.created_at)}</span>
-                  </li>
-                ))}
+                {activity.map((a) => {
+                  const actor = a.user_id ? usersById.get(a.user_id) : undefined;
+                  return (
+                    <li key={a.id} className="flex items-center justify-between gap-2 rounded-md bg-muted/40 px-3 py-2">
+                      <div className="flex min-w-0 flex-col">
+                        <span className="capitalize text-foreground/80">{describeActivity(a.action)}</span>
+                        {actor ? (
+                          <span className="text-muted-foreground">by {actor.full_name ?? actor.email}</span>
+                        ) : null}
+                      </div>
+                      <span className="shrink-0 text-muted-foreground">{formatDate(a.created_at)}</span>
+                    </li>
+                  );
+                })}
               </ul>
             )}
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Suspend / activate confirmation ────────────── */}
+      <Dialog open={!!confirmAction} onOpenChange={(o) => !o && setConfirmAction(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>
+              {confirmAction?.kind === "suspend" ? "Suspend user?" : "Activate user?"}
+            </DialogTitle>
+            <DialogDescription>
+              {confirmAction?.user ? (
+                confirmAction.kind === "suspend"
+                  ? `${confirmAction.user.full_name ?? confirmAction.user.email} will be blocked from signing in and from accessing protected areas. You can activate them any time.`
+                  : `${confirmAction.user.full_name ?? confirmAction.user.email} will regain full access. Their role and profile stay unchanged.`
+              ) : null}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setConfirmAction(null)}>Cancel</Button>
+            <Button
+              variant={confirmAction?.kind === "suspend" ? "destructive" : "default"}
+              onClick={confirmToggleSuspend}
+              disabled={pending === `suspend-${confirmAction?.user.id}`}
+            >
+              {pending === `suspend-${confirmAction?.user.id}`
+                ? "Please wait…"
+                : confirmAction?.kind === "suspend"
+                  ? "Suspend user"
+                  : "Activate user"}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 

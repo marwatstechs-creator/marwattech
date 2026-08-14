@@ -23,6 +23,13 @@ export async function getSessionUser(): Promise<SessionWithProfile | null> {
     } = await db.auth.getUser();
     if (!user) return null;
 
+    // A suspended/banned account is treated as signed-out everywhere — even
+    // if they still hold an unexpired session cookie — so suspension cannot
+    // be bypassed with a stale token.
+    if (user.banned_until && new Date(user.banned_until).getTime() > Date.now()) {
+      return null;
+    }
+
     const { data: profile } = await db
       .from("profiles")
       .select("id, full_name, avatar_url, role")
