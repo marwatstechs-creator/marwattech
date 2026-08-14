@@ -26,6 +26,8 @@ import {
 } from "@/lib/demo";
 import { getGoogleReviews } from "@/lib/google/reviews";
 import { buildMetadata } from "@/lib/seo";
+import { organizationJsonLd, websiteJsonLd } from "@/lib/seo-jsonld";
+import { JsonLd } from "@/components/seo/json-ld";
 import { SITE } from "@/lib/constants";
 
 export const revalidate = 3600; // ISR — revalidate hourly
@@ -132,6 +134,7 @@ export default async function HomePage() {
 
   return (
     <>
+      <JsonLd data={[organizationJsonLd(), websiteJsonLd()]} />
       <Hero />
 
       {/* Core services */}

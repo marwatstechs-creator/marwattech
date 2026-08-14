@@ -11,6 +11,8 @@ import { getOpenCareers } from "@/lib/db/content";
 import { DEMO_CAREERS } from "@/lib/demo";
 import { sanitizeHtml } from "@/lib/sanitize";
 import { buildMetadata } from "@/lib/seo";
+import { jobPostingJsonLd } from "@/lib/seo-jsonld";
+import { JsonLd } from "@/components/seo/json-ld";
 import { SITE } from "@/lib/constants";
 
 export const revalidate = 3600;
@@ -41,6 +43,19 @@ export default async function CareersPage() {
 
   return (
     <>
+      <JsonLd
+        data={careers.map((job) =>
+          jobPostingJsonLd({
+            title: job.title,
+            slug: job.slug,
+            department: job.department,
+            location: job.location,
+            job_type: job.job_type,
+            description: job.description,
+            datePosted: job.created_at,
+          })
+        )}
+      />
       <PageHero
         badge="Careers"
         title="Build your career with Marwat Tech"

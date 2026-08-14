@@ -6,6 +6,8 @@ import { CtaBanner } from "@/components/marketing/cta-banner";
 import { createClient } from "@/lib/supabase/server";
 import { sanitizeHtml } from "@/lib/sanitize";
 import { buildMetadata } from "@/lib/seo";
+import { webPageJsonLd } from "@/lib/seo-jsonld";
+import { JsonLd } from "@/components/seo/json-ld";
 
 export const revalidate = 3600;
 
@@ -64,6 +66,13 @@ export default async function PageDetailPage({ params }: Props) {
 
   return (
     <>
+      <JsonLd
+        data={webPageJsonLd({
+          title: page.title,
+          description: page.meta_description,
+          path: `/pages/${slug}`,
+        })}
+      />
       <PageHero title={page.title} description={page.meta_description ?? undefined} />
 
       <section className="mx-auto w-full max-w-3xl px-4 pb-16 sm:px-6">

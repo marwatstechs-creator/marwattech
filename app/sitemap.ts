@@ -43,17 +43,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   let services = DEMO_SERVICES;
   let projects = DEMO_PROJECTS;
   let posts = DEMO_POSTS;
+  let pages: { slug: string; updated_at: string }[] = [];
 
   try {
     const db = await createClient();
-    const [s, p, b] = await Promise.all([
+    const [s, p, b, pg] = await Promise.all([
       db.from("services").select("slug, updated_at").eq("status", "published"),
       db.from("portfolio_items").select("slug, updated_at").eq("status", "published"),
       db.from("blog_posts").select("slug, updated_at").eq("status", "published"),
+      db.from("pages").select("slug, updated_at").eq("status", "published"),
     ]);
     if (s.data?.length) services = s.data as typeof services;
     if (p.data?.length) projects = p.data as typeof projects;
     if (b.data?.length) posts = b.data as typeof posts;
+    if (pg.data?.length) pages = pg.data as typeof pages;
   } catch {
     // fallback
   }
@@ -76,6 +79,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: p.updated_at ?? now,
       changeFrequency: "weekly" as const,
       priority: 0.7,
+    })),
+    ...pages.map((p) => ({
+      url: `${SITE.url}/pages/${p.slug}`,
+      lastModified: p.updated_at ?? now,
+      changeFrequency: "monthly" as const,
+      priority: 0.6,
     })),
   ];
 

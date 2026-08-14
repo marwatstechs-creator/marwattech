@@ -21,6 +21,8 @@ import { DEMO_PROJECTS } from "@/lib/demo";
 import { PORTFOLIO_CATEGORIES } from "@/lib/constants";
 import { sanitizeHtml } from "@/lib/sanitize";
 import { buildMetadata } from "@/lib/seo";
+import { creativeWorkJsonLd } from "@/lib/seo-jsonld";
+import { JsonLd } from "@/components/seo/json-ld";
 
 export const revalidate = 3600;
 
@@ -118,6 +120,16 @@ export default async function PortfolioSlugPage({ params }: Props) {
 
   return (
     <>
+      <JsonLd
+        data={creativeWorkJsonLd({
+          name: project.title,
+          description: project.summary,
+          path: `/portfolio/${project.slug}`,
+          image: project.cover_image ?? images[0]?.url ?? null,
+          datePublished: project.published_at,
+          dateModified: project.updated_at,
+        })}
+      />
       <section className="border-b bg-muted/40">
         <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
           <Breadcrumbs

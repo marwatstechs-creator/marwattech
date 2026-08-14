@@ -22,6 +22,8 @@ import {
 import { DEMO_SERVICES } from "@/lib/demo";
 import { sanitizeHtml } from "@/lib/sanitize";
 import { buildMetadata } from "@/lib/seo";
+import { serviceJsonLd, breadcrumbJsonLd } from "@/lib/seo-jsonld";
+import { JsonLd } from "@/components/seo/json-ld";
 
 export const revalidate = 3600;
 
@@ -90,6 +92,21 @@ export default async function ServiceDetailPage({ params }: Props) {
 
   return (
     <>
+      <JsonLd
+        data={[
+          serviceJsonLd({
+            name: service.title,
+            description: service.summary,
+            path: `/services/${service.slug}`,
+            image: service.og_image,
+          }),
+          breadcrumbJsonLd([
+            { name: "Home", path: "/" },
+            { name: "Services", path: "/services" },
+            { name: service.title, path: `/services/${service.slug}` },
+          ]),
+        ]}
+      />
       <PageHero
         title={service.title}
         description={service.summary ?? undefined}

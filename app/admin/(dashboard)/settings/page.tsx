@@ -3,12 +3,14 @@ import { SettingsForm } from "@/components/admin/forms/settings-form";
 import { PaymentGatewaySettings, type GatewayStatus } from "@/components/admin/payment-gateway-settings";
 import { MailSettings, type MailSettingsStatus } from "@/components/admin/mail-settings";
 import { GoogleSettings, type GoogleSettingsStatus } from "@/components/admin/google-settings";
+import { SeoSettings } from "@/components/admin/seo-settings";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { resolvePaypalConfig } from "@/lib/payments/paypal";
 import { resolveMailConfig } from "@/lib/email";
 import { resolveGoogleConfig } from "@/lib/google";
 import { guardSuperAdmin } from "@/lib/auth";
+import { SITE } from "@/lib/constants";
 
 export const revalidate = 0;
 
@@ -134,6 +136,10 @@ export default async function AdminSettingsPage() {
       />
       <div className="space-y-8">
         <SettingsForm initial={settings} />
+        <SeoSettings
+          sitemapUrl={`${SITE.url.replace(/\/$/, "")}/sitemap.xml`}
+          robotsUrl={`${SITE.url.replace(/\/$/, "")}/robots.txt`}
+        />
         <MailSettings status={mail} />
         <GoogleSettings status={google} />
         <PaymentGatewaySettings status={gateway} />
