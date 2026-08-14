@@ -240,6 +240,7 @@ export function Navbar() {
                   { label: "Portfolio", href: "/portfolio", icon: "grid" },
                   { label: "Testimonials", href: "/testimonials", icon: "chat" },
                   { label: "Blog", href: "/blog", icon: "file" },
+                  { label: "Free Courses", href: "/free-courses", icon: "star" },
                   { label: "Contact", href: "/contact", icon: "mail" },
                 ] as const
               ).map((item) => (
@@ -356,6 +357,7 @@ export function Navbar() {
                     { label: "Portfolio", href: "/portfolio", icon: <path d="M4 18V7l5 7 3-4 3 4 5-7v11"/> },
                     { label: "Testimonials", href: "/testimonials", icon: <><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 12a2 2 0 0 0 2-2V8H8"/><path d="M14 12a2 2 0 0 0 2-2V8h-2"/></> },
                     { label: "Blog", href: "/blog", icon: <path d="M12 7v14M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/> },
+                    { label: "Free Courses", href: "/free-courses", icon: <path d="M11.5 3.6 14 8.6l5.6.8-4 3.9.9 5.6-5-2.6-5 2.6.9-5.6-4-3.9 5.6-.8 2.5-5z"/> },
                     { label: "Contact", href: "/contact", icon: <><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></> },
                   ].map((item) => (
                     <li key={item.href}>
