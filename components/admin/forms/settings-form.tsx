@@ -31,6 +31,7 @@ const FIELDS: { key: string; label: string; textarea?: boolean; hint?: string }[
   { key: "bing_site_verification", label: "Bing Webmaster verification code", hint: "Bing Webmaster Tools → Site settings → Verification → HTML meta tag." },
   { key: "google_adsense_client", label: "Google AdSense Client ID", hint: "e.g. ca-pub-1234567890123456. Adds the AdSense loader to every page." },
   { key: "ad_txt", label: "ad.txt content", textarea: true, hint: "Paste your ad.txt content or upload the file. Served at /ad.txt for AdSense verification." },
+  { key: "promo_udemy_feed", label: "Auto Udemy promo feed", hint: "Type 1 to show the auto Udemy deals tab on /promo-codes, or leave empty to hide it." },
 ];
 
 export function SettingsForm({ initial }: { initial: Record<string, string> }) {

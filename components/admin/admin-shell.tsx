@@ -44,6 +44,7 @@ const NAV: NavItem[] = [
   { label: "Marketing", href: "/admin/marketing", icon: "megaphone", roles: ["super_admin", "editor"] },
   { label: "AdSense Ads", href: "/admin/ads", icon: "tag", roles: ["super_admin", "editor"] },
   { label: "Study Materials", href: "/admin/study-materials", icon: "folder", roles: ["super_admin", "editor"] },
+  { label: "Promo Codes", href: "/admin/promo-codes", icon: "dollar", roles: ["super_admin", "editor"] },
   { label: "Media Library", href: "/admin/media", icon: "image", roles: ["super_admin", "editor"] },
   { label: "Settings", href: "/admin/settings", icon: "settings", roles: ["super_admin"] },
   { label: "Users", href: "/admin/users", icon: "team", roles: ["super_admin"] },

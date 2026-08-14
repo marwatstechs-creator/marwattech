@@ -790,6 +790,61 @@ export interface Database {
         };
         Relationships: [];
       };
+      /* ── Promo codes (manual + auto Udemy feed) ─────────────── */
+      promo_codes: {
+        Row: {
+          id: string;
+          title: string;
+          store: string;
+          code: string;
+          discount_label: string | null;
+          url: string;
+          image_url: string | null;
+          category: string | null;
+          tag: string;
+          source: string;
+          expires_at: string | null;
+          enabled: boolean;
+          sort_order: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          title: string;
+          store?: string;
+          code: string;
+          discount_label?: string | null;
+          url: string;
+          image_url?: string | null;
+          category?: string | null;
+          tag?: string;
+          source?: string;
+          expires_at?: string | null;
+          enabled?: boolean;
+          sort_order?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          title?: string;
+          store?: string;
+          code?: string;
+          discount_label?: string | null;
+          url?: string;
+          image_url?: string | null;
+          category?: string | null;
+          tag?: string;
+          source?: string;
+          expires_at?: string | null;
+          enabled?: boolean;
+          sort_order?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       /* ── Payments (PayPal Orders API v2 + client portal) ───── */
       payments: {
         Row: {

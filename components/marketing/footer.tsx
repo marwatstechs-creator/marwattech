@@ -29,6 +29,7 @@ const COMPANY_LINKS = [
 
 const SUPPORT_LINKS = [
   { label: "Technical Support", href: "/technical-support" },
+  { label: "Promo Codes", href: "/promo-codes" },
   { label: "Study Materials", href: "/study-materials" },
   { label: "Free Mockup", href: "/free-mockup" },
   { label: "Pay Online", href: "/payment" },

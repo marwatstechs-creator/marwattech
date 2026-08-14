@@ -296,3 +296,37 @@ export async function getPublishedStudyMaterials(db: DB): Promise<PublicStudyMat
     .order("created_at", { ascending: false });
   return (data ?? []) as PublicStudyMaterial[];
 }
+
+export type PromoCode = {
+  id: string;
+  title: string;
+  store: string;
+  code: string;
+  discount_label: string | null;
+  url: string;
+  image_url: string | null;
+  category: string | null;
+  tag: string;
+  source: string;
+  expires_at: string | null;
+  enabled: boolean;
+  sort_order: number;
+  created_at: string;
+};
+
+/** Enabled promo codes, optionally filtered by tag and/or source. */
+export async function getEnabledPromoCodes(
+  db: DB,
+  opts?: { tag?: string; source?: string }
+): Promise<PromoCode[]> {
+  let q = db
+    .from("promo_codes")
+    .select("*")
+    .eq("enabled", true)
+    .order("sort_order", { ascending: true })
+    .order("created_at", { ascending: false });
+  if (opts?.tag) q = q.eq("tag", opts.tag);
+  if (opts?.source) q = q.eq("source", opts.source);
+  const { data } = await q;
+  return (data ?? []) as PromoCode[];
+}
