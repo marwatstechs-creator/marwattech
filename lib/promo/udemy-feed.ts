@@ -51,6 +51,31 @@ type RawFile = {
 
 const REVALIDATE = 3600; // 1h
 
+/** Codes that are clearly dead/expired — skip them so we never link a broken deal. */
+const DEAD_CODE = /(inactive|expired|exp|used|dead|invalid)$/i;
+
+/** Strip any query string (incl. a stale couponCode) from a course URL. */
+function cleanCourseUrl(u: string): string {
+  try {
+    const url = new URL(u);
+    url.search = "";
+    return url.toString();
+  } catch {
+    return u.split("?")[0];
+  }
+}
+
+/**
+ * Build the deal URL with the coupon auto-applied, e.g.
+ * https://www.udemy.com/course/x/?couponCode=CODE — so clicking "Get Deal"
+ * actually applies the discount instead of landing on the full-price page.
+ */
+function buildDealUrl(base: string, code: string | null): string {
+  const clean = cleanCourseUrl(base);
+  if (!code) return clean;
+  return `${clean}${clean.includes("?") ? "&" : "?"}couponCode=${encodeURIComponent(code)}`;
+}
+
 /** Fetch with a single retry so transient GitHub hiccups don't empty the page. */
 async function fetchJson(url: string): Promise<Response | null> {
   for (let attempt = 0; attempt < 2; attempt++) {
@@ -81,11 +106,13 @@ export async function fetchUdemyDeals(limit = 60): Promise<UdemyDeal[]> {
       const cd = entry?.courseDetails;
       const coupon = entry?.couponData;
       if (!cd || !coupon) continue;
+      const code = coupon.couponCode?.trim() ?? "";
+      if (code && DEAD_CODE.test(code)) continue; // never link a dead code
       deals.push({
         title: cd.title ?? "Udemy course",
-        url: cd.courseUri ?? key,
+        url: buildDealUrl(cd.courseUri ?? key, code || null),
         image: cd.imageUri ?? null,
-        code: coupon.couponCode ?? null,
+        code: code || null,
         discount: coupon.discountPercentage ?? null,
         originalPrice: coupon.originalPrice ?? null,
         expiry: coupon.expirationText ?? null,
