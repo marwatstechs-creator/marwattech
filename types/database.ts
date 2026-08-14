@@ -751,6 +751,8 @@ export interface Database {
           name: string;
           ad_client: string;
           slot_id: string | null;
+          mobile_slot_id: string | null;
+          mobile_format: string;
           format: string;
           placement: string;
           enabled: boolean;
@@ -763,6 +765,8 @@ export interface Database {
           name: string;
           ad_client: string;
           slot_id?: string | null;
+          mobile_slot_id?: string | null;
+          mobile_format?: string;
           format?: string;
           placement?: string;
           enabled?: boolean;
@@ -775,6 +779,8 @@ export interface Database {
           name?: string;
           ad_client?: string;
           slot_id?: string | null;
+          mobile_slot_id?: string | null;
+          mobile_format?: string;
           format?: string;
           placement?: string;
           enabled?: boolean;

@@ -19,6 +19,7 @@ import {
   type PostWithRelations,
 } from "@/lib/db/content";
 import { AdUnit } from "@/components/adsense/ad-unit";
+import { StickyAd } from "@/components/adsense/sticky-ad";
 import { DEMO_POSTS } from "@/lib/demo";
 import { sanitizeHtml } from "@/lib/sanitize";
 import { buildMetadata } from "@/lib/seo";
@@ -75,6 +76,7 @@ export default async function BlogPostPage({ params }: Props) {
     3
   );
   let ads: EnabledAd[] = [];
+  let stickyAds: EnabledAd[] = [];
 
   try {
     const db = await createClient();
@@ -88,6 +90,7 @@ export default async function BlogPostPage({ params }: Props) {
     }
     // In-content ad units (used between/around the article body)
     ads = await getEnabledAds(db, "in_content");
+    stickyAds = await getEnabledAds(db, "sticky");
   } catch {
     if (!post) notFound();
   }
@@ -281,6 +284,8 @@ export default async function BlogPostPage({ params }: Props) {
       )}
 
       <CtaBanner />
+
+      {stickyAds[0] && <StickyAd ad={stickyAds[0]} />}
     </>
   );
 }

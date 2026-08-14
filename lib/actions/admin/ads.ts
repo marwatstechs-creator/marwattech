@@ -15,8 +15,10 @@ const adSchema = z.object({
     .max(60)
     .regex(/^[a-zA-Z0-9-]+$/, "Format: ca-pub-XXXXXXXX (letters, numbers, hyphens)"),
   slot_id: z.string().max(40).optional().or(z.literal("")),
+  mobile_slot_id: z.string().max(40).optional().or(z.literal("")),
+  mobile_format: z.enum(["auto", "fluid", "rectangle", "horizontal", "vertical"]).default("auto"),
   format: z.enum(["auto", "fluid", "rectangle", "horizontal", "vertical"]).default("auto"),
-  placement: z.enum(["in_content", "listing"]).default("in_content"),
+  placement: z.enum(["in_content", "listing", "sticky"]).default("in_content"),
   enabled: z.boolean().default(true),
   sort_order: z.coerce.number().int().min(0).max(999).default(0),
 });
@@ -41,6 +43,7 @@ export async function createAd(input: AdInput) {
     .insert({
       ...parsed.data,
       slot_id: parsed.data.slot_id || null,
+      mobile_slot_id: parsed.data.mobile_slot_id || null,
     })
     .select("id")
     .single();
@@ -58,7 +61,7 @@ export async function updateAd(id: string, input: AdInput) {
   }
   const { data, error } = await db
     .from("ads")
-    .update({ ...parsed.data, slot_id: parsed.data.slot_id || null })
+    .update({ ...parsed.data, slot_id: parsed.data.slot_id || null, mobile_slot_id: parsed.data.mobile_slot_id || null })
     .eq("id", id)
     .select("id")
     .single();

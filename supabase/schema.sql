@@ -602,6 +602,8 @@ create table if not exists public.ads (
   name text not null,
   ad_client text not null,
   slot_id text,
+  mobile_slot_id text,
+  mobile_format text not null default 'auto',
   format text not null default 'auto',
   placement text not null default 'in_content',
   enabled boolean not null default true,

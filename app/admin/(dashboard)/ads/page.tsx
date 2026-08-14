@@ -31,6 +31,7 @@ const FORMAT_LABELS: Record<string, string> = {
 const PLACEMENT_LABELS: Record<string, string> = {
   in_content: "In content",
   listing: "Listing",
+  sticky: "Sticky (bottom)",
 };
 
 export default async function AdminAdsPage() {
@@ -41,6 +42,8 @@ export default async function AdminAdsPage() {
     name: string;
     ad_client: string;
     slot_id: string | null;
+    mobile_slot_id: string | null;
+    mobile_format: string;
     format: string;
     placement: string;
     enabled: boolean;

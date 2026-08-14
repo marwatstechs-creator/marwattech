@@ -17,6 +17,8 @@ export default async function EditAdPage({ params }: Props) {
     name: string;
     ad_client: string;
     slot_id: string | null;
+    mobile_slot_id: string | null;
+    mobile_format: string;
     format: string;
     placement: string;
     enabled: boolean;

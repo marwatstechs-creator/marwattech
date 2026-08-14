@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { AdUnit } from "@/components/adsense/ad-unit";
+import { StickyAd } from "@/components/adsense/sticky-ad";
 import { createClient } from "@/lib/supabase/server";
 import {
   getPublishedStudyMaterials,
@@ -53,6 +54,7 @@ export default async function StudyMaterialsPage() {
 
   const listingAds = ads.filter((x) => x.placement === "listing");
   const inContentAds = ads.filter((x) => x.placement === "in_content");
+  const stickyAds = ads.filter((x) => x.placement === "sticky");
   const topAd = listingAds[0] ?? inContentAds[0];
   const bottomAd = inContentAds[1] ?? listingAds[1];
 
@@ -138,6 +140,8 @@ export default async function StudyMaterialsPage() {
       </section>
 
       <CtaBanner />
+
+      {stickyAds[0] && <StickyAd ad={stickyAds[0]} />}
     </>
   );
 }

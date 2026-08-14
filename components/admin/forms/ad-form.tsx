@@ -30,6 +30,7 @@ export const AD_FORMATS = [
 export const AD_PLACEMENTS = [
   { value: "in_content", label: "Inside content (blog posts + study materials)" },
   { value: "listing", label: "Listing pages (blog grid + categories)" },
+  { value: "sticky", label: "Sticky bottom banner (slides up — blog + study materials)" },
 ] as const;
 
 export const AD_SIZES_GUIDE = [
@@ -72,6 +73,8 @@ type AdFormProps = {
     name: string;
     ad_client: string;
     slot_id: string | null;
+    mobile_slot_id: string | null;
+    mobile_format: string;
     format: string;
     placement: string;
     enabled: boolean;
@@ -95,6 +98,8 @@ export function AdForm({ initial, defaultClient, isEdit = false }: AdFormProps) 
     name: initial?.name ?? "",
     ad_client: initial?.ad_client ?? defaultClient ?? "",
     slot_id: initial?.slot_id ?? "",
+    mobile_slot_id: initial?.mobile_slot_id ?? "",
+    mobile_format: initial?.mobile_format ?? "auto",
     format: initial?.format ?? "auto",
     placement: initial?.placement ?? "in_content",
     enabled: initial?.enabled ?? true,
@@ -111,6 +116,8 @@ export function AdForm({ initial, defaultClient, isEdit = false }: AdFormProps) 
       name: form.name,
       ad_client: form.ad_client,
       slot_id: form.slot_id,
+      mobile_slot_id: form.mobile_slot_id,
+      mobile_format: form.mobile_format,
       format: form.format,
       placement: form.placement,
       enabled: form.enabled,
@@ -210,6 +217,54 @@ export function AdForm({ initial, defaultClient, isEdit = false }: AdFormProps) 
                 </SelectContent>
               </Select>
             </div>
+
+            {/* Sticky bottom banner — separate desktop + mobile ad units */}
+            {form.placement === "sticky" && (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="mobile_slot_id">Mobile ad slot ID (optional)</Label>
+                  <Input
+                    id="mobile_slot_id"
+                    value={form.mobile_slot_id}
+                    onChange={(e) => set("mobile_slot_id", e.target.value)}
+                    placeholder="e.g. 0987654321"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    If set, phones show this different ad unit instead of the desktop one.
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  <Label>Mobile ad format</Label>
+                  <Select value={form.mobile_format} onValueChange={(v) => set("mobile_format", v)}>
+                    <SelectTrigger>
+                      <SelectValue>{FORMAT_LABELS[form.mobile_format] ?? form.mobile_format}</SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {AD_FORMATS.map((f) => (
+                        <SelectItem key={f.value} value={f.value}>
+                          {f.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground">
+                    Mobile size — e.g. Mobile banner 320×50 or responsive.
+                  </p>
+                </div>
+                <div className="rounded-lg border border-gold/30 bg-gold/5 p-3 text-xs text-muted-foreground sm:col-span-2">
+                  <p className="font-semibold text-foreground">Sticky bottom banner</p>
+                  <p className="mt-1">
+                    Shows fixed at the bottom of the screen and slides up after scrolling,
+                    on <strong>blog posts, blog listings and study materials</strong>.
+                    Create two display ad units in AdSense if you want different ones per device:
+                    a <strong>Leaderboard 728×90</strong> (desktop) and a{" "}
+                    <strong>Mobile banner 320×50 / 320×100</strong> (phones), then add the mobile
+                    slot ID above. Leave mobile slot empty to serve one responsive ad everywhere.
+                  </p>
+                </div>
+              </>
+            )}
+
             <div className="flex items-center justify-between rounded-lg border p-4 sm:col-span-2">
               <div>
                 <p className="font-medium">Enabled</p>

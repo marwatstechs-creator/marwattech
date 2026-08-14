@@ -10,6 +10,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getPublishedPosts, getEnabledAds } from "@/lib/db/content";
 import type { EnabledAd } from "@/lib/db/content";
 import { AdUnit } from "@/components/adsense/ad-unit";
+import { StickyAd } from "@/components/adsense/sticky-ad";
 import { DEMO_POSTS as ALL_DEMO_POSTS } from "@/lib/demo";
 import { BLOG_CATEGORIES } from "@/lib/constants";
 import { buildMetadata } from "@/lib/seo";
@@ -56,6 +57,7 @@ export default async function BlogCategoryPage({ params, searchParams }: Props) 
   let posts = demoByCategory[slug] ?? [];
   let totalPages = 1;
   let ads: EnabledAd[] = [];
+  let stickyAds: EnabledAd[] = [];
 
   try {
     const db = await createClient();
@@ -68,6 +70,7 @@ export default async function BlogCategoryPage({ params, searchParams }: Props) 
     posts = result.posts;
     totalPages = result.totalPages;
     ads = await getEnabledAds(db, "listing");
+    stickyAds = await getEnabledAds(db, "sticky");
   } catch {
     // fallback
   }
@@ -120,6 +123,8 @@ export default async function BlogCategoryPage({ params, searchParams }: Props) 
       )}
 
       <CtaBanner />
+
+      {stickyAds[0] && <StickyAd ad={stickyAds[0]} />}
     </>
   );
 }

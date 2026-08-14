@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { BlogPageClient } from "@/components/marketing/blog-page-client";
 import type { BlogPostCard } from "@/components/marketing/blog-card-v2";
 import { CtaBanner } from "@/components/marketing/cta-banner";
+import { StickyAd } from "@/components/adsense/sticky-ad";
 import { createClient } from "@/lib/supabase/server";
 import { getPublishedPosts, getBlogCategories, getEnabledAds } from "@/lib/db/content";
 import type { EnabledAd } from "@/lib/db/content";
@@ -42,6 +43,7 @@ export default async function BlogPage({
   let totalPages = 1;
   let categories = FALLBACK_CATEGORIES;
   let ads: EnabledAd[] = [];
+  let stickyAds: EnabledAd[] = [];
 
   try {
     const db = await createClient();
@@ -60,6 +62,7 @@ export default async function BlogPage({
       categories = cats.map((c) => ({ name: c.name, slug: c.slug }));
     }
     ads = await getEnabledAds(db, "listing");
+    stickyAds = await getEnabledAds(db, "sticky");
   } catch {
     // fallback to demo content
   }
@@ -76,6 +79,8 @@ export default async function BlogPage({
         ads={ads}
       />
       <CtaBanner />
+
+      {stickyAds[0] && <StickyAd ad={stickyAds[0]} />}
     </>
   );
 }

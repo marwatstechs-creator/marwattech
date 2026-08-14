@@ -258,6 +258,8 @@ export type EnabledAd = {
   name: string;
   ad_client: string;
   slot_id: string | null;
+  mobile_slot_id: string | null;
+  mobile_format: string;
   format: string;
   placement: string;
 };
@@ -266,7 +268,7 @@ export type EnabledAd = {
 export async function getEnabledAds(db: DB, placement?: string): Promise<EnabledAd[]> {
   let q = db
     .from("ads")
-    .select("id, name, ad_client, slot_id, format, placement")
+    .select("id, name, ad_client, slot_id, mobile_slot_id, mobile_format, format, placement")
     .eq("enabled", true)
     .order("sort_order", { ascending: true });
   if (placement) q = q.eq("placement", placement);
