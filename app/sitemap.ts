@@ -37,6 +37,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     })),
     { url: `${SITE.url}/contact`, lastModified: now, changeFrequency: "yearly", priority: 0.7 },
     { url: `${SITE.url}/free-mockup`, lastModified: now, changeFrequency: "yearly", priority: 0.7 },
+    { url: `${SITE.url}/study-materials`, lastModified: now, changeFrequency: "weekly", priority: 0.7 },
   ];
 
   // Published dynamic content (falls back to demo when Supabase isn't configured)

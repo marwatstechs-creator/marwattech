@@ -4,7 +4,8 @@ import { BlogPageClient } from "@/components/marketing/blog-page-client";
 import type { BlogPostCard } from "@/components/marketing/blog-card-v2";
 import { CtaBanner } from "@/components/marketing/cta-banner";
 import { createClient } from "@/lib/supabase/server";
-import { getPublishedPosts, getBlogCategories } from "@/lib/db/content";
+import { getPublishedPosts, getBlogCategories, getEnabledAds } from "@/lib/db/content";
+import type { EnabledAd } from "@/lib/db/content";
 import { DEMO_POSTS } from "@/lib/demo";
 import { buildMetadata } from "@/lib/seo";
 
@@ -40,6 +41,7 @@ export default async function BlogPage({
   let posts = DEMO_POSTS as unknown as BlogPostCard[];
   let totalPages = 1;
   let categories = FALLBACK_CATEGORIES;
+  let ads: EnabledAd[] = [];
 
   try {
     const db = await createClient();
@@ -57,6 +59,7 @@ export default async function BlogPage({
     if (cats.length) {
       categories = cats.map((c) => ({ name: c.name, slug: c.slug }));
     }
+    ads = await getEnabledAds(db, "listing");
   } catch {
     // fallback to demo content
   }
@@ -70,6 +73,7 @@ export default async function BlogPage({
         q={q}
         page={page}
         totalPages={totalPages}
+        ads={ads}
       />
       <CtaBanner />
     </>

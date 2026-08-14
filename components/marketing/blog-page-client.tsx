@@ -7,6 +7,8 @@ import { useRouter } from "next/navigation";
 import { ArrowRight, Search } from "lucide-react";
 import { BlogCardV2, type BlogPostCard } from "@/components/marketing/blog-card-v2";
 import { BlogCover } from "@/components/marketing/blog-cover";
+import { AdUnit } from "@/components/adsense/ad-unit";
+import type { EnabledAd } from "@/lib/db/content";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { formatDate, readingTime } from "@/lib/utils";
@@ -83,6 +85,7 @@ export function BlogPageClient({
   q,
   page,
   totalPages,
+  ads = [],
 }: {
   posts: BlogPostCard[];
   categories: { name: string; slug: string }[];
@@ -90,6 +93,7 @@ export function BlogPageClient({
   q?: string;
   page: number;
   totalPages: number;
+  ads?: EnabledAd[];
 }) {
   const router = useRouter();
   const [search, setSearch] = useState(q ?? "");
@@ -278,6 +282,18 @@ export function BlogPageClient({
           )}
         </div>
       </section>
+
+      {/* ── Listing ad ─────────────────────────────────────────── */}
+      {ads[0] && (
+        <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+          <AdUnit
+            adClient={ads[0].ad_client}
+            slotId={ads[0].slot_id}
+            format={ads[0].format}
+            className="rounded-2xl border bg-card/60 py-4"
+          />
+        </div>
+      )}
 
       {/* ── In numbers ───────────────────────────────────────────── */}
       <section aria-label="Why trust what we write" className="pb-20 lg:pb-24">

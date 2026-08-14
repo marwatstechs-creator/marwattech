@@ -252,3 +252,45 @@ export async function getSiteSettings(db: DB) {
   }
   return map;
 }
+
+export type EnabledAd = {
+  id: string;
+  name: string;
+  ad_client: string;
+  slot_id: string | null;
+  format: string;
+  placement: string;
+};
+
+/** Enabled Google AdSense units, optionally filtered by placement. */
+export async function getEnabledAds(db: DB, placement?: string): Promise<EnabledAd[]> {
+  let q = db
+    .from("ads")
+    .select("id, name, ad_client, slot_id, format, placement")
+    .eq("enabled", true)
+    .order("sort_order", { ascending: true });
+  if (placement) q = q.eq("placement", placement);
+  const { data } = await q;
+  return (data ?? []) as EnabledAd[];
+}
+
+export type PublicStudyMaterial = {
+  id: string;
+  title: string;
+  description: string | null;
+  file_url: string;
+  file_type: string | null;
+  file_size: number | null;
+  category: string | null;
+  created_at: string;
+};
+
+/** Published study materials for the public downloads page. */
+export async function getPublishedStudyMaterials(db: DB): Promise<PublicStudyMaterial[]> {
+  const { data } = await db
+    .from("study_materials")
+    .select("*")
+    .eq("is_published", true)
+    .order("created_at", { ascending: false });
+  return (data ?? []) as PublicStudyMaterial[];
+}

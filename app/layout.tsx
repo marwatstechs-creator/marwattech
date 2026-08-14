@@ -7,6 +7,7 @@ import { Analytics } from "@/components/analytics/scripts";
 import { PwaRegister } from "@/components/pwa-register";
 import { CookieConsent } from "@/components/marketing/cookie-consent";
 import { SiteVerification } from "@/components/seo/site-verification";
+import { AdSenseHead } from "@/components/adsense/adsense-head";
 import { SITE } from "@/lib/constants";
 
 const inter = Inter({
@@ -96,6 +97,7 @@ export default function RootLayout({
       </head>
       <body className={`${inter.variable} ${spaceGrotesk.variable} font-sans`}>
         <SiteVerification />
+        <AdSenseHead />
         <Providers>
           {children}
           <Analytics />

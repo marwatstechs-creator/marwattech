@@ -7,7 +7,9 @@ import { BlogCard } from "@/components/marketing/blog-card";
 import { BlogFilters } from "@/components/marketing/blog-filters";
 import { Pagination } from "@/components/marketing/pagination";
 import { createClient } from "@/lib/supabase/server";
-import { getPublishedPosts } from "@/lib/db/content";
+import { getPublishedPosts, getEnabledAds } from "@/lib/db/content";
+import type { EnabledAd } from "@/lib/db/content";
+import { AdUnit } from "@/components/adsense/ad-unit";
 import { DEMO_POSTS as ALL_DEMO_POSTS } from "@/lib/demo";
 import { BLOG_CATEGORIES } from "@/lib/constants";
 import { buildMetadata } from "@/lib/seo";
@@ -53,6 +55,7 @@ export default async function BlogCategoryPage({ params, searchParams }: Props) 
 
   let posts = demoByCategory[slug] ?? [];
   let totalPages = 1;
+  let ads: EnabledAd[] = [];
 
   try {
     const db = await createClient();
@@ -64,6 +67,7 @@ export default async function BlogCategoryPage({ params, searchParams }: Props) 
     });
     posts = result.posts;
     totalPages = result.totalPages;
+    ads = await getEnabledAds(db, "listing");
   } catch {
     // fallback
   }
@@ -102,6 +106,18 @@ export default async function BlogCategoryPage({ params, searchParams }: Props) 
           searchParams={{ q }}
         />
       </section>
+
+      {/* Listing ad */}
+      {ads[0] && (
+        <section className="mx-auto max-w-7xl px-4 pb-16 sm:px-6 lg:px-8">
+          <AdUnit
+            adClient={ads[0].ad_client}
+            slotId={ads[0].slot_id}
+            format={ads[0].format}
+            className="rounded-2xl border bg-card/60 py-4"
+          />
+        </section>
+      )}
 
       <CtaBanner />
     </>

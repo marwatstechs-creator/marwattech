@@ -29,6 +29,8 @@ const FIELDS: { key: string; label: string; textarea?: boolean; hint?: string }[
   { key: "announcement_bar", label: "Announcement bar text", textarea: true },
   { key: "google_site_verification", label: "Google Search Console verification code", hint: "Search Console → Settings → Verification → HTML tag. Paste the content value (e.g. abc123…)." },
   { key: "bing_site_verification", label: "Bing Webmaster verification code", hint: "Bing Webmaster Tools → Site settings → Verification → HTML meta tag." },
+  { key: "google_adsense_client", label: "Google AdSense Client ID", hint: "e.g. ca-pub-1234567890123456. Adds the AdSense loader to every page." },
+  { key: "ad_txt", label: "ad.txt content", textarea: true, hint: "Paste your ad.txt content or upload the file. Served at /ad.txt for AdSense verification." },
 ];
 
 export function SettingsForm({ initial }: { initial: Record<string, string> }) {
@@ -37,6 +39,7 @@ export function SettingsForm({ initial }: { initial: Record<string, string> }) {
   const [uploading, setUploading] = useState(false);
   const [form, setForm] = useState<Record<string, string>>(initial);
   const fileRef = useRef<HTMLInputElement>(null);
+  const adTxtRef = useRef<HTMLInputElement>(null);
 
   const uploadOgImage = async (file: File) => {
     if (!file.type.startsWith("image/")) {
@@ -63,6 +66,16 @@ export function SettingsForm({ initial }: { initial: Record<string, string> }) {
     }
   };
 
+  const uploadAdTxt = (file: File) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      setForm((s) => ({ ...s, ad_txt: String(reader.result ?? "") }));
+      toast.success("ad.txt loaded — Save settings to publish it.");
+    };
+    reader.onerror = () => toast.error("Could not read the file.");
+    reader.readAsText(file);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setPending(true);
@@ -85,7 +98,50 @@ export function SettingsForm({ initial }: { initial: Record<string, string> }) {
             {FIELDS.map((f) => (
               <div key={f.key} className="space-y-2">
                 <Label htmlFor={f.key}>{f.label}</Label>
-                {f.textarea ? (
+                {f.key === "ad_txt" ? (
+                  <div className="space-y-2">
+                    <Textarea
+                      id={f.key}
+                      rows={6}
+                      value={form[f.key] ?? ""}
+                      onChange={(e) => setForm((s) => ({ ...s, [f.key]: e.target.value }))}
+                      placeholder="google.com, pub-0000000000000000, DIRECT, f08c47fec0942fa0"
+                      className="font-mono text-xs"
+                    />
+                    <div className="flex gap-2">
+                      <input
+                        ref={adTxtRef}
+                        type="file"
+                        accept=".txt,text/plain"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) uploadAdTxt(file);
+                          e.target.value = "";
+                        }}
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => adTxtRef.current?.click()}
+                        className="shrink-0"
+                      >
+                        <AppIcon name="upload" size={16} />
+                        Upload ad.txt
+                      </Button>
+                      {form[f.key] ? (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setForm((s) => ({ ...s, ad_txt: "" }))}
+                        >
+                          Clear
+                        </Button>
+                      ) : null}
+                    </div>
+                  </div>
+                ) : f.textarea ? (
                   <Textarea
                     id={f.key}
                     rows={2}

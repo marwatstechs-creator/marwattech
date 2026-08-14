@@ -14,8 +14,11 @@ import { createClient } from "@/lib/supabase/server";
 import {
   getPostBySlug,
   getRelatedPosts,
+  getEnabledAds,
+  type EnabledAd,
   type PostWithRelations,
 } from "@/lib/db/content";
+import { AdUnit } from "@/components/adsense/ad-unit";
 import { DEMO_POSTS } from "@/lib/demo";
 import { sanitizeHtml } from "@/lib/sanitize";
 import { buildMetadata } from "@/lib/seo";
@@ -71,6 +74,7 @@ export default async function BlogPostPage({ params }: Props) {
     0,
     3
   );
+  let ads: EnabledAd[] = [];
 
   try {
     const db = await createClient();
@@ -82,6 +86,8 @@ export default async function BlogPostPage({ params }: Props) {
     } else if (!post) {
       notFound();
     }
+    // In-content ad units (used between/around the article body)
+    ads = await getEnabledAds(db, "in_content");
   } catch {
     if (!post) notFound();
   }
@@ -206,6 +212,16 @@ export default async function BlogPostPage({ params }: Props) {
           </div>
         )}
 
+        {/* Ad: top of article */}
+        {ads[0] && (
+          <AdUnit
+            adClient={ads[0].ad_client}
+            slotId={ads[0].slot_id}
+            format={ads[0].format}
+            className="mt-8 rounded-xl border bg-muted/20"
+          />
+        )}
+
         {/* Content */}
         <div
           className="prose-cms mt-8"
@@ -219,6 +235,16 @@ export default async function BlogPostPage({ params }: Props) {
             dangerouslySetInnerHTML={{ __html: post.custom_html }}
           />
         ) : null}
+
+        {/* Ad: bottom of article */}
+        {ads[1] && (
+          <AdUnit
+            adClient={ads[1].ad_client}
+            slotId={ads[1].slot_id}
+            format={ads[1].format}
+            className="mt-10 rounded-xl border bg-muted/20"
+          />
+        )}
 
         {/* Tags */}
         {post.post_tags && post.post_tags.length > 0 && (

@@ -744,6 +744,46 @@ export interface Database {
         };
         Relationships: [];
       };
+      /* ── Google AdSense ad units ───────────────────────────── */
+      ads: {
+        Row: {
+          id: string;
+          name: string;
+          ad_client: string;
+          slot_id: string | null;
+          format: string;
+          placement: string;
+          enabled: boolean;
+          sort_order: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          ad_client: string;
+          slot_id?: string | null;
+          format?: string;
+          placement?: string;
+          enabled?: boolean;
+          sort_order?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          ad_client?: string;
+          slot_id?: string | null;
+          format?: string;
+          placement?: string;
+          enabled?: boolean;
+          sort_order?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       /* ── Payments (PayPal Orders API v2 + client portal) ───── */
       payments: {
         Row: {
