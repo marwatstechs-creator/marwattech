@@ -13,8 +13,9 @@ import {
 import { fetchUdemyDeals } from "@/lib/promo/udemy-feed";
 import { buildMetadata } from "@/lib/seo";
 
-// Refresh every 6h so the auto Udemy feed stays reasonably fresh.
-export const revalidate = 21600;
+// Refresh every hour so the auto Udemy feed stays fresh and a transient
+// fetch failure never leaves the page empty for long.
+export const revalidate = 3600;
 
 export const metadata: Metadata = buildMetadata({
   title: "Promo Codes & Deals",

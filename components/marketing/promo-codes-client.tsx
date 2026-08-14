@@ -27,7 +27,9 @@ export function PromoCodesClient({
     { id: "other", label: "Other Promos", count: other.length },
     ...(udemyEnabled ? [{ id: "udemy" as TabId, label: "Udemy Deals", count: udemy.length }] : []),
   ];
-  const [active, setActive] = useState<TabId>(tabs[0]?.id ?? "latest");
+  // Open on the first tab that actually has content (so the page never looks empty).
+  const initialTab = tabs.find((t) => t.count > 0)?.id ?? tabs[0]?.id ?? "latest";
+  const [active, setActive] = useState<TabId>(initialTab);
 
   const items =
     active === "latest"

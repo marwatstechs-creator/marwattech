@@ -49,22 +49,31 @@ type RawFile = {
   freeCourses?: Record<string, RawEntry> | null;
 };
 
-const REVALIDATE = 21600; // 6h
+const REVALIDATE = 3600; // 1h
+
+/** Fetch with a single retry so transient GitHub hiccups don't empty the page. */
+async function fetchJson(url: string): Promise<Response | null> {
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const res = await fetch(url, { next: { revalidate: REVALIDATE } });
+      if (res.ok) return res;
+    } catch {
+      // retry
+    }
+  }
+  return null;
+}
 
 /** Fetch + parse the latest Udemy coupon dataset (best-effort). */
 export async function fetchUdemyDeals(limit = 60): Promise<UdemyDeal[]> {
   try {
-    const metaRes = await fetch(`${API_PREFIX}meta.json`, {
-      next: { revalidate: REVALIDATE },
-    });
-    if (!metaRes.ok) return [];
+    const metaRes = await fetchJson(`${API_PREFIX}meta.json`);
+    if (!metaRes) return [];
     const meta = (await metaRes.json()) as { lastSynced?: string };
     if (!meta.lastSynced) return [];
 
-    const dataRes = await fetch(`${API_PREFIX}${meta.lastSynced}.json`, {
-      next: { revalidate: REVALIDATE },
-    });
-    if (!dataRes.ok) return [];
+    const dataRes = await fetchJson(`${API_PREFIX}${meta.lastSynced}.json`);
+    if (!dataRes) return [];
     const data = (await dataRes.json()) as RawFile;
 
     const deals: UdemyDeal[] = [];
