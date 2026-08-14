@@ -30,10 +30,15 @@ export function PaymentGatewaySettings({ status }: { status: GatewayStatus }) {
   const [clearSecret, setClearSecret] = React.useState(false);
   const [pending, setPending] = React.useState(false);
 
-  const webhookUrl = React.useMemo(() => {
-    if (typeof window === "undefined") return "";
-    return `${window.location.origin}/api/paypal/webhook`;
-  }, []);
+  // Only resolve the browser origin after mount. Otherwise the server renders
+  // "" (falling back to the placeholder) while the client renders the real
+  // URL — a React hydration mismatch in the webhook <code> block below.
+  const [mounted, setMounted] = React.useState(false);
+  React.useEffect(() => setMounted(true), []);
+  const webhookUrl =
+    mounted && typeof window !== "undefined"
+      ? `${window.location.origin}/api/paypal/webhook`
+      : "";
 
   const submit = async () => {
     setPending(true);
@@ -84,7 +89,10 @@ export function PaymentGatewaySettings({ status }: { status: GatewayStatus }) {
             <Label>Environment</Label>
             <Select value={env} onValueChange={(v) => setEnv(v as "sandbox" | "live")}>
               <SelectTrigger className="w-full">
-                <SelectValue placeholder="Environment" />
+                {/* Deterministic children fix a Radix SSR hydration mismatch. */}
+                <SelectValue placeholder="Environment">
+                  {env === "live" ? "Live (production)" : "Sandbox (test)"}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="sandbox">Sandbox (test)</SelectItem>

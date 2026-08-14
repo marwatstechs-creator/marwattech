@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
+import { createClient } from "@/lib/supabase/client";
 import { saveSettings } from "@/lib/actions/admin/settings";
 
 const FIELDS: { key: string; label: string; textarea?: boolean; hint?: string }[] = [
@@ -31,7 +32,34 @@ const FIELDS: { key: string; label: string; textarea?: boolean; hint?: string }[
 export function SettingsForm({ initial }: { initial: Record<string, string> }) {
   const router = useRouter();
   const [pending, setPending] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [form, setForm] = useState<Record<string, string>>(initial);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const uploadOgImage = async (file: File) => {
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please choose an image file.");
+      return;
+    }
+    setUploading(true);
+    try {
+      const db = createClient();
+      const safeName = file.name.replace(/[^a-zA-Z0-9.\-_]/g, "_");
+      const path = `uploads/${Date.now()}-${safeName}`;
+      const { error } = await db.storage
+        .from("media")
+        .upload(path, file, { upsert: false, cacheControl: "3600" });
+      if (error) throw error;
+      const { data } = db.storage.from("media").getPublicUrl(path);
+      setForm((s) => ({ ...s, og_image: data.publicUrl }));
+      toast.success("Image uploaded");
+    } catch (err) {
+      toast.error("Upload failed — check that the media bucket exists and you have permission.");
+      console.error(err);
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -62,6 +90,56 @@ export function SettingsForm({ initial }: { initial: Record<string, string> }) {
                     value={form[f.key] ?? ""}
                     onChange={(e) => setForm((s) => ({ ...s, [f.key]: e.target.value }))}
                   />
+                ) : f.key === "og_image" ? (
+                  <div className="space-y-2">
+                    <div className="flex gap-2">
+                      <Input
+                        id={f.key}
+                        value={form[f.key] ?? ""}
+                        onChange={(e) => setForm((s) => ({ ...s, [f.key]: e.target.value }))}
+                        placeholder="https://…"
+                      />
+                      <input
+                        ref={fileRef}
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) uploadOgImage(file);
+                          e.target.value = "";
+                        }}
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => fileRef.current?.click()}
+                        disabled={uploading}
+                        className="shrink-0"
+                      >
+                        <AppIcon name={uploading ? "refresh" : "upload"} size={16} />
+                        {uploading ? "Uploading…" : "Upload"}
+                      </Button>
+                    </div>
+                    {form[f.key] ? (
+                      <div className="flex items-center gap-3">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={form[f.key]}
+                          alt="Social share preview"
+                          className="h-14 w-24 rounded-lg border object-cover"
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setForm((s) => ({ ...s, og_image: "" }))}
+                        >
+                          Clear
+                        </Button>
+                      </div>
+                    ) : null}
+                  </div>
                 ) : (
                   <Input
                     id={f.key}

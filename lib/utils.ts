@@ -5,7 +5,8 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-/** Format a date as e.g. "Aug 10, 2026". */
+/** Format a date as e.g. "Aug 10, 2026" (fixed UTC — deterministic across
+ * server and client so it can never cause a React hydration mismatch). */
 export function formatDate(
   date: string | Date | null | undefined,
   opts: Intl.DateTimeFormatOptions = {}
@@ -15,6 +16,7 @@ export function formatDate(
     year: "numeric",
     month: "short",
     day: "numeric",
+    timeZone: "UTC",
     ...opts,
   }).format(new Date(date));
 }

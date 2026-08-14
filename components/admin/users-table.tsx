@@ -274,7 +274,11 @@ export function UsersTable({ users, currentUserId }: { users: AdminUserRow[]; cu
             />
           </div>
           <Select value={roleFilter} onValueChange={(v) => setRoleFilter(v as typeof roleFilter)}>
-            <SelectTrigger className="sm:w-[160px]"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="sm:w-[160px]">
+              <SelectValue>
+                {roleFilter === "all" ? "All users" : roleFilter === "staff" ? "Staff" : "Clients"}
+              </SelectValue>
+            </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All users</SelectItem>
               <SelectItem value="staff">Staff</SelectItem>
@@ -343,7 +347,9 @@ export function UsersTable({ users, currentUserId }: { users: AdminUserRow[]; cu
                       disabled={pending === `role-${u.id}` || isCurrent(u.id)}
                     >
                       <SelectTrigger className="h-8 w-[140px]">
-                        <SelectValue />
+                        <SelectValue>
+                          <span className="capitalize">{u.role.replace("_", " ")}</span>
+                        </SelectValue>
                       </SelectTrigger>
                       <SelectContent>
                         {ROLES.map((r) => (
@@ -483,7 +489,11 @@ export function UsersTable({ users, currentUserId }: { users: AdminUserRow[]; cu
             <div className="space-y-2">
               <Label>Role</Label>
                 <Select value={form.role} onValueChange={(v) => setForm((f) => ({ ...f, role: v as StaffRole }))}>
-                <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+                  <SelectTrigger className="w-full">
+                    <SelectValue>
+                      <span className="capitalize">{form.role.replace("_", " ")}</span>
+                    </SelectValue>
+                  </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="editor">Editor</SelectItem>
                   <SelectItem value="support">Support</SelectItem>
@@ -568,7 +578,7 @@ export function UsersTable({ users, currentUserId }: { users: AdminUserRow[]; cu
             <DialogDescription>{detailUser?.email}</DialogDescription>
           </DialogHeader>
           <div className="grid grid-cols-2 gap-3 text-sm">
-            <Detail label="Role" value={detailUser?.role ?? ""} />
+            <Detail label="Role" value={detailUser?.role ? detailUser.role.replace(/_/g, " ") : ""} />
             <Detail label="Phone" value={detailUser?.phone || "—"} />
             <Detail label="Joined" value={detailUser ? formatDate(detailUser.created_at) : ""} />
             <Detail label="Last sign-in" value={detailUser?.last_sign_in_at ? formatDate(detailUser.last_sign_in_at) : "—"} />
