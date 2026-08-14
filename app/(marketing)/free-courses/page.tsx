@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
+import { Fragment } from "react";
 
 import { PageHero } from "@/components/marketing/page-hero";
 import { CtaBanner } from "@/components/marketing/cta-banner";
 import { DealNotice } from "@/components/marketing/deal-notice";
 import { PromoHowItWorks } from "@/components/marketing/promo-how-it-works";
+import { InFeedAd } from "@/components/adsense/in-feed-ad";
 import { AppIcon } from "@/components/app-icon";
 import { PromoCodeCard, type PromoCodeCardData } from "@/components/marketing/promo-code-card";
 import { createClient } from "@/lib/supabase/server";
@@ -12,7 +14,7 @@ import {
   getSiteSettings,
   type PromoCode,
 } from "@/lib/db/content";
-import { fetchUdemyDeals } from "@/lib/promo/udemy-feed";
+import { syncUdemyDeals } from "@/lib/promo/sync-udemy-deals";
 import { buildMetadata } from "@/lib/seo";
 
 // Refresh every hour so the auto Udemy feed stays fresh and a transient
@@ -53,24 +55,26 @@ export default async function FreeCoursesPage() {
     // 1) Manually-added full-paid (100% off) codes
     items = manual.map(toCard);
 
-    // 2) Auto Udemy feed — only 100% free courses
+    // 2) Auto Udemy feed — only 100% free courses. DB-backed so GitHub
+    //    outages never blank the page; auto-refresh when stale or empty.
     if (settings.promo_udemy_feed !== "0") {
-      const deals = await fetchUdemyDeals(300);
-      const free = deals.filter((d) => d.discount === 100);
-      items = [
-        ...items,
-        ...free.map((d, i) => ({
-          id: `udemy-free-${i}`,
-          title: d.title,
-          store: "Udemy",
-          code: d.code ?? "—",
-          discount_label: "100% OFF",
-          url: d.url,
-          image_url: d.image,
-          category: d.category,
-          expiry: d.expiry,
-        })),
-      ];
+      let auto = await getEnabledPromoCodes(db, {
+        source: "auto_udemy",
+        tag: "full_paid",
+      });
+      const stale =
+        auto.length === 0 ||
+        Date.now() - new Date(auto[0].created_at).getTime() > 6 * 3600 * 1000;
+      if (stale) {
+        const res = await syncUdemyDeals(db);
+        if (res.ok) {
+          auto = await getEnabledPromoCodes(db, {
+            source: "auto_udemy",
+            tag: "full_paid",
+          });
+        }
+      }
+      items = [...items, ...auto.map(toCard)];
     }
   } catch {
     // fallback — empty
@@ -98,8 +102,11 @@ export default async function FreeCoursesPage() {
           </div>
         ) : (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {items.map((c) => (
-              <PromoCodeCard key={c.id} code={c} />
+            {items.map((c, i) => (
+              <Fragment key={c.id}>
+                <PromoCodeCard code={c} />
+                {i === 5 && <InFeedAd />}
+              </Fragment>
             ))}
           </div>
         )}

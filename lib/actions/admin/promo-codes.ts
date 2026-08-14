@@ -6,6 +6,7 @@ import {
   logActivity,
   revalidateContent,
 } from "@/lib/actions/admin/helpers";
+import { syncUdemyDeals } from "@/lib/promo/sync-udemy-deals";
 
 const promoCodeSchema = z.object({
   title: z.string().min(2, "Title is required").max(200),
@@ -109,4 +110,14 @@ export async function togglePromoCode(id: string, enabled: boolean) {
   await logActivity(db, session, "status_change", "promo_code", id, { enabled });
   await revalidateContent(["/promo-codes"]);
   return { ok: true };
+}
+
+/** Manually refresh the auto Udemy deals into the promo_codes table. */
+export async function syncUdemyDealsAction() {
+  const { db } = await requireEditor();
+  const res = await syncUdemyDeals(db);
+  const { revalidatePath } = await import("next/cache");
+  revalidatePath("/", "layout");
+  if (!res.ok) return { error: res.error ?? "Sync failed" };
+  return { ok: true, count: res.count };
 }

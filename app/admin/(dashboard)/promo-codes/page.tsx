@@ -14,6 +14,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { RowActions } from "@/components/admin/row-actions";
 import { AsyncSwitch } from "@/components/admin/async-switch";
+import { UdemySyncButton } from "@/components/admin/udemy-sync-button";
 import { createClient } from "@/lib/supabase/server";
 import { guardEditor } from "@/lib/auth";
 import {
@@ -69,12 +70,15 @@ export default async function AdminPromoCodesPage() {
         title="Promo Codes"
         description="Promo codes shown on /promo-codes — manual codes and the auto Udemy feed."
         actions={
-          <Link href="/admin/promo-codes/new">
-            <Button>
-              <AppIcon name="plus" size={16} />
-              New Promo Code
-            </Button>
-          </Link>
+          <div className="flex flex-wrap items-center gap-2">
+            <UdemySyncButton />
+            <Link href="/admin/promo-codes/new">
+              <Button>
+                <AppIcon name="plus" size={16} />
+                New Promo Code
+              </Button>
+            </Link>
+          </div>
         }
       />
 

@@ -12,7 +12,7 @@ import {
   getSiteSettings,
   type PromoCode,
 } from "@/lib/db/content";
-import { fetchUdemyDeals } from "@/lib/promo/udemy-feed";
+import { syncUdemyDeals } from "@/lib/promo/sync-udemy-deals";
 import { buildMetadata } from "@/lib/seo";
 
 // Refresh every hour so the auto Udemy feed stays fresh and a transient
@@ -61,18 +61,18 @@ export default async function PromoCodesPage() {
     other = all.filter((c) => c.tag === "other").map(toCard);
 
     if (udemyEnabled) {
-      const deals = await fetchUdemyDeals(60);
-      udemy = deals.map((d, i) => ({
-        id: `udemy-${i}`,
-        title: d.title,
-        store: "Udemy",
-        code: d.code ?? "—",
-        discount_label: d.discount != null ? `${d.discount}% OFF` : null,
-        url: d.url,
-        image_url: d.image,
-        category: d.category,
-        expiry: d.expiry,
-      }));
+      // DB-backed auto Udemy deals — auto-refresh when stale or empty.
+      let auto = await getEnabledPromoCodes(db, { source: "auto_udemy" });
+      const stale =
+        auto.length === 0 ||
+        Date.now() - new Date(auto[0].created_at).getTime() > 6 * 3600 * 1000;
+      if (stale) {
+        const res = await syncUdemyDeals(db);
+        if (res.ok) {
+          auto = await getEnabledPromoCodes(db, { source: "auto_udemy" });
+        }
+      }
+      udemy = auto.map(toCard);
     }
   } catch {
     // fallback — empty sections

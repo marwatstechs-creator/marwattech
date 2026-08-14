@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { Fragment, useState } from "react";
 
 import { AppIcon } from "@/components/app-icon";
 import { PromoCodeCard, type PromoCodeCardData } from "@/components/marketing/promo-code-card";
+import { InFeedAd } from "@/components/adsense/in-feed-ad";
 import { cn } from "@/lib/utils";
 
 type TabId = "latest" | "full_paid" | "other" | "udemy";
@@ -88,8 +89,11 @@ export function PromoCodesClient({
         </div>
       ) : (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {items.map((c) => (
-            <PromoCodeCard key={c.id} code={c} />
+          {items.map((c, i) => (
+            <Fragment key={c.id}>
+              <PromoCodeCard code={c} />
+              {i === 5 && <InFeedAd />}
+            </Fragment>
           ))}
         </div>
       )}
