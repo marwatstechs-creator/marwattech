@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 
 import { PageHero } from "@/components/marketing/page-hero";
 import { CtaBanner } from "@/components/marketing/cta-banner";
+import { DealNotice } from "@/components/marketing/deal-notice";
+import { PromoHowItWorks } from "@/components/marketing/promo-how-it-works";
 import { AppIcon } from "@/components/app-icon";
 import { PromoCodeCard, type PromoCodeCardData } from "@/components/marketing/promo-code-card";
 import { createClient } from "@/lib/supabase/server";
@@ -83,6 +85,8 @@ export default async function FreeCoursesPage() {
         breadcrumbs={[{ label: "Free Courses" }]}
       />
 
+      <DealNotice />
+
       <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         {items.length === 0 ? (
           <div className="rounded-xl border border-dashed bg-muted/40 p-16 text-center">
@@ -104,6 +108,8 @@ export default async function FreeCoursesPage() {
           Free-course codes come from a public community feed and expire quickly —
           redeem them early.
         </p>
+
+        <PromoHowItWorks />
       </section>
 
       <CtaBanner />

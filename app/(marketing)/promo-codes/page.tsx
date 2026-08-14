@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 
 import { PageHero } from "@/components/marketing/page-hero";
 import { CtaBanner } from "@/components/marketing/cta-banner";
+import { DealNotice } from "@/components/marketing/deal-notice";
+import { PromoHowItWorks } from "@/components/marketing/promo-how-it-works";
 import { PromoCodesClient } from "@/components/marketing/promo-codes-client";
 import type { PromoCodeCardData } from "@/components/marketing/promo-code-card";
 import { createClient } from "@/lib/supabase/server";
@@ -85,6 +87,8 @@ export default async function PromoCodesPage() {
         breadcrumbs={[{ label: "Promo Codes" }]}
       />
 
+      <DealNotice />
+
       <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <PromoCodesClient
           latest={latest}
@@ -93,6 +97,8 @@ export default async function PromoCodesPage() {
           udemy={udemy}
           udemyEnabled={udemyEnabled}
         />
+
+        <PromoHowItWorks />
       </section>
 
       <CtaBanner />
