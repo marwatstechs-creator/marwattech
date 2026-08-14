@@ -22,7 +22,7 @@ import {
 import { DEMO_SERVICES } from "@/lib/demo";
 import { sanitizeHtml } from "@/lib/sanitize";
 import { buildMetadata } from "@/lib/seo";
-import { serviceJsonLd, breadcrumbJsonLd } from "@/lib/seo-jsonld";
+import { serviceJsonLd, breadcrumbJsonLd, faqPageJsonLd } from "@/lib/seo-jsonld";
 import { JsonLd } from "@/components/seo/json-ld";
 
 export const revalidate = 3600;
@@ -169,6 +169,7 @@ export default async function ServiceDetailPage({ params }: Props) {
       {/* FAQs */}
       {faqs.length > 0 && (
         <section className="mx-auto max-w-3xl px-4 py-16 sm:px-6 lg:px-8">
+          <JsonLd data={faqPageJsonLd(faqs)} />
           <SectionHeader eyebrow="FAQ" title="Frequently asked questions" />
           <Accordion type="single" collapsible>
             {faqs.map((f, i) => (

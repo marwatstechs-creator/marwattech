@@ -8,6 +8,7 @@ import {
   serviceJsonLd,
   creativeWorkJsonLd,
   jobPostingJsonLd,
+  faqPageJsonLd,
 } from "@/lib/seo-jsonld";
 import { SITE } from "@/lib/constants";
 
@@ -67,5 +68,15 @@ describe("JSON-LD builders", () => {
     expect(jp["@type"]).toBe("JobPosting");
     expect(jp.hiringOrganization).toBeTruthy();
     expect(jp.jobLocation).toBeTruthy();
+  });
+
+  it("faqPage schema maps questions/answers", () => {
+    const faq = faqPageJsonLd([
+      { question: "Q1?", answer: "A1" },
+      { question: "Q2?", answer: "A2" },
+    ]);
+    expect(faq["@type"]).toBe("FAQPage");
+    expect((faq.mainEntity as Array<{ name: string }>)[0].name).toBe("Q1?");
+    expect(faq.mainEntity).toHaveLength(2);
   });
 });

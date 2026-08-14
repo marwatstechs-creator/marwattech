@@ -27,6 +27,8 @@ const FIELDS: { key: string; label: string; textarea?: boolean; hint?: string }[
   { key: "clarity_id", label: "Microsoft Clarity ID" },
   { key: "posthog_key", label: "PostHog project key" },
   { key: "announcement_bar", label: "Announcement bar text", textarea: true },
+  { key: "google_site_verification", label: "Google Search Console verification code", hint: "Search Console → Settings → Verification → HTML tag. Paste the content value (e.g. abc123…)." },
+  { key: "bing_site_verification", label: "Bing Webmaster verification code", hint: "Bing Webmaster Tools → Site settings → Verification → HTML meta tag." },
 ];
 
 export function SettingsForm({ initial }: { initial: Record<string, string> }) {
@@ -147,6 +149,9 @@ export function SettingsForm({ initial }: { initial: Record<string, string> }) {
                     onChange={(e) => setForm((s) => ({ ...s, [f.key]: e.target.value }))}
                   />
                 )}
+                {f.hint ? (
+                  <p className="text-xs text-muted-foreground">{f.hint}</p>
+                ) : null}
               </div>
             ))}
           </div>

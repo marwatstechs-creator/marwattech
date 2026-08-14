@@ -149,3 +149,18 @@ export function jobPostingJsonLd(job: {
       : undefined,
   };
 }
+
+/** FAQPage (Q&A content — services FAQs). */
+export function faqPageJsonLd(
+  faqs: { question: string; answer: string }[]
+): JsonLd {
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqs.map((f) => ({
+      "@type": "Question",
+      name: f.question,
+      acceptedAnswer: { "@type": "Answer", text: f.answer },
+    })),
+  };
+}

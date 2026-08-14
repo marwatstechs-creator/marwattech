@@ -68,4 +68,9 @@ export async function revalidateContent(paths: string[]) {
   const { revalidatePath } = await import("next/cache");
   for (const p of paths) revalidatePath(p, "page");
   revalidatePath("/sitemap.xml", "page");
+
+  // Notify Bing/Yandex/etc. instantly via IndexNow (the modern "ping").
+  // Best-effort — never blocks the admin action.
+  const { pingIndexNow } = await import("@/lib/indexnow");
+  await pingIndexNow(paths);
 }

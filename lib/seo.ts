@@ -48,6 +48,7 @@ export function buildMetadata({
       description,
       url,
       siteName: SITE.name,
+      locale: "en_US",
       type,
       images: [{ url: ogImage, width: 1200, height: 630, alt: title }],
       ...(publishedTime ? { publishedTime } : {}),

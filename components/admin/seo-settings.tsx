@@ -104,7 +104,8 @@ export function SeoSettings({ sitemapUrl, robotsUrl }: { sitemapUrl: string; rob
               >
                 Google Search Console
               </a>{" "}
-              — verify your site, then add the sitemap URL above under Sitemaps.
+              — verify your site (paste the HTML-tag verification code into Site settings
+              above), then add the sitemap URL under Sitemaps.
             </li>
             <li>
               <a
@@ -116,6 +117,7 @@ export function SeoSettings({ sitemapUrl, robotsUrl }: { sitemapUrl: string; rob
                 Bing Webmaster Tools
               </a>{" "}
               — add the sitemap URL above (also powers Bing &amp; DuckDuckGo).
+              Content changes also auto-notify Bing via IndexNow.
             </li>
           </ul>
         </div>
