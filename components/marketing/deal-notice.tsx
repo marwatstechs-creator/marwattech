@@ -22,6 +22,19 @@ export function DealNotice() {
         aria-hidden
         className="pointer-events-none absolute inset-0 bg-[radial-gradient(50%_80%_at_50%_0%,rgba(248,198,64,0.12),transparent)]"
       />
+      {/* Big watermark icon */}
+      <span
+        aria-hidden
+        className="pointer-events-none absolute -right-6 -top-6 rotate-12 text-gold opacity-[0.08] sm:-right-4"
+      >
+        <AppIcon name="rocket" size={210} />
+      </span>
+      <span
+        aria-hidden
+        className="pointer-events-none absolute -bottom-10 -left-6 -rotate-12 text-primary opacity-[0.06]"
+      >
+        <AppIcon name="star" size={150} />
+      </span>
       <div className="relative flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex items-start gap-3">
           <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-gold/20 text-gold">
