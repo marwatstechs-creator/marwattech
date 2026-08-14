@@ -32,6 +32,8 @@ type NavItem = {
 const NAV: NavItem[] = [
   { label: "Dashboard", href: "/admin", icon: "dashboard", roles: ["super_admin", "editor", "support"] },
   { label: "My Profile", href: "/admin/profile", icon: "edit", roles: ["super_admin", "editor", "support"] },
+  { label: "Clients", href: "/admin/clients", icon: "userAdd", roles: ["super_admin", "editor"] },
+  { label: "Projects", href: "/admin/projects", icon: "briefcase", roles: ["super_admin", "editor"] },
   { label: "Services", href: "/admin/services", icon: "code", roles: ["super_admin", "editor"] },
   { label: "Portfolio", href: "/admin/portfolio", icon: "layers", roles: ["super_admin", "editor"] },
   { label: "Blog", href: "/admin/blog", icon: "file", roles: ["super_admin", "editor"] },
@@ -42,13 +44,15 @@ const NAV: NavItem[] = [
   { label: "Messages", href: "/admin/messages", icon: "message", roles: ["super_admin", "editor", "support"] },
   { label: "Payments", href: "/admin/payments", icon: "wallet", roles: ["super_admin", "editor", "support"] },
   { label: "Marketing", href: "/admin/marketing", icon: "megaphone", roles: ["super_admin", "editor"] },
+  { label: "Courses", href: "/admin/courses", icon: "layers", roles: ["super_admin", "editor"] },
+  { label: "Course Updates", href: "/admin/course-updates", icon: "bell", roles: ["super_admin", "editor"] },
   { label: "AdSense Ads", href: "/admin/ads", icon: "tag", roles: ["super_admin", "editor"] },
   { label: "Study Materials", href: "/admin/study-materials", icon: "folder", roles: ["super_admin", "editor"] },
   { label: "Promo Codes", href: "/admin/promo-codes", icon: "dollar", roles: ["super_admin", "editor"] },
   { label: "Media Library", href: "/admin/media", icon: "image", roles: ["super_admin", "editor"] },
   { label: "Settings", href: "/admin/settings", icon: "settings", roles: ["super_admin"] },
   { label: "Users", href: "/admin/users", icon: "team", roles: ["super_admin"] },
-  { label: "Clients", href: "/admin/users/clients", icon: "team", roles: ["super_admin"] },
+  { label: "Client Users", href: "/admin/users/clients", icon: "team", roles: ["super_admin"] },
 ];
 
 function SidebarContent({

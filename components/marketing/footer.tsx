@@ -30,7 +30,6 @@ const COMPANY_LINKS = [
 const SUPPORT_LINKS = [
   { label: "Technical Support", href: "/technical-support" },
   { label: "Free Courses", href: "/free-courses" },
-  { label: "Promo Codes", href: "/promo-codes" },
   { label: "Study Materials", href: "/study-materials" },
   { label: "Free Mockup", href: "/free-mockup" },
   { label: "Pay Online", href: "/payment" },
@@ -40,15 +39,23 @@ const SUPPORT_LINKS = [
 function FooterColumn({
   title,
   links,
+  href,
 }: {
   title: string;
   links: { label: string; href: string }[];
+  href?: string;
 }) {
   return (
     <div>
-      <h3 className="font-display mb-4 text-sm font-semibold uppercase tracking-wider text-foreground">
-        {title}
-      </h3>
+      {href ? (
+        <Link href={href} className="font-display mb-4 block text-sm font-semibold uppercase tracking-wider text-foreground transition-colors hover:text-primary">
+          {title}
+        </Link>
+      ) : (
+        <h3 className="font-display mb-4 text-sm font-semibold uppercase tracking-wider text-foreground">
+          {title}
+        </h3>
+      )}
       <ul className="space-y-2.5">
         {links.map((link) => (
           <li key={link.href}>
@@ -101,6 +108,7 @@ export function Footer() {
           {/* Services */}
           <FooterColumn
             title="Services"
+            href="/services"
             links={SERVICES.map((s) => ({ label: s.title, href: s.href }))}
           />
 

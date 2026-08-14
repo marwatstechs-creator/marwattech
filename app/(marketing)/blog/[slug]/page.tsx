@@ -20,6 +20,7 @@ import {
 } from "@/lib/db/content";
 import { AdUnit } from "@/components/adsense/ad-unit";
 import { StickyAd } from "@/components/adsense/sticky-ad";
+import { SidebarAd } from "@/components/adsense/sidebar-ad";
 import { DEMO_POSTS } from "@/lib/demo";
 import { sanitizeHtml } from "@/lib/sanitize";
 import { buildMetadata } from "@/lib/seo";
@@ -77,6 +78,7 @@ export default async function BlogPostPage({ params }: Props) {
   );
   let ads: EnabledAd[] = [];
   let stickyAds: EnabledAd[] = [];
+  let sidebarAds: EnabledAd[] = [];
 
   try {
     const db = await createClient();
@@ -91,6 +93,7 @@ export default async function BlogPostPage({ params }: Props) {
     // In-content ad units (used between/around the article body)
     ads = await getEnabledAds(db, "in_content");
     stickyAds = await getEnabledAds(db, "sticky");
+    sidebarAds = await getEnabledAds(db, "sidebar");
   } catch {
     if (!post) notFound();
   }
@@ -118,7 +121,7 @@ export default async function BlogPostPage({ params }: Props) {
     publisher: {
       "@type": "Organization",
       name: SITE.name,
-      logo: { "@type": "ImageObject", url: `${SITE.url}/logo.png` },
+      logo: { "@type": "ImageObject", url: `${SITE.url}/og-default.png` },
     },
     mainEntityOfPage: { "@type": "WebPage", "@id": postUrl },
   };
@@ -166,7 +169,10 @@ export default async function BlogPostPage({ params }: Props) {
           </Link>
         )}
 
-        <h1 className="font-display text-3xl font-bold leading-tight sm:text-4xl lg:text-[2.75rem]">
+        <h1
+          data-sidebar-start
+          className="font-display text-3xl font-bold leading-tight sm:text-4xl lg:text-[2.75rem]"
+        >
           {post.title}
         </h1>
 
@@ -285,6 +291,8 @@ export default async function BlogPostPage({ params }: Props) {
 
       <CtaBanner />
 
+      {sidebarAds[0] && <SidebarAd ad={sidebarAds[0]} side="right" />}
+      {sidebarAds[1] && <SidebarAd ad={sidebarAds[1]} side="left" />}
       {stickyAds[0] && <StickyAd ad={stickyAds[0]} />}
     </>
   );

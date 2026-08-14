@@ -1,31 +1,37 @@
 import type { Metadata } from "next";
-import { Fragment } from "react";
 
 import { PageHero } from "@/components/marketing/page-hero";
 import { CtaBanner } from "@/components/marketing/cta-banner";
 import { DealNotice } from "@/components/marketing/deal-notice";
 import { PromoHowItWorks } from "@/components/marketing/promo-how-it-works";
-import { InFeedAd } from "@/components/adsense/in-feed-ad";
-import { AppIcon } from "@/components/app-icon";
+import { FreeCoursesEmpty } from "@/components/marketing/free-courses-empty";
+import { CourseUpdateSubscribe } from "@/components/marketing/course-update-subscribe";
+import { AdUnit } from "@/components/adsense/ad-unit";
+import { StickyAd } from "@/components/adsense/sticky-ad";
+import { SidebarAd } from "@/components/adsense/sidebar-ad";
 import { PromoCodeCard, type PromoCodeCardData } from "@/components/marketing/promo-code-card";
 import { createClient } from "@/lib/supabase/server";
 import {
   getEnabledPromoCodes,
+  getEnabledAds,
   getSiteSettings,
   type PromoCode,
+  type EnabledAd,
 } from "@/lib/db/content";
 import { syncUdemyDeals } from "@/lib/promo/sync-udemy-deals";
 import { buildMetadata } from "@/lib/seo";
+import { SITE } from "@/lib/constants";
 
-// Refresh every hour so the auto Udemy feed stays fresh and a transient
-// fetch failure never leaves the page empty for long.
-export const revalidate = 3600;
+// Fully dynamic — always renders fresh from the DB so a stale cached "empty"
+// page can never be served (the Udemy feed is DB-backed and refreshed when stale).
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = buildMetadata({
   title: "Free Courses",
   description:
     "100% free online courses — grab a free coupon code before it expires. Hand-picked free courses and deals from Udemy and other platforms.",
   path: "/free-courses",
+  image: `${SITE.url}/og-free-courses.png`,
 });
 
 function toCard(c: PromoCode): PromoCodeCardData {
@@ -44,41 +50,46 @@ function toCard(c: PromoCode): PromoCodeCardData {
 
 export default async function FreeCoursesPage() {
   let items: PromoCodeCardData[] = [];
+  let ads: EnabledAd[] = [];
 
   try {
     const db = await createClient();
-    const [manual, settings] = await Promise.all([
-      getEnabledPromoCodes(db, { source: "manual", tag: "full_paid" }),
+    const [manual, settings, enabledAds] = await Promise.all([
+      getEnabledPromoCodes(db, { source: "manual" }),
       getSiteSettings(db),
+      getEnabledAds(db),
     ]);
+    ads = enabledAds;
 
-    // 1) Manually-added full-paid (100% off) codes
-    items = manual.map(toCard);
+    // 1) Manually-added full-paid (100% off) codes — filter tag in JS so the
+    //    source-only query (proven on /promo-codes) is used consistently.
+    items = manual.filter((c) => c.tag === "full_paid").map(toCard);
 
     // 2) Auto Udemy feed — only 100% free courses. DB-backed so GitHub
     //    outages never blank the page; auto-refresh when stale or empty.
     if (settings.promo_udemy_feed !== "0") {
-      let auto = await getEnabledPromoCodes(db, {
-        source: "auto_udemy",
-        tag: "full_paid",
-      });
+      let auto = await getEnabledPromoCodes(db, { source: "auto_udemy" });
       const stale =
         auto.length === 0 ||
         Date.now() - new Date(auto[0].created_at).getTime() > 6 * 3600 * 1000;
       if (stale) {
         const res = await syncUdemyDeals(db);
         if (res.ok) {
-          auto = await getEnabledPromoCodes(db, {
-            source: "auto_udemy",
-            tag: "full_paid",
-          });
+          auto = await getEnabledPromoCodes(db, { source: "auto_udemy" });
         }
       }
-      items = [...items, ...auto.map(toCard)];
+      items = [...items, ...auto.filter((c) => c.tag === "full_paid").map(toCard)];
     }
   } catch {
     // fallback — empty
   }
+
+  const inContentAds = ads.filter((a) => a.placement === "in_content");
+  const stickyAds = ads.filter((a) => a.placement === "sticky");
+  const sidebarAds = ads.filter((a) => a.placement === "sidebar");
+  const topAd = inContentAds[0];
+  const midAd = inContentAds[1];
+  const bottomAd = inContentAds[2];
 
   return (
     <>
@@ -91,23 +102,39 @@ export default async function FreeCoursesPage() {
 
       <DealNotice />
 
-      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+      {topAd && (
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <AdUnit
+            adClient={topAd.ad_client}
+            slotId={topAd.slot_id}
+            format={topAd.format}
+            className="rounded-2xl border bg-card/60 py-4"
+          />
+        </div>
+      )}
+
+      <section
+        data-sidebar-start
+        className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8"
+      >
         {items.length === 0 ? (
-          <div className="rounded-xl border border-dashed bg-muted/40 p-16 text-center">
-            <AppIcon name="star" size={40} className="mx-auto mb-4 text-muted-foreground" />
-            <p className="text-lg font-medium">No free courses right now</p>
-            <p className="mx-auto mt-1 max-w-md text-sm text-muted-foreground">
-              Free deals change daily — check back soon for new 100% off codes.
-            </p>
-          </div>
+          <FreeCoursesEmpty />
         ) : (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {items.map((c, i) => (
-              <Fragment key={c.id}>
-                <PromoCodeCard code={c} />
-                {i === 5 && <InFeedAd />}
-              </Fragment>
+            {items.map((c) => (
+              <PromoCodeCard code={c} key={c.id} />
             ))}
+          </div>
+        )}
+
+        {midAd && (
+          <div className="mt-10">
+            <AdUnit
+              adClient={midAd.ad_client}
+              slotId={midAd.slot_id}
+              format={midAd.format}
+              className="rounded-2xl border bg-card/60 py-4"
+            />
           </div>
         )}
 
@@ -116,10 +143,29 @@ export default async function FreeCoursesPage() {
           redeem them early.
         </p>
 
+        <div className="mt-10">
+          <CourseUpdateSubscribe />
+        </div>
+
         <PromoHowItWorks />
       </section>
 
+      {bottomAd && (
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <AdUnit
+            adClient={bottomAd.ad_client}
+            slotId={bottomAd.slot_id}
+            format={bottomAd.format}
+            className="rounded-2xl border bg-card/60 py-4"
+          />
+        </div>
+      )}
+
       <CtaBanner />
+
+      {sidebarAds[0] && <SidebarAd ad={sidebarAds[0]} side="right" />}
+      {sidebarAds[1] && <SidebarAd ad={sidebarAds[1]} side="left" />}
+      {stickyAds[0] && <StickyAd ad={stickyAds[0]} />}
     </>
   );
 }

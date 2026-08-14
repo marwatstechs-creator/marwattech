@@ -59,6 +59,13 @@ const nextConfig: NextConfig = {
         destination: "/services/seo-services",
         permanent: true,
       },
+      // /promo-codes removed — it duplicated /free-courses. Redirect old
+      // links (social, bookmarks, campaigns) to the free courses page.
+      {
+        source: "/promo-codes",
+        destination: "/free-courses",
+        permanent: true,
+      },
     ];
   },
 };

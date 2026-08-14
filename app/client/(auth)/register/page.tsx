@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { toast } from "sonner";
 
 import { createClient } from "@/lib/supabase/client";
 import { AppIcon } from "@/components/app-icon";
+import { GoogleSignIn } from "@/components/admin/google-sign-in";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,6 +20,14 @@ export default function ClientRegisterPage() {
   const [password, setPassword] = useState("");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const err = params.get("error");
+    if (err === "google" || err === "google_no_email") {
+      toast.error("Google sign-in could not be completed. Please try again.");
+    }
+  }, []);
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -64,6 +73,12 @@ export default function ClientRegisterPage() {
         </CardDescription>
       </CardHeader>
       <CardContent>
+        <GoogleSignIn mode="client" />
+        <div className="my-4 flex items-center gap-3 text-xs text-muted-foreground">
+          <span className="h-px flex-1 bg-border" />
+          OR
+          <span className="h-px flex-1 bg-border" />
+        </div>
         <form onSubmit={handleRegister} className="space-y-4" noValidate>
           <div className="space-y-2">
             <Label htmlFor="name">Full Name</Label>

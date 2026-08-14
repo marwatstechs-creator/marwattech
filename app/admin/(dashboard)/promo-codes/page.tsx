@@ -68,7 +68,7 @@ export default async function AdminPromoCodesPage() {
     <>
       <AdminPageHeader
         title="Promo Codes"
-        description="Promo codes shown on /promo-codes — manual codes and the auto Udemy feed."
+        description="Promo codes shown on /free-courses — manual codes and the auto Udemy feed."
         actions={
           <div className="flex flex-wrap items-center gap-2">
             <UdemySyncButton />

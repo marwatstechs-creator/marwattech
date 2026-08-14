@@ -32,6 +32,7 @@ const PLACEMENT_LABELS: Record<string, string> = {
   in_content: "In content",
   listing: "Listing",
   sticky: "Sticky (bottom)",
+  sidebar: "Sidebar (left/right)",
 };
 
 export default async function AdminAdsPage() {

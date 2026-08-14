@@ -3,6 +3,7 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { UploadUrlField } from "@/components/admin/upload-url-field";
 
 type SeoPatch = {
   meta_title?: string;
@@ -87,11 +88,11 @@ export function SeoFields({
         />
       </div>
       <div className="space-y-2">
-        <Label htmlFor="og_image">Social share image URL</Label>
-        <Input
+        <Label htmlFor="og_image">Social share image (URL or upload)</Label>
+        <UploadUrlField
           id="og_image"
           value={og_image}
-          onChange={(e) => onChange({ og_image: e.target.value })}
+          onChange={(v) => onChange({ og_image: v })}
           placeholder="https://…"
         />
       </div>

@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { AppIcon } from "@/components/app-icon";
 import { CopyCode } from "@/components/marketing/copy-code";
+import { ShareDeal } from "@/components/marketing/share-deal";
 
 export type PromoCodeCardData = {
   id: string;
@@ -48,12 +49,20 @@ export function PromoCodeCard({ code }: { code: PromoCodeCardData }) {
         <div className="mt-4">
           <CopyCode code={code.code} />
         </div>
-        <div className="mt-auto flex items-center justify-between gap-3 pt-4">
-          {code.expiry ? (
-            <span className="text-xs text-muted-foreground">Exp: {code.expiry}</span>
-          ) : (
-            <span />
-          )}
+        <div className="mt-auto flex items-end justify-between gap-3 pt-4">
+          <div className="flex flex-col items-start gap-1.5">
+            <ShareDeal
+              title={code.title}
+              url={code.url}
+              image_url={code.image_url}
+              store={code.store}
+              discount_label={code.discount_label}
+              code={code.code}
+            />
+            {code.expiry && (
+              <span className="text-[11px] text-muted-foreground">Exp: {code.expiry}</span>
+            )}
+          </div>
           <Button asChild size="sm" className="shrink-0">
             <a href={code.url} target="_blank" rel="noopener noreferrer">
               Get Deal

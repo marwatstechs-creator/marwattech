@@ -30,6 +30,192 @@ export type PaymentStatus =
 export interface Database {
   public: {
     Tables: {
+      clients: {
+        Row: {
+          id: string;
+          company: string;
+          contact_name: string | null;
+          email: string | null;
+          phone: string | null;
+          website: string | null;
+          address: string | null;
+          notes: string | null;
+          status: string;
+          user_id: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          company: string;
+          contact_name?: string | null;
+          email?: string | null;
+          phone?: string | null;
+          website?: string | null;
+          address?: string | null;
+          notes?: string | null;
+          status?: string;
+          user_id?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          company?: string;
+          contact_name?: string | null;
+          email?: string | null;
+          phone?: string | null;
+          website?: string | null;
+          address?: string | null;
+          notes?: string | null;
+          status?: string;
+          user_id?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      client_projects: {
+        Row: {
+          id: string;
+          client_id: string | null;
+          user_id: string | null;
+          title: string;
+          description: string | null;
+          status: string;
+          progress: number;
+          start_date: string | null;
+          end_date: string | null;
+          budget: number | null;
+          currency: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          client_id?: string | null;
+          user_id?: string | null;
+          title: string;
+          description?: string | null;
+          status?: string;
+          progress?: number;
+          start_date?: string | null;
+          end_date?: string | null;
+          budget?: number | null;
+          currency?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          client_id?: string | null;
+          user_id?: string | null;
+          title?: string;
+          description?: string | null;
+          status?: string;
+          progress?: number;
+          start_date?: string | null;
+          end_date?: string | null;
+          budget?: number | null;
+          currency?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      estimates: {
+        Row: {
+          id: string;
+          estimate_number: string;
+          client_id: string | null;
+          title: string;
+          amount: number;
+          currency: string;
+          status: string;
+          body: string | null;
+          due_date: string | null;
+          sent_at: string | null;
+          accepted_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          estimate_number: string;
+          client_id?: string | null;
+          title: string;
+          amount?: number;
+          currency?: string;
+          status?: string;
+          body?: string | null;
+          due_date?: string | null;
+          sent_at?: string | null;
+          accepted_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          estimate_number?: string;
+          client_id?: string | null;
+          title?: string;
+          amount?: number;
+          currency?: string;
+          status?: string;
+          body?: string | null;
+          due_date?: string | null;
+          sent_at?: string | null;
+          accepted_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      proposals: {
+        Row: {
+          id: string;
+          proposal_number: string;
+          client_id: string | null;
+          title: string;
+          amount: number;
+          currency: string;
+          status: string;
+          body: string | null;
+          sent_at: string | null;
+          accepted_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          proposal_number: string;
+          client_id?: string | null;
+          title: string;
+          amount?: number;
+          currency?: string;
+          status?: string;
+          body?: string | null;
+          sent_at?: string | null;
+          accepted_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          proposal_number?: string;
+          client_id?: string | null;
+          title?: string;
+          amount?: number;
+          currency?: string;
+          status?: string;
+          body?: string | null;
+          sent_at?: string | null;
+          accepted_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       profiles: {
         Row: {
           id: string;
@@ -1042,6 +1228,102 @@ export interface Database {
         };
         Relationships: [];
       };
+      course_subscribers: {
+        Row: {
+          id: string;
+          email: string;
+          status: string;
+          unsub_token: string;
+          subscribed_at: string;
+          unsubscribed_at: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          email: string;
+          status?: string;
+          unsub_token?: string;
+          subscribed_at?: string;
+          unsubscribed_at?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          email?: string;
+          status?: string;
+          unsub_token?: string;
+          subscribed_at?: string;
+          unsubscribed_at?: string | null;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      course_update_events: {
+        Row: {
+          id: string;
+          course_id: string;
+          lesson_id: string | null;
+          event_type: string;
+          summary: string | null;
+          meaningful: boolean;
+          included_in_digest: boolean;
+          digest_send_id: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          course_id: string;
+          lesson_id?: string | null;
+          event_type?: string;
+          summary?: string | null;
+          meaningful?: boolean;
+          included_in_digest?: boolean;
+          digest_send_id?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          course_id?: string;
+          lesson_id?: string | null;
+          event_type?: string;
+          summary?: string | null;
+          meaningful?: boolean;
+          included_in_digest?: boolean;
+          digest_send_id?: string | null;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      course_digest_sends: {
+        Row: {
+          id: string;
+          email: string;
+          event_ids: string[];
+          courses: string[];
+          status: string;
+          error: string | null;
+          sent_at: string;
+        };
+        Insert: {
+          id?: string;
+          email: string;
+          event_ids?: string[];
+          courses?: string[];
+          status?: string;
+          error?: string | null;
+          sent_at?: string;
+        };
+        Update: {
+          id?: string;
+          email?: string;
+          event_ids?: string[];
+          courses?: string[];
+          status?: string;
+          error?: string | null;
+          sent_at?: string;
+        };
+        Relationships: [];
+      };
       email_campaigns: {
         Row: {
           id: string;
@@ -1366,46 +1648,6 @@ export interface Database {
         };
         Relationships: [];
       };
-      /* ── Client portal tables ───────────────────────────────── */
-      client_projects: {
-        Row: {
-          id: string;
-          client_id: string;
-          title: string;
-          description: string | null;
-          status: string;
-          progress: number;
-          start_date: string | null;
-          end_date: string | null;
-          created_at: string;
-          updated_at: string;
-        };
-        Insert: {
-          id?: string;
-          client_id: string;
-          title: string;
-          description?: string | null;
-          status?: string;
-          progress?: number;
-          start_date?: string | null;
-          end_date?: string | null;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Update: {
-          id?: string;
-          client_id?: string;
-          title?: string;
-          description?: string | null;
-          status?: string;
-          progress?: number;
-          start_date?: string | null;
-          end_date?: string | null;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Relationships: [];
-      };
       invoices: {
         Row: {
           id: string;
@@ -1479,6 +1721,9 @@ export interface Database {
           category: string | null;
           difficulty: string;
           duration_hours: number | null;
+          is_free: boolean;
+          price: number | null;
+          status: string;
           is_published: boolean;
           created_at: string;
           updated_at: string;
@@ -1492,6 +1737,9 @@ export interface Database {
           category?: string | null;
           difficulty?: string;
           duration_hours?: number | null;
+          is_free?: boolean;
+          price?: number | null;
+          status?: string;
           is_published?: boolean;
           created_at?: string;
           updated_at?: string;
@@ -1505,6 +1753,9 @@ export interface Database {
           category?: string | null;
           difficulty?: string;
           duration_hours?: number | null;
+          is_free?: boolean;
+          price?: number | null;
+          status?: string;
           is_published?: boolean;
           created_at?: string;
           updated_at?: string;

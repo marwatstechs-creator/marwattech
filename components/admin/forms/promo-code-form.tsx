@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 import { AppIcon } from "@/components/app-icon";
+import { UploadUrlField } from "@/components/admin/upload-url-field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -155,11 +156,11 @@ export function PromoCodeForm({ initial, isEdit = false }: PromoCodeFormProps) {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="image_url">Image URL (optional)</Label>
-              <Input
+              <Label htmlFor="image_url">Image (URL or upload)</Label>
+              <UploadUrlField
                 id="image_url"
                 value={form.image_url}
-                onChange={(e) => set("image_url", e.target.value)}
+                onChange={(v) => set("image_url", v)}
                 placeholder="https://…/cover.jpg"
               />
             </div>

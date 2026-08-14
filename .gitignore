@@ -43,3 +43,7 @@ next-env.d.ts
 .cloudflare
 .dev.vars
 mobile-*.png
+
+# Student email data (PII) — never commit
+scripts/students-emails.txt
+scripts/_import-report.json

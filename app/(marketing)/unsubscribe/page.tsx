@@ -7,11 +7,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { AppIcon } from "@/components/app-icon";
 import { unsubscribeByToken } from "@/lib/actions/marketing";
+import { unsubscribeCourseByToken } from "@/lib/actions/course-notifications";
 import { buildMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
   title: "Unsubscribe",
-  description: "Unsubscribe from Marwat Tech marketing emails.",
+  description: "Unsubscribe from Marwat Tech email updates.",
   path: "/unsubscribe",
 });
 
@@ -19,17 +20,20 @@ type SearchParams = Promise<{ token?: string }>;
 
 export default async function UnsubscribePage({ searchParams }: { searchParams: SearchParams }) {
   const { token } = await searchParams;
-  const done = token ? (await unsubscribeByToken(token)).ok : false;
+  const [newsletter, course] = token
+    ? await Promise.all([unsubscribeByToken(token), unsubscribeCourseByToken(token)])
+    : [{ ok: false }, { ok: false }];
+  const done = Boolean(token) && newsletter.ok && course.ok;
 
   return (
     <>
       <PageHero
-        badge="Newsletter"
+        badge="Email Preferences"
         title={done ? "You're unsubscribed" : "Unsubscribe"}
         description={
           done
-            ? "You've been removed from our marketing list. You can always re-subscribe anytime."
-            : "Use the unsubscribe link from any marketing email to stop receiving updates."
+            ? "You've been unsubscribed from course updates and marketing emails. You can re-subscribe anytime."
+            : "Use the unsubscribe link from any course-update or marketing email to stop receiving updates."
         }
       />
       <section className="mx-auto max-w-2xl px-4 pb-16 pt-6 sm:px-6">
@@ -40,8 +44,8 @@ export default async function UnsubscribePage({ searchParams }: { searchParams: 
             </span>
             <p className="text-sm text-muted-foreground">
               {done
-                ? "No more marketing emails. Transactional emails (invoices, receipts) will continue."
-                : "Need to leave? Find the 'Unsubscribe' link at the bottom of any marketing email from us."}
+                ? "No more course-update or marketing emails. Transactional emails (invoices, receipts) will continue."
+                : "Need to leave? Find the 'Unsubscribe' link at the bottom of any course-update or marketing email from us."}
             </p>
             <div className="flex gap-2">
               <Button asChild variant="gold">

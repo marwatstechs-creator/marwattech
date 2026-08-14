@@ -221,7 +221,19 @@ export function Navbar() {
                     <div className="grid flex-1 grid-cols-3">
                       {MEGA_MENU.columns.map((col) => (
                         <div key={col.label} className="flex min-w-0 flex-col gap-1 border-l py-1 pe-1 ps-3">
-                          <span className="px-2 pb-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{col.label}</span>
+                          {col.label === "Services" ? (
+                            <Link
+                              href="/services"
+                              onClick={() => setMegaOpen(false)}
+                              className="px-2 pb-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground transition-colors hover:text-primary"
+                            >
+                              {col.label}
+                            </Link>
+                          ) : (
+                            <span className="px-2 pb-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                              {col.label}
+                            </span>
+                          )}
                           {col.items.map((item) => (
                             <div key={item.href} onClick={() => setMegaOpen(false)}>
                               <MegaItem icon={item.icon} title={item.title} desc={item.desc} href={item.href} />

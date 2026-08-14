@@ -18,7 +18,7 @@ const adSchema = z.object({
   mobile_slot_id: z.string().max(40).optional().or(z.literal("")),
   mobile_format: z.enum(["auto", "fluid", "rectangle", "horizontal", "vertical"]).default("auto"),
   format: z.enum(["auto", "fluid", "rectangle", "horizontal", "vertical"]).default("auto"),
-  placement: z.enum(["in_content", "listing", "sticky"]).default("in_content"),
+  placement: z.enum(["in_content", "listing", "sticky", "sidebar"]).default("in_content"),
   enabled: z.boolean().default(true),
   sort_order: z.coerce.number().int().min(0).max(999).default(0),
 });

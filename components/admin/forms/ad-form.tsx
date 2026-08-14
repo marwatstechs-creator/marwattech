@@ -17,7 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { createAd, updateAd } from "@/lib/actions/admin/ads";
+import { createAd, updateAd, type AdInput } from "@/lib/actions/admin/ads";
 
 export const AD_FORMATS = [
   { value: "auto", label: "Auto / Responsive (smart)" },
@@ -31,6 +31,7 @@ export const AD_PLACEMENTS = [
   { value: "in_content", label: "Inside content (blog posts + study materials)" },
   { value: "listing", label: "Listing pages (blog grid + categories)" },
   { value: "sticky", label: "Sticky bottom banner (slides up — blog + study materials)" },
+  { value: "sidebar", label: "Sticky left/right sidebar (wide desktop only)" },
 ] as const;
 
 export const AD_SIZES_GUIDE = [
@@ -46,24 +47,28 @@ export const AD_SIZES_GUIDE = [
     title: "In-article",
     size: "Fills the content width",
     note: "Flows inside article text — ideal for blog posts between paragraphs.",
+    recommended: false,
   },
   {
     format: "rectangle",
     title: "Large Rectangle",
     size: "336×280",
     note: "Classic in-content / beside-text display ad.",
+    recommended: false,
   },
   {
     format: "horizontal",
     title: "Leaderboard",
     size: "728×90",
     note: "Wide banner — great for top or bottom of listing pages.",
+    recommended: false,
   },
   {
     format: "vertical",
     title: "Half Page",
     size: "300×600",
     note: "Tall sidebar-style display ad.",
+    recommended: false,
   },
 ] as const;
 
@@ -112,14 +117,14 @@ export function AdForm({ initial, defaultClient, isEdit = false }: AdFormProps) 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setPending(true);
-    const payload = {
+    const payload: AdInput = {
       name: form.name,
       ad_client: form.ad_client,
       slot_id: form.slot_id,
       mobile_slot_id: form.mobile_slot_id,
-      mobile_format: form.mobile_format,
-      format: form.format,
-      placement: form.placement,
+      mobile_format: form.mobile_format as AdInput["mobile_format"],
+      format: form.format as AdInput["format"],
+      placement: form.placement as AdInput["placement"],
       enabled: form.enabled,
       sort_order: Number(form.sort_order) || 0,
     };

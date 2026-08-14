@@ -24,7 +24,7 @@ type RowActionsProps = {
   status?: string;
   onStatusChange?: (
     id: string,
-    status: "draft" | "published" | "archived"
+    status: string
   ) => Promise<{ error?: string } | { ok: boolean }>;
   statusOptions?: string[];
   viewHref?: string;
@@ -58,7 +58,7 @@ export function RowActions({
 
   const changeStatus = async (next: string) => {
     if (!onStatusChange) return;
-    const res = await onStatusChange(itemId, next as "draft" | "published" | "archived");
+    const res = await onStatusChange(itemId, next);
     if ("error" in res && res.error) {
       toast.error(res.error);
       return;

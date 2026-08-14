@@ -26,6 +26,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "monthly" as const,
       priority: 0.6,
     })),
+    { url: `${SITE.url}/pricing`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
     { url: `${SITE.url}/testimonials`, lastModified: now, changeFrequency: "monthly", priority: 0.6 },
     { url: `${SITE.url}/careers`, lastModified: now, changeFrequency: "weekly", priority: 0.7 },
     { url: `${SITE.url}/blog`, lastModified: now, changeFrequency: "daily", priority: 0.9 },
@@ -39,7 +40,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE.url}/free-mockup`, lastModified: now, changeFrequency: "yearly", priority: 0.7 },
     { url: `${SITE.url}/study-materials`, lastModified: now, changeFrequency: "weekly", priority: 0.7 },
     { url: `${SITE.url}/free-courses`, lastModified: now, changeFrequency: "daily", priority: 0.8 },
-    { url: `${SITE.url}/promo-codes`, lastModified: now, changeFrequency: "weekly", priority: 0.6 },
   ];
 
   // Published dynamic content (falls back to demo when Supabase isn't configured)

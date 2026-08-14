@@ -4,6 +4,7 @@ import { BlogPageClient } from "@/components/marketing/blog-page-client";
 import type { BlogPostCard } from "@/components/marketing/blog-card-v2";
 import { CtaBanner } from "@/components/marketing/cta-banner";
 import { StickyAd } from "@/components/adsense/sticky-ad";
+import { SidebarAd } from "@/components/adsense/sidebar-ad";
 import { createClient } from "@/lib/supabase/server";
 import { getPublishedPosts, getBlogCategories, getEnabledAds } from "@/lib/db/content";
 import type { EnabledAd } from "@/lib/db/content";
@@ -44,6 +45,7 @@ export default async function BlogPage({
   let categories = FALLBACK_CATEGORIES;
   let ads: EnabledAd[] = [];
   let stickyAds: EnabledAd[] = [];
+  let sidebarAds: EnabledAd[] = [];
 
   try {
     const db = await createClient();
@@ -63,6 +65,7 @@ export default async function BlogPage({
     }
     ads = await getEnabledAds(db, "listing");
     stickyAds = await getEnabledAds(db, "sticky");
+    sidebarAds = await getEnabledAds(db, "sidebar");
   } catch {
     // fallback to demo content
   }
@@ -80,6 +83,8 @@ export default async function BlogPage({
       />
       <CtaBanner />
 
+      {sidebarAds[0] && <SidebarAd ad={sidebarAds[0]} side="right" />}
+      {sidebarAds[1] && <SidebarAd ad={sidebarAds[1]} side="left" />}
       {stickyAds[0] && <StickyAd ad={stickyAds[0]} />}
     </>
   );

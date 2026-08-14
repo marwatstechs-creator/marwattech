@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { AdUnit } from "@/components/adsense/ad-unit";
 import { StickyAd } from "@/components/adsense/sticky-ad";
+import { SidebarAd } from "@/components/adsense/sidebar-ad";
 import { createClient } from "@/lib/supabase/server";
 import {
   getPublishedStudyMaterials,
@@ -55,6 +56,7 @@ export default async function StudyMaterialsPage() {
   const listingAds = ads.filter((x) => x.placement === "listing");
   const inContentAds = ads.filter((x) => x.placement === "in_content");
   const stickyAds = ads.filter((x) => x.placement === "sticky");
+  const sidebarAds = ads.filter((x) => x.placement === "sidebar");
   const topAd = listingAds[0] ?? inContentAds[0];
   const bottomAd = inContentAds[1] ?? listingAds[1];
 
@@ -67,7 +69,10 @@ export default async function StudyMaterialsPage() {
         breadcrumbs={[{ label: "Study Materials" }]}
       />
 
-      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+      <section
+        data-sidebar-start
+        className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8"
+      >
         {topAd && (
           <AdUnit
             adClient={topAd.ad_client}
@@ -141,6 +146,8 @@ export default async function StudyMaterialsPage() {
 
       <CtaBanner />
 
+      {sidebarAds[0] && <SidebarAd ad={sidebarAds[0]} side="right" />}
+      {sidebarAds[1] && <SidebarAd ad={sidebarAds[1]} side="left" />}
       {stickyAds[0] && <StickyAd ad={stickyAds[0]} />}
     </>
   );

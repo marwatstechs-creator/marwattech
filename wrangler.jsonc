@@ -26,7 +26,8 @@
     "NEXT_PUBLIC_GA_ID": "G-XXXXXXX",
     "NEXT_PUBLIC_CLARITY_ID": "",
     "NEXT_PUBLIC_POSTHOG_KEY": "",
-    "NEXT_PUBLIC_POSTHOG_HOST": ""
+    "NEXT_PUBLIC_POSTHOG_HOST": "",
+    "COURSE_DIGEST_SECRET": "cd2026-9f2b7c4e-8a1d-4f6e-9b3c-5d7e0a2f6b81"
   },
   "kv_namespaces": [
     {

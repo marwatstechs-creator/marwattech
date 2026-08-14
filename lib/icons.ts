@@ -81,6 +81,7 @@ import Tag01Icon from "@hugeicons/core-free-icons/Tag01Icon";
 import Folder01Icon from "@hugeicons/core-free-icons/Folder01Icon";
 import Refresh01Icon from "@hugeicons/core-free-icons/Refresh01Icon";
 import SaveIcon from "@hugeicons/core-free-icons/SaveIcon";
+import Share08Icon from "@hugeicons/core-free-icons/Share08Icon";
 import Logout01Icon from "@hugeicons/core-free-icons/Logout01Icon";
 import Login01Icon from "@hugeicons/core-free-icons/Login01Icon";
 import LockIcon from "@hugeicons/core-free-icons/LockIcon";
@@ -195,6 +196,7 @@ export const ICONS = {
   activity: Activity01Icon,
   table: Table01Icon,
   copy: Copy01Icon,
+  share: Share08Icon,
   homeAdmin: Home01Icon,
   close: Cancel01Icon,
   megaphone: Megaphone01Icon,

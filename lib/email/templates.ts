@@ -1,7 +1,15 @@
 /**
- * Branded HTML email templates — follow the Marwat Tech web app style:
- * purple (primary) + gold (accent) + white, Inter font, rounded cards.
- * All inline styles (email-client safe). Server-only.
+ * Branded HTML email templates — iOS-27-inspired "liquid glass" style.
+ * Purple (primary) + gold (accent) + white, Inter, large squircle cards
+ * with soft layered shadows, a mobile-responsive shell and the real navbar
+ * logo in the header.
+ *
+ * Icons: we use emoji inside iOS-style squircle tiles instead of a Lucide
+ * SVG sprite, because email clients (Gmail, Outlook, Apple Mail) strip
+ * <svg>/icon libraries — emoji render on every device.
+ *
+ * All inline styles (email-client safe) + a small <style> block for
+ * mobile media queries (Apple Mail / most mobile clients). Server-only.
  */
 import { SITE } from "@/lib/constants";
 
@@ -11,13 +19,16 @@ export const PURPLE_DARK = "#5f4fa8";
 const PURPLE_DEEP = "#4b3ea1";
 const PURPLE_SOFT = "#8b7dd4";
 export const GOLD = "#f8c640";
-const GOLD_DARK = "#e8b62f";
+const GOLD_DARK = "#e0a51e";
 export const AZURE = "#5f4fa8";
-export const INK = "#1e293b";
-export const MUTED = "#64748b";
-export const BORDER = "#e2e8f0";
-export const BG = "#f4f5f7";
+export const INK = "#101828";
+export const MUTED = "#667085";
+export const BORDER = "#eae7f6";
+export const BG = "#f3f2fa";
 export const CARD = "#ffffff";
+const RADIUS = 26;
+const SHADOW =
+  "0 1px 2px rgba(16,24,40,0.05), 0 10px 34px rgba(75,62,161,0.13)";
 
 export function esc(value: string | number | null | undefined): string {
   return String(value ?? "")
@@ -28,12 +39,13 @@ export function esc(value: string | number | null | undefined): string {
     .replace(/'/g, "&#39;");
 }
 
-/** Rounded-square brand mark (mirrors the navbar logo). */
+/** iOS-style squircle logo tile (the real navbar mobile logo, rasterized PNG). */
 function logoMark(): string {
+  const logoUrl = `${SITE.url.replace(/\/$/, "")}/assets/logo-square.png`;
   return `
   <table role="presentation" cellpadding="0" cellspacing="0"><tr>
-    <td style="border-radius:12px;background:linear-gradient(135deg,${PURPLE_SOFT} 0%,${PURPLE_DEEP} 100%);box-shadow:0 4px 10px rgba(75,62,161,0.4);">
-      <div style="width:38px;height:38px;border-radius:12px;text-align:center;font-size:15px;font-weight:800;color:#ffffff;line-height:38px;letter-spacing:0.5px;">MT</div>
+    <td style="border-radius:16px;background:#ffffff;border:1px solid rgba(255,255,255,0.85);box-shadow:0 4px 14px rgba(43,34,94,0.35);padding:3px;">
+      <img src="${esc(logoUrl)}" width="42" height="42" alt="${esc(SITE.name)}" style="display:block;width:42px;height:42px;border-radius:12px;" />
     </td>
   </tr></table>`;
 }
@@ -44,13 +56,21 @@ function brandDots(): string {
   <table role="presentation" cellpadding="0" cellspacing="0"><tr>
     <td style="width:9px;height:9px;background:${GOLD};border-radius:50%;"></td>
     <td style="width:6px;"></td>
-    <td style="width:9px;height:9px;background:#ffffff;border-radius:50%;"></td>
+    <td style="width:9px;height:9px;background:rgba(255,255,255,0.92);border-radius:50%;"></td>
     <td style="width:6px;"></td>
-    <td style="width:9px;height:9px;background:rgba(255,255,255,0.55);border-radius:50%;"></td>
+    <td style="width:9px;height:9px;background:rgba(255,255,255,0.5);border-radius:50%;"></td>
   </tr></table>`;
 }
 
-/** Glass info card with optional purple gradient header (label left + value right). */
+/** Emoji icon tile (iOS squircle) used across templates. */
+function iconTile(icon: string, tint: string, size = 38): string {
+  return `
+  <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 auto 10px;"><tr>
+    <td align="center" style="width:${size}px;height:${size}px;border-radius:12px;background:${tint};font-size:18px;line-height:${size}px;text-align:center;box-shadow:inset 0 0 0 1px rgba(255,255,255,0.6);">${icon}</td>
+  </tr></table>`;
+}
+
+/** iOS-style "info card" — clean label/value rows with a tinted header. */
 export function infoCard(opts: {
   headerLeft?: string;
   headerRight?: string;
@@ -61,41 +81,41 @@ export function infoCard(opts: {
     headerLeft || headerRight
       ? `
       <tr>
-        <td colspan="2" style="padding:14px 18px;background:linear-gradient(135deg,${PURPLE_SOFT} 0%,${PURPLE_DARK} 100%);border-radius:12px 12px 0 0;">
+        <td colspan="2" style="padding:16px 20px;background:linear-gradient(135deg,${PURPLE_SOFT} 0%,${PURPLE_DARK} 100%);border-radius:${RADIUS - 10}px ${RADIUS - 10}px 0 0;">
           <table role="presentation" width="100%"><tr>
-            <td style="color:#ffffff;font-size:12px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;">${headerLeft ?? ""}</td>
-            <td align="right" style="color:#ffffff;font-size:15px;font-weight:800;">${headerRight ?? ""}</td>
+            <td style="color:#ffffff;font-size:11px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;">${headerLeft ?? ""}</td>
+            <td align="right" style="color:#ffffff;font-size:16px;font-weight:800;">${headerRight ?? ""}</td>
           </tr></table>
         </td>
       </tr>`
       : "";
   return `
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid ${BORDER};border-radius:12px;overflow:hidden;margin:0 0 14px;box-shadow:0 2px 8px rgba(30,41,59,0.05);">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid ${BORDER};border-radius:${RADIUS - 8}px;overflow:hidden;margin:0 0 18px;box-shadow:0 1px 2px rgba(16,24,40,0.04),0 6px 20px rgba(75,62,161,0.08);">
     ${header}
     ${rows
       .map(
         (r, i) => `
       <tr>
-        <td style="padding:11px 18px;border-bottom:${i === rows.length - 1 ? "none" : `1px solid ${BORDER}`};background:${i % 2 === 1 ? BG : "#ffffff"};color:${MUTED};font-size:13px;width:42%;vertical-align:top;">${r.label}</td>
-        <td style="padding:11px 18px;border-bottom:${i === rows.length - 1 ? "none" : `1px solid ${BORDER}`};background:${i % 2 === 1 ? BG : "#ffffff"};color:${INK};font-size:13px;font-weight:700;text-align:right;vertical-align:top;">${r.value}</td>
+        <td style="padding:13px 20px;border-bottom:${i === rows.length - 1 ? "none" : `1px solid ${BORDER}`};background:${i % 2 === 1 ? BG : "#ffffff"};color:${MUTED};font-size:13px;width:44%;vertical-align:top;">${r.label}</td>
+        <td style="padding:13px 20px;border-bottom:${i === rows.length - 1 ? "none" : `1px solid ${BORDER}`};background:${i % 2 === 1 ? BG : "#ffffff"};color:${INK};font-size:13px;font-weight:700;text-align:right;vertical-align:top;">${r.value}</td>
       </tr>`
       )
       .join("")}
   </table>`;
 }
 
-/** 3-column "how it works" card — icon tile + title + description. */
+/** iOS-style "how it works" — emoji squircle tiles + title + description. */
 export function stepsCard(items: { icon: string; title: string; desc: string }[]): string {
   return `
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid ${BORDER};border-radius:14px;overflow:hidden;margin:0 0 16px;box-shadow:0 2px 8px rgba(30,41,59,0.05);">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid ${BORDER};border-radius:${RADIUS - 6}px;overflow:hidden;margin:0 0 18px;box-shadow:0 1px 2px rgba(16,24,40,0.04),0 6px 20px rgba(75,62,161,0.08);">
     <tr>
       ${items
         .map(
           (it, i) => `
-        <td width="33%" style="padding:16px 10px;border-right:${i === items.length - 1 ? "none" : `1px solid ${BORDER}`};vertical-align:top;text-align:center;">
-          <div style="width:36px;height:36px;border-radius:11px;background:${i === 1 ? `${GOLD}22` : `${PURPLE}16`};color:${i === 1 ? GOLD_DARK : PURPLE};font-size:17px;line-height:36px;text-align:center;margin:0 auto 9px;">${it.icon}</div>
-          <div style="font-size:13px;font-weight:800;color:${INK};margin:0 0 4px;">${it.title}</div>
-          <div style="font-size:12px;line-height:1.5;color:${MUTED};padding:0 4px;">${it.desc}</div>
+        <td width="33%" style="padding:22px 12px 18px;border-right:${i === items.length - 1 ? "none" : `1px solid ${BORDER}`};vertical-align:top;text-align:center;">
+          ${iconTile(it.icon, i === 1 ? `${GOLD}1f` : `${PURPLE}14`)}
+          <div style="font-size:14px;font-weight:800;color:${INK};margin:0 0 5px;">${it.title}</div>
+          <div style="font-size:12px;line-height:1.55;color:${MUTED};padding:0 6px;">${it.desc}</div>
         </td>`
         )
         .join("")}
@@ -138,41 +158,52 @@ export function emailLayout(o: LayoutOpts): string {
 <meta name="x-apple-disable-message-reformatting"/>
 <title>${esc(o.title ?? SITE.name)}</title>
 ${o.preheader ? `<div style="display:none;max-height:0;overflow:hidden;mso-hide:all;">${esc(o.preheader)}</div>` : ""}
+<style>
+  @media only screen and (max-width:620px){
+    .mt-hdr{padding:24px 22px 18px !important;}
+    .mt-body{padding:28px 22px 24px !important;}
+    .mt-foot{padding:22px !important;}
+    .mt-title{font-size:21px !important;}
+    .mt-wordmark{font-size:18px !important;}
+    .mt-hide{display:none !important;}
+  }
+</style>
 </head>
 <body style="margin:0;padding:0;background:${BG};font-family:Inter,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:${INK};">
   <!-- Outer -->
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${BG};padding:28px 12px;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${BG};padding:32px 12px;">
     <tr><td align="center">
-      <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:${CARD};border-radius:22px;overflow:hidden;border:1px solid ${BORDER};box-shadow:0 10px 30px rgba(30,41,59,0.08);">
+      <!-- iOS glass card -->
+      <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:${CARD};border-radius:${RADIUS}px;overflow:hidden;border:1px solid rgba(255,255,255,0.9);box-shadow:${SHADOW};">
 
-        <!-- Header -->
+        <!-- Header (liquid-glass gradient + logo nav) -->
         <tr>
-          <td style="background:linear-gradient(135deg, ${PURPLE_SOFT} 0%, ${PURPLE} 45%, ${PURPLE_DEEP} 100%);padding:28px 32px 22px;box-shadow:inset 0 1px 0 rgba(255,255,255,0.15);">
+          <td class="mt-hdr" style="background:linear-gradient(135deg, ${PURPLE_SOFT} 0%, ${PURPLE} 46%, ${PURPLE_DEEP} 100%);padding:32px 36px 24px;">
             <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
               <tr>
                 <td>
                   <table role="presentation" cellpadding="0" cellspacing="0"><tr>
-                    <td style="padding-right:12px;vertical-align:middle;">${logoMark()}</td>
+                    <td class="mt-hide" style="padding-right:14px;vertical-align:middle;">${logoMark()}</td>
                     <td style="vertical-align:middle;">
-                      <div style="font-size:20px;font-weight:800;color:#ffffff;letter-spacing:0.5px;line-height:1.1;">MARWAT <span style="color:${GOLD};">TECH</span></div>
-                      <div style="font-size:11px;color:rgba(255,255,255,0.82);margin-top:3px;">${esc(tagline)}</div>
+                      <div class="mt-wordmark" style="font-size:20px;font-weight:800;color:#ffffff;letter-spacing:0.5px;line-height:1.1;">MARWAT <span style="color:${GOLD};">TECH</span></div>
+                      <div style="font-size:11px;color:rgba(255,255,255,0.85);margin-top:4px;letter-spacing:0.2px;">${esc(tagline)}</div>
                     </td>
                   </tr></table>
                 </td>
-                <td align="right" valign="middle" style="white-space:nowrap;">${brandDots()}</td>
+                <td class="mt-hide" align="right" valign="middle" style="white-space:nowrap;">${brandDots()}</td>
               </tr>
             </table>
           </td>
         </tr>
 
         <!-- Gold accent strip -->
-        <tr><td style="height:5px;background:linear-gradient(90deg, ${GOLD} 0%, #f9d76b 50%, ${GOLD} 100%);"></td></tr>
+        <tr><td style="height:6px;background:linear-gradient(90deg, ${GOLD} 0%, #ffe494 50%, ${GOLD} 100%);"></td></tr>
 
         <!-- Body -->
         <tr>
-          <td style="padding:34px 34px 28px;">
-            ${o.badge ? `<div style="display:inline-block;background:${PURPLE}14;color:${PURPLE};font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;padding:5px 12px;border-radius:999px;margin-bottom:16px;border:1px solid ${PURPLE}22;">${esc(o.badge)}</div>` : ""}
-            ${o.title ? `<h1 style="margin:0 0 14px;font-size:23px;line-height:1.25;color:${INK};font-weight:800;">${esc(o.title)}</h1>` : ""}
+          <td class="mt-body" style="padding:38px 38px 30px;">
+            ${o.badge ? `<div style="display:inline-block;background:${PURPLE}14;color:${PURPLE_DARK};font-size:11px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;padding:6px 14px;border-radius:999px;margin-bottom:18px;border:1px solid ${PURPLE}26;">${esc(o.badge)}</div>` : ""}
+            ${o.title ? `<h1 class="mt-title" style="margin:0 0 16px;font-size:24px;line-height:1.25;color:${INK};font-weight:800;letter-spacing:-0.2px;">${esc(o.title)}</h1>` : ""}
             ${o.body}
             ${o.cta ? ctaButton(o.cta.label, o.cta.href) : ""}
           </td>
@@ -180,12 +211,22 @@ ${o.preheader ? `<div style="display:none;max-height:0;overflow:hidden;mso-hide:
 
         <!-- Footer -->
         <tr>
-          <td style="background:linear-gradient(180deg, #faf9fe 0%, ${BG} 100%);border-top:1px solid ${BORDER};padding:26px 34px;">
-            <div style="font-size:12px;color:${MUTED};line-height:1.8;">
-              <div style="font-size:13px;font-weight:800;color:${INK};margin-bottom:2px;">${esc(SITE.legalName ?? SITE.name)}</div>
-              <div>${esc(SITE.location)} · <a href="tel:${esc(SITE.phone.replace(/\s/g, ""))}" style="color:${PURPLE};text-decoration:none;font-weight:600;">${esc(SITE.phone)}</a></div>
-              <div><a href="mailto:${esc(SITE.email)}" style="color:${PURPLE};text-decoration:none;font-weight:600;">${esc(SITE.email)}</a> &nbsp;·&nbsp; <a href="${siteUrl}" style="color:${PURPLE};text-decoration:none;font-weight:600;">${siteUrl.replace(/^https?:\/\//, "")}</a></div>
-              <div style="margin:10px 0 2px;padding-top:12px;border-top:1px solid ${BORDER};color:${MUTED};font-size:11px;">${socialLinks}</div>
+          <td class="mt-foot" style="background:linear-gradient(180deg, #fbfaff 0%, ${BG} 100%);border-top:1px solid ${BORDER};padding:28px 36px;">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>
+              <td>
+                <table role="presentation" cellpadding="0" cellspacing="0"><tr>
+                  <td style="padding-right:10px;vertical-align:middle;">${logoMark()}</td>
+                  <td style="vertical-align:middle;">
+                    <div style="font-size:13px;font-weight:800;color:${INK};">${esc(SITE.legalName ?? SITE.name)}</div>
+                    <div style="font-size:11px;color:${MUTED};">${esc(SITE.location)}</div>
+                  </td>
+                </tr></table>
+              </td>
+            </tr></table>
+            <div style="margin-top:14px;font-size:12px;color:${MUTED};line-height:1.8;">
+              <div><a href="tel:${esc(SITE.phone.replace(/\s/g, ""))}" style="color:${PURPLE};text-decoration:none;font-weight:600;">${esc(SITE.phone)}</a> &nbsp;·&nbsp; <a href="mailto:${esc(SITE.email)}" style="color:${PURPLE};text-decoration:none;font-weight:600;">${esc(SITE.email)}</a></div>
+              <div><a href="${siteUrl}" style="color:${PURPLE};text-decoration:none;font-weight:600;">${siteUrl.replace(/^https?:\/\//, "")}</a></div>
+              <div style="margin:12px 0 2px;padding-top:14px;border-top:1px solid ${BORDER};color:${MUTED};font-size:11px;">${socialLinks}</div>
               <div style="margin-top:10px;color:${MUTED};font-size:11px;">© ${new Date().getFullYear()} ${esc(SITE.legalName ?? SITE.name)}. All rights reserved.</div>
               <div style="margin-top:4px;font-size:11px;">${o.unsubscribeUrl ? `<a href="${esc(o.unsubscribeUrl)}" style="color:${MUTED};text-decoration:underline;">Unsubscribe from marketing emails</a>` : "This is a transactional email about your account."}</div>
             </div>
@@ -200,9 +241,9 @@ ${o.preheader ? `<div style="display:none;max-height:0;overflow:hidden;mso-hide:
 
 function ctaButton(label: string, href: string): string {
   return `
-  <table role="presentation" cellpadding="0" cellspacing="0" style="margin:28px 0 4px;"><tr>
-    <td align="center" style="border-radius:999px;background:linear-gradient(180deg, ${PURPLE_SOFT} 0%, ${PURPLE} 55%, ${PURPLE_DEEP} 100%);box-shadow:0 6px 16px rgba(88,74,176,0.4), inset 0 1px 0 rgba(255,255,255,0.28);">
-      <a href="${esc(href)}" style="display:inline-block;padding:13px 30px;border-radius:999px;color:#ffffff;font-size:14px;font-weight:700;text-decoration:none;letter-spacing:0.3px;">${esc(label)}&nbsp;&nbsp;→</a>
+  <table role="presentation" cellpadding="0" cellspacing="0" style="margin:30px 0 4px;"><tr>
+    <td align="center" style="border-radius:999px;background:linear-gradient(180deg, ${PURPLE_SOFT} 0%, ${PURPLE} 55%, ${PURPLE_DEEP} 100%);box-shadow:0 8px 20px rgba(88,74,176,0.42), inset 0 1px 0 rgba(255,255,255,0.3);">
+      <a href="${esc(href)}" style="display:inline-block;padding:14px 32px;border-radius:999px;color:#ffffff;font-size:14px;font-weight:800;text-decoration:none;letter-spacing:0.3px;">${esc(label)}&nbsp;&nbsp;→</a>
     </td>
   </tr></table>`;
 }
@@ -224,6 +265,64 @@ export function marketingEmail(opts: {
   });
 }
 
+/** Course Update digest email — lists each updated course with "What's new". */
+export function courseUpdateEmail(opts: {
+  courses: { title: string; summaryPoints: string[]; url: string }[];
+  recipientEmail: string;
+  unsubscribeUrl: string;
+}): string {
+  const count = opts.courses.length;
+  const cards = opts.courses
+    .map(
+      (c) => `
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid ${BORDER};border-radius:${RADIUS - 6}px;overflow:hidden;margin:0 0 20px;box-shadow:0 1px 2px rgba(16,24,40,0.04),0 6px 20px rgba(75,62,161,0.08);">
+      <tr>
+        <td style="padding:16px 20px;background:linear-gradient(135deg, ${PURPLE}12 0%, ${GOLD}1c 100%);border-bottom:1px solid ${BORDER};">
+          <table role="presentation" cellpadding="0" cellspacing="0"><tr>
+            <td style="padding-right:12px;vertical-align:middle;">${iconTile("📚", `${PURPLE}18`, 34)}</td>
+            <td style="vertical-align:middle;">
+              <div style="font-size:15px;font-weight:800;color:${INK};line-height:1.35;">${esc(c.title)}</div>
+            </td>
+          </tr></table>
+        </td>
+      </tr>
+      <tr>
+        <td style="padding:18px 20px 6px;">
+          <div style="font-size:11px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:${PURPLE};margin-bottom:9px;">✦ What's new</div>
+          <ul style="margin:0;padding-left:20px;">
+            ${c.summaryPoints
+              .map(
+                (p) =>
+                  `<li style="font-size:13px;line-height:1.7;color:${MUTED};margin-bottom:6px;">${esc(p)}</li>`
+              )
+              .join("")}
+          </ul>
+        </td>
+      </tr>
+      <tr>
+        <td style="padding:4px 20px 20px;">${ctaButton("View Course", c.url)}</td>
+      </tr>
+    </table>`
+    )
+    .join("");
+
+  return emailLayout({
+    preheader: `${count} course${count > 1 ? "s" : ""} you follow ${count > 1 ? "have" : "has"} been updated.`,
+    badge: "Course Update",
+    title:
+      count > 1
+        ? "Your courses have been updated — check out what's new"
+        : "Your course has been updated — check out what's new",
+    body: `
+      <p style="margin:0 0 20px;font-size:14px;line-height:1.7;color:${MUTED};">Hi there, a course you're following has new updates. Here's what changed:</p>
+      ${cards}
+      <p style="margin:12px 0 0;font-size:12px;line-height:1.65;color:${MUTED};">You're receiving this email because you subscribed to <strong>course update notifications</strong> from ${esc(SITE.name)}. We only send useful course-update digests — never spam.</p>
+    `,
+    unsubscribeUrl: opts.unsubscribeUrl,
+    recipientEmail: opts.recipientEmail,
+  });
+}
+
 export function paymentReceiptEmail(opts: {
   orderId: string;
   amount: string;
@@ -238,7 +337,7 @@ export function paymentReceiptEmail(opts: {
     title: "Payment received 🎉",
     preheader: `Your payment of ${opts.amount} ${opts.currency} was received.`,
     body: `
-      <p style="margin:0 0 18px;font-size:14px;line-height:1.65;color:${MUTED};">Thank you${opts.customerName ? `, ${esc(opts.customerName)}` : ""}! We've recorded your payment successfully — a copy of your receipt is below.</p>
+      <p style="margin:0 0 20px;font-size:14px;line-height:1.7;color:${MUTED};">Thank you${opts.customerName ? `, ${esc(opts.customerName)}` : ""}! We've recorded your payment successfully — a copy of your receipt is below.</p>
       ${infoCard({
         headerLeft: `Receipt · ${esc(opts.orderId)}`,
         headerRight: `${esc(opts.amount)} ${esc(opts.currency)}`,
@@ -272,8 +371,8 @@ export function invoiceEmail(opts: {
     .map(
       (it, i) => `
       <tr>
-        <td style="padding:11px 18px;border-bottom:${i === items.length - 1 ? "none" : `1px solid ${BORDER}`};background:${i % 2 === 1 ? BG : "#ffffff"};color:${INK};font-size:13px;">${esc(it.label)}</td>
-        <td align="right" style="padding:11px 18px;border-bottom:${i === items.length - 1 ? "none" : `1px solid ${BORDER}`};background:${i % 2 === 1 ? BG : "#ffffff"};color:${INK};font-size:13px;font-weight:700;">${esc(it.amount)}</td>
+        <td style="padding:12px 20px;border-bottom:${i === items.length - 1 ? "none" : `1px solid ${BORDER}`};background:${i % 2 === 1 ? BG : "#ffffff"};color:${INK};font-size:13px;">${esc(it.label)}</td>
+        <td align="right" style="padding:12px 20px;border-bottom:${i === items.length - 1 ? "none" : `1px solid ${BORDER}`};background:${i % 2 === 1 ? BG : "#ffffff"};color:${INK};font-size:13px;font-weight:700;">${esc(it.amount)}</td>
       </tr>`
     )
     .join("");
@@ -282,7 +381,7 @@ export function invoiceEmail(opts: {
     title: `Invoice ${esc(opts.invoiceNumber)}`,
     preheader: `Invoice ${opts.invoiceNumber} — ${opts.amount} ${opts.currency}${opts.dueDate ? ` due ${opts.dueDate}` : ""}.`,
     body: `
-      <p style="margin:0 0 18px;font-size:14px;line-height:1.65;color:${MUTED};">Hi${opts.clientName ? ` ${esc(opts.clientName)}` : ""}, thank you for working with ${SITE.name}. Please review the details below${opts.dueDate ? ` — payment is due by <strong style="color:${INK};">${esc(opts.dueDate)}</strong>` : ""}.</p>
+      <p style="margin:0 0 20px;font-size:14px;line-height:1.7;color:${MUTED};">Hi${opts.clientName ? ` ${esc(opts.clientName)}` : ""}, thank you for working with ${SITE.name}. Please review the details below${opts.dueDate ? ` — payment is due by <strong style="color:${INK};">${esc(opts.dueDate)}</strong>` : ""}.</p>
       ${infoCard({
         headerLeft: `Invoice ${esc(opts.invoiceNumber)}`,
         headerRight: `${esc(opts.amount)} ${esc(opts.currency)}`,
@@ -292,15 +391,15 @@ export function invoiceEmail(opts: {
           ...(opts.dueDate ? [{ label: "Due date", value: esc(opts.dueDate) }] : []),
         ],
       })}
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid ${BORDER};border-radius:12px;overflow:hidden;margin:0 0 14px;box-shadow:0 2px 8px rgba(30,41,59,0.05);">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid ${BORDER};border-radius:${RADIUS - 8}px;overflow:hidden;margin:0 0 18px;box-shadow:0 1px 2px rgba(16,24,40,0.04),0 6px 20px rgba(75,62,161,0.08);">
         <tr>
-          <td style="padding:10px 18px;background:${BG};color:${MUTED};font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.7px;">Description</td>
-          <td align="right" style="padding:10px 18px;background:${BG};color:${MUTED};font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.7px;">Amount</td>
+          <td style="padding:11px 20px;background:${BG};color:${MUTED};font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.9px;">Description</td>
+          <td align="right" style="padding:11px 20px;background:${BG};color:${MUTED};font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.9px;">Amount</td>
         </tr>
         ${rowsHtml}
         <tr>
-          <td style="padding:13px 18px;background:${PURPLE}10;color:${PURPLE_DARK};font-size:13px;font-weight:800;border-top:2px solid ${PURPLE};">Total due</td>
-          <td align="right" style="padding:13px 18px;background:${PURPLE}10;color:${PURPLE};font-size:15px;font-weight:800;border-top:2px solid ${PURPLE};">${esc(opts.amount)} ${esc(opts.currency)}</td>
+          <td style="padding:14px 20px;background:${PURPLE}10;color:${PURPLE_DARK};font-size:13px;font-weight:800;border-top:2px solid ${PURPLE};">Total due</td>
+          <td align="right" style="padding:14px 20px;background:${PURPLE}10;color:${PURPLE};font-size:16px;font-weight:800;border-top:2px solid ${PURPLE};">${esc(opts.amount)} ${esc(opts.currency)}</td>
         </tr>
       </table>
       <p style="margin:0;font-size:12px;color:${MUTED};">Questions about this invoice? Reply to this email or contact <a href="mailto:${esc(SITE.supportEmail)}" style="color:${PURPLE};font-weight:600;">${esc(SITE.supportEmail)}</a>.</p>
@@ -315,7 +414,7 @@ export function welcomeEmail(opts: { name?: string | null; loginUrl: string }): 
     title: `Welcome to ${SITE.name}!`,
     preheader: "Your account is ready — manage projects, payments and support.",
     body: `
-      <p style="margin:0 0 18px;font-size:14px;line-height:1.65;color:${MUTED};">Hi${opts.name ? ` ${esc(opts.name)}` : ""}, thanks for joining ${SITE.name}! Your account is ready. Here's what you can do from your dashboard:</p>
+      <p style="margin:0 0 20px;font-size:14px;line-height:1.7;color:${MUTED};">Hi${opts.name ? ` ${esc(opts.name)}` : ""}, thanks for joining ${SITE.name}! Your account is ready. Here's what you can do from your dashboard:</p>
       ${stepsCard([
         { icon: "📁", title: "Projects", desc: "Track your websites, apps & ongoing work in one place." },
         { icon: "💳", title: "Payments", desc: "View invoices, pay securely & download receipts." },
@@ -338,7 +437,7 @@ export function subscriptionConfirmationEmail(opts: {
     title: `You're subscribed to ${esc(opts.planName)}`,
     preheader: `Your ${opts.planName} subscription is active (${opts.amount} ${opts.currency}/${opts.interval}).`,
     body: `
-      <p style="margin:0 0 18px;font-size:14px;line-height:1.65;color:${MUTED};">Your recurring subscription is now active. You can manage it any time from your dashboard.</p>
+      <p style="margin:0 0 20px;font-size:14px;line-height:1.7;color:${MUTED};">Your recurring subscription is now active. You can manage it any time from your dashboard.</p>
       ${infoCard({
         headerLeft: "Subscription",
         rows: [
@@ -362,8 +461,8 @@ export function payoutNoticeEmail(opts: {
     title: "You received a payout 💸",
     preheader: `A payout of ${opts.amount} ${opts.currency} was sent to you.`,
     body: `
-      <p style="margin:0 0 18px;font-size:14px;line-height:1.65;color:${MUTED};">A payment of <strong style="color:${INK};">${esc(opts.amount)} ${esc(opts.currency)}</strong> has been sent to ${esc(opts.recipientEmail)} from ${SITE.name}.</p>
-      ${opts.note ? `<div style="background:${BG};border:1px solid ${BORDER};padding:14px 16px;border-radius:12px;font-size:13px;color:${INK};margin:0 0 14px;">${esc(opts.note)}</div>` : ""}
+      <p style="margin:0 0 20px;font-size:14px;line-height:1.7;color:${MUTED};">A payment of <strong style="color:${INK};">${esc(opts.amount)} ${esc(opts.currency)}</strong> has been sent to ${esc(opts.recipientEmail)} from ${SITE.name}.</p>
+      ${opts.note ? `<div style="background:${BG};border:1px solid ${BORDER};padding:16px 18px;border-radius:${RADIUS - 8}px;font-size:13px;color:${INK};margin:0 0 18px;line-height:1.6;">${esc(opts.note)}</div>` : ""}
     `,
   });
 }
@@ -374,7 +473,7 @@ export function testEmail(): string {
     title: "SMTP test — it works!",
     preheader: "SMTP configuration verified.",
     body: `
-      <p style="margin:0 0 14px;font-size:14px;line-height:1.65;color:${MUTED};">This email confirms your SMTP mail system is configured and sending correctly.</p>
+      <p style="margin:0 0 16px;font-size:14px;line-height:1.7;color:${MUTED};">This email confirms your SMTP mail system is configured and sending correctly.</p>
       ${infoCard({
         rows: [
           { label: "Status", value: "✅ Delivered" },
@@ -395,7 +494,7 @@ export function quoteRequestEmail(opts: {
     title: "Thanks — we've got your request!",
     preheader: "We received your enquiry and will get back to you shortly.",
     body: `
-      <p style="margin:0 0 18px;font-size:14px;line-height:1.65;color:${MUTED};">Hi${opts.name ? ` ${esc(opts.name)}` : ""}, thanks for reaching out to ${SITE.name}${opts.service ? ` about <strong style="color:${INK};">${esc(opts.service)}</strong>` : ""}. A member of our team will review your requirements and reply with a free, no-obligation quotation — usually within one business day.</p>
+      <p style="margin:0 0 20px;font-size:14px;line-height:1.7;color:${MUTED};">Hi${opts.name ? ` ${esc(opts.name)}` : ""}, thanks for reaching out to ${SITE.name}${opts.service ? ` about <strong style="color:${INK};">${esc(opts.service)}</strong>` : ""}. A member of our team will review your requirements and reply with a free, no-obligation quotation — usually within one business day.</p>
       ${stepsCard([
         { icon: "✅", title: "Review", desc: "We read your requirements carefully." },
         { icon: "📝", title: "Quotation", desc: "You get a clear, itemised quote — no hidden fees." },
@@ -416,8 +515,8 @@ export function adminResetPasswordEmail(opts: {
     title: "Reset your password",
     preheader: "A Marwat Tech team member requested a password reset for your account.",
     body: `
-      <p style="margin:0 0 18px;font-size:14px;line-height:1.65;color:${MUTED};">Hi${opts.name ? ` ${esc(opts.name)}` : ""}, a member of the Marwat Tech team has requested a password reset for your account. Click the button below to choose a new password — the link is valid for a short time only.</p>
-      <p style="margin:0 0 18px;font-size:12px;color:${MUTED};">Didn't request this? You can safely ignore this email — your password won't change unless you use the link.</p>
+      <p style="margin:0 0 20px;font-size:14px;line-height:1.7;color:${MUTED};">Hi${opts.name ? ` ${esc(opts.name)}` : ""}, a member of the Marwat Tech team has requested a password reset for your account. Click the button below to choose a new password — the link is valid for a short time only.</p>
+      <p style="margin:0 0 20px;font-size:12px;color:${MUTED};">Didn't request this? You can safely ignore this email — your password won't change unless you use the link.</p>
     `,
     cta: { label: "Reset my password", href: opts.resetUrl },
   });
@@ -433,7 +532,7 @@ export function adminConfirmationEmail(opts: {
     title: "Confirm your email address",
     preheader: "A Marwat Tech team member has sent you a new confirmation link.",
     body: `
-      <p style="margin:0 0 18px;font-size:14px;line-height:1.65;color:${MUTED};">Hi${opts.name ? ` ${esc(opts.name)}` : ""}, a member of the Marwat Tech team has sent you a new link to confirm your email address. Click below to finish activating your account.</p>
+      <p style="margin:0 0 20px;font-size:14px;line-height:1.7;color:${MUTED};">Hi${opts.name ? ` ${esc(opts.name)}` : ""}, a member of the Marwat Tech team has sent you a new link to confirm your email address. Click below to finish activating your account.</p>
     `,
     cta: { label: "Confirm my email", href: opts.confirmUrl },
   });

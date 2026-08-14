@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 import { AppIcon } from "@/components/app-icon";
+import { UploadUrlField } from "@/components/admin/upload-url-field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -531,7 +532,12 @@ export function UsersTable({ users, currentUserId }: { users: AdminUserRow[]; cu
             </div>
             <div className="space-y-2">
               <Label>Avatar URL</Label>
-              <Input value={editForm.avatar_url} onChange={(e) => setEditForm((f) => ({ ...f, avatar_url: e.target.value }))} placeholder="https://…" />
+              <UploadUrlField
+                square
+                value={editForm.avatar_url}
+                onChange={(v) => setEditForm((f) => ({ ...f, avatar_url: v }))}
+                placeholder="https://…"
+              />
             </div>
           </div>
           <DialogFooter>

@@ -58,7 +58,7 @@ export async function createPromoCode(input: PromoCodeInput) {
   await logActivity(db, session, "create", "promo_code", data.id, {
     title: parsed.data.title,
   });
-  await revalidateContent(["/promo-codes"]);
+  await revalidateContent(["/free-courses"]);
   return { id: data.id };
 }
 
@@ -90,7 +90,7 @@ export async function updatePromoCode(id: string, input: PromoCodeInput) {
   await logActivity(db, session, "update", "promo_code", id, {
     title: parsed.data.title,
   });
-  await revalidateContent(["/promo-codes"]);
+  await revalidateContent(["/free-courses"]);
   return { id: data.id };
 }
 
@@ -99,7 +99,7 @@ export async function deletePromoCode(id: string) {
   const { error } = await db.from("promo_codes").delete().eq("id", id);
   if (error) return { error: error.message };
   await logActivity(db, session, "delete", "promo_code", id);
-  await revalidateContent(["/promo-codes"]);
+  await revalidateContent(["/free-courses"]);
   return { ok: true };
 }
 
@@ -108,7 +108,7 @@ export async function togglePromoCode(id: string, enabled: boolean) {
   const { error } = await db.from("promo_codes").update({ enabled }).eq("id", id);
   if (error) return { error: error.message };
   await logActivity(db, session, "status_change", "promo_code", id, { enabled });
-  await revalidateContent(["/promo-codes"]);
+  await revalidateContent(["/free-courses"]);
   return { ok: true };
 }
 
