@@ -8,6 +8,7 @@ import { PwaRegister } from "@/components/pwa-register";
 import { PwaInstallPrompt } from "@/components/pwa-install-prompt";
 import { CookieConsent } from "@/components/marketing/cookie-consent";
 import { SiteVerification } from "@/components/seo/site-verification";
+import { CustomHeadCode } from "@/components/seo/custom-head-code";
 import { AdSenseHead } from "@/components/adsense/adsense-head";
 import { GoogleOneTapGlobal } from "@/components/admin/google-one-tap-global";
 import { SITE } from "@/lib/constants";
@@ -96,6 +97,8 @@ export default function RootLayout({
             __html: `window.__name=function(t,n){try{Object.defineProperty(t,"name",{value:n,configurable:true})}catch(e){}};`,
           }}
         />
+        <SiteVerification />
+        <CustomHeadCode />
       </head>
       <body className={`${inter.variable} ${spaceGrotesk.variable} font-sans`}>
         <SiteVerification />

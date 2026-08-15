@@ -13,7 +13,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { createClient } from "@/lib/supabase/client";
 import { saveSettings } from "@/lib/actions/admin/settings";
 
-const FIELDS: { key: string; label: string; textarea?: boolean; hint?: string }[] = [
+const FIELDS: { key: string; label: string; textarea?: boolean; rows?: number; hint?: string }[] = [
   { key: "site_name", label: "Site name" },
   { key: "site_tagline", label: "Site tagline" },
   { key: "contact_email", label: "Contact email" },
@@ -29,6 +29,7 @@ const FIELDS: { key: string; label: string; textarea?: boolean; hint?: string }[
   { key: "announcement_bar", label: "Announcement bar text", textarea: true },
   { key: "google_site_verification", label: "Google Search Console verification code", hint: "Search Console → Settings → Verification → HTML tag. Paste the content value (e.g. abc123…)." },
   { key: "bing_site_verification", label: "Bing Webmaster verification code", hint: "Bing Webmaster Tools → Site settings → Verification → HTML meta tag." },
+  { key: "custom_head_code", label: "Custom head code (Google tag / analytics / scripts)", textarea: true, rows: 10, hint: "Paste any full <script> / <meta> / <link> snippet here and it will be injected into the <head> of every page. E.g. the Google tag (gtag.js) snippet from your GA4 property." },
   { key: "google_adsense_client", label: "Google AdSense Client ID", hint: "e.g. ca-pub-1234567890123456. Adds the AdSense loader to every page." },
   { key: "ad_txt", label: "ads.txt content", textarea: true, hint: "Paste your ads.txt content or upload the file. Served at /ads.txt (and /ad.txt redirects to it) for AdSense verification." },
   { key: "promo_udemy_feed", label: "Auto Udemy promo feed", hint: "Type 1 to show the auto Udemy deals tab on /free-courses, or leave empty to hide it." },
@@ -145,7 +146,7 @@ export function SettingsForm({ initial }: { initial: Record<string, string> }) {
                 ) : f.textarea ? (
                   <Textarea
                     id={f.key}
-                    rows={2}
+                    rows={f.rows ?? 2}
                     value={form[f.key] ?? ""}
                     onChange={(e) => setForm((s) => ({ ...s, [f.key]: e.target.value }))}
                   />
