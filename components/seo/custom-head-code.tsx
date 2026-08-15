@@ -1,5 +1,3 @@
-import { Suspense } from "react";
-
 import { createClient } from "@/lib/supabase/server";
 import { getSiteSettings } from "@/lib/db/content";
 
@@ -10,12 +8,11 @@ import { getSiteSettings } from "@/lib/db/content";
  *
  * Supports: <script src>, inline <script>, <meta>, <link> and <style> tags.
  *
- * IMPORTANT: scripts are emitted as literal <script> tags in the server-rendered
- * HTML (not via next/script afterInteractive) so Google's "tag not detected"
- * checker — which scans the served HTML — actually sees them.
- *
- * Rendered as a dynamic island inside <Suspense> so it's server-rendered per
- * request without forcing the rest of the page to be dynamic.
+ * IMPORTANT (no Suspense): this component is intentionally NOT wrapped in
+ * <Suspense>. Suspense would stream it in AFTER </head>, so the literal
+ * <script> tags would land in the <body> — and Google's tag-detection checker
+ * scans the <head> and would report "not detected". Rendering it as a plain
+ * async server component puts the tags inside the actual <head>.
  */
 async function HeadCodeContent() {
   let code = "";
@@ -86,10 +83,6 @@ function ParsedHeadCode({ html }: { html: string }) {
   return <>{nodes}</>;
 }
 
-export function CustomHeadCode() {
-  return (
-    <Suspense fallback={null}>
-      <HeadCodeContent />
-    </Suspense>
-  );
+export async function CustomHeadCode() {
+  return <HeadCodeContent />;
 }
