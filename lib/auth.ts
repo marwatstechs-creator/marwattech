@@ -119,17 +119,19 @@ export async function signInWithVerifiedEmail(opts: {
   if (!user) return { target: "/client", error: "No user account found" };
 
   // 2) Generate a magic-link OTP and complete it server-side (sets the cookie).
+  //    The token hash from generateLink must be verified via `token_hash`
+  //    (passing it as `token` makes Supabase return "token has expired or is
+  //    invalid" / otp_expired).
   const { data: linkData } = await admin.auth.admin.generateLink({
     type: "magiclink",
     email,
   });
-  const token = linkData?.properties?.hashed_token;
-  if (!token) return { target: "/client", error: "Could not generate sign-in link" };
+  const tokenHash = linkData?.properties?.hashed_token;
+  if (!tokenHash) return { target: "/client", error: "Could not generate sign-in link" };
 
   const db = await createClient();
   const { error: verifyErr } = await db.auth.verifyOtp({
-    email,
-    token,
+    token_hash: tokenHash,
     type: "magiclink",
   });
   if (verifyErr) return { target: "/client", error: verifyErr.message };
