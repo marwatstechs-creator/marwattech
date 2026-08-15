@@ -216,6 +216,36 @@ export interface Database {
         };
         Relationships: [];
       };
+      github_settings: {
+        Row: {
+          id: boolean;
+          app_name: string | null;
+          client_id: string | null;
+          client_secret: string | null;
+          enabled: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: boolean;
+          app_name?: string | null;
+          client_id?: string | null;
+          client_secret?: string | null;
+          enabled?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: boolean;
+          app_name?: string | null;
+          client_id?: string | null;
+          client_secret?: string | null;
+          enabled?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       profiles: {
         Row: {
           id: string;

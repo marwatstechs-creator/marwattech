@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
 import { AppIcon } from "@/components/app-icon";
 import { GoogleSignIn } from "@/components/admin/google-sign-in";
+import { GitHubSignIn } from "@/components/admin/github-sign-in";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -74,6 +75,7 @@ export default function ClientRegisterPage() {
       </CardHeader>
       <CardContent>
         <GoogleSignIn mode="client" />
+        <GitHubSignIn mode="client" />
         <div className="my-4 flex items-center gap-3 text-xs text-muted-foreground">
           <span className="h-px flex-1 bg-border" />
           OR

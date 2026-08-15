@@ -3,12 +3,14 @@ import { SettingsForm } from "@/components/admin/forms/settings-form";
 import { PaymentGatewaySettings, type GatewayStatus } from "@/components/admin/payment-gateway-settings";
 import { MailSettings, type MailSettingsStatus } from "@/components/admin/mail-settings";
 import { GoogleSettings, type GoogleSettingsStatus } from "@/components/admin/google-settings";
+import { GitHubSettings, type GitHubSettingsStatus } from "@/components/admin/github-settings";
 import { SeoSettings } from "@/components/admin/seo-settings";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { resolvePaypalConfig } from "@/lib/payments/paypal";
 import { resolveMailConfig } from "@/lib/email";
 import { resolveGoogleConfig } from "@/lib/google";
+import { resolveGitHubConfig } from "@/lib/github";
 import { guardSuperAdmin } from "@/lib/auth";
 import { SITE } from "@/lib/constants";
 
@@ -128,6 +130,34 @@ export default async function AdminSettingsPage() {
     // fallback to defaults
   }
 
+  let github: GitHubSettingsStatus = {
+    enabled: false,
+    hasClientId: false,
+    hasSecret: false,
+    source: "none",
+    stored: null,
+  };
+  try {
+    const cfg = await resolveGitHubConfig();
+    const admin = createAdminClient();
+    const { data } = await admin
+      .from("github_settings")
+      .select("app_name, client_id")
+      .eq("id", true)
+      .maybeSingle();
+    github = {
+      enabled: cfg.enabled,
+      hasClientId: Boolean(cfg.clientId),
+      hasSecret: cfg.hasSecret,
+      source: cfg.source,
+      stored: data
+        ? { app_name: data.app_name, client_id: data.client_id }
+        : null,
+    };
+  } catch {
+    // fallback to defaults
+  }
+
   return (
     <>
       <AdminPageHeader
@@ -142,6 +172,7 @@ export default async function AdminSettingsPage() {
         />
         <MailSettings status={mail} />
         <GoogleSettings status={google} />
+        <GitHubSettings status={github} />
         <PaymentGatewaySettings status={gateway} />
       </div>
     </>

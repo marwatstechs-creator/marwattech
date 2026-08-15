@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
 import { AppIcon } from "@/components/app-icon";
 import { GoogleSignIn } from "@/components/admin/google-sign-in";
+import { GitHubSignIn } from "@/components/admin/github-sign-in";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -58,6 +59,10 @@ export default function AdminLoginPage() {
     } else if (err === "google" || err === "google_no_email") {
       toast.error(
         "Google sign-in could not be completed. Check your Client ID + Secret and the redirect URI in Settings → Google Sign-In."
+      );
+    } else if (err === "github" || err === "github_no_email") {
+      toast.error(
+        "GitHub sign-in could not be completed. Check your GitHub App Client ID + Secret and the Redirect URI in Settings → GitHub Sign-In."
       );
     }
   }, []);
@@ -130,6 +135,7 @@ export default function AdminLoginPage() {
         </div>
 
         <GoogleSignIn mode="admin" />
+        <GitHubSignIn mode="admin" />
 
         <p className="mt-4 text-center text-xs text-muted-foreground">
           Authorized staff only. Contact the administrator if you need access.

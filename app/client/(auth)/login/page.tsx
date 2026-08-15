@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
 import { AppIcon } from "@/components/app-icon";
 import { GoogleSignIn } from "@/components/admin/google-sign-in";
+import { GitHubSignIn } from "@/components/admin/github-sign-in";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -122,6 +123,7 @@ export default function ClientLoginPage() {
         </div>
 
         <GoogleSignIn mode="client" />
+        <GitHubSignIn mode="client" />
 
         <p className="mt-4 text-center text-sm text-muted-foreground">
           Don&apos;t have an account?{" "}
