@@ -26,13 +26,15 @@ import { SITE } from "@/lib/constants";
 // page can never be served (the Udemy feed is DB-backed and refreshed when stale).
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = buildMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildMetadata({
   title: "Free Courses",
   description:
     "100% free online courses — grab a free coupon code before it expires. Hand-picked free courses and deals from Udemy and other platforms.",
   path: "/free-courses",
   image: `${SITE.url}/og-free-courses.png`,
-});
+  });
+}
 
 function toCard(c: PromoCode): PromoCodeCardData {
   return {

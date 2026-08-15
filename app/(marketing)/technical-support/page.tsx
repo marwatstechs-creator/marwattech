@@ -13,13 +13,15 @@ import {
 import { SITE } from "@/lib/constants";
 import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = buildMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildMetadata({
   title: "Technical Support",
   description:
     "Need help with your website, hosting or an app? Submit a support ticket and our team will resolve your issue fast.",
   path: "/technical-support",
   noindex: true,
-});
+  });
+}
 
 const SUPPORT_CHANNELS = [
   { icon: "chat" as const, title: "Submit a ticket", text: "Use the form — we reply within a few hours on business days." },

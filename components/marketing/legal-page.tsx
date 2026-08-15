@@ -9,11 +9,11 @@ export type LegalSection = {
   body: string[];
 };
 
-export function legalMetadata(
+export async function legalMetadata(
   title: string,
   description: string,
   path: string
-): Metadata {
+): Promise<Metadata> {
   return buildMetadata({
     title,
     description,

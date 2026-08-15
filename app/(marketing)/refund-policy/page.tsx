@@ -1,10 +1,13 @@
+import type { Metadata } from "next";
 import { LegalPage, legalMetadata } from "@/components/marketing/legal-page";
 
-export const metadata = legalMetadata(
-  "Refund Policy",
-  "Our refund and cancellation policy for digital services.",
-  "/refund-policy"
-);
+export async function generateMetadata(): Promise<Metadata> {
+  return legalMetadata(
+    "Refund Policy",
+    "Our refund and cancellation policy for digital services.",
+    "/refund-policy"
+  );
+}
 
 export default function RefundPolicyPage() {
   return (

@@ -1,10 +1,13 @@
+import type { Metadata } from "next";
 import { LegalPage, legalMetadata } from "@/components/marketing/legal-page";
 
-export const metadata = legalMetadata(
-  "Terms of Service",
-  "The terms and conditions that govern the use of Marwat Tech services.",
-  "/terms-of-service"
-);
+export async function generateMetadata(): Promise<Metadata> {
+  return legalMetadata(
+    "Terms of Service",
+    "The terms and conditions that govern the use of Marwat Tech services.",
+    "/terms-of-service"
+  );
+}
 
 export default function TermsOfServicePage() {
   return (

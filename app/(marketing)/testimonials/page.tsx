@@ -7,12 +7,14 @@ import { buildMetadata } from "@/lib/seo";
 
 export const revalidate = 3600;
 
-export const metadata: Metadata = buildMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildMetadata({
   title: "Testimonials",
   description:
     "Read what our clients say about working with Marwat Tech — real feedback from businesses we’ve helped grow.",
   path: "/testimonials",
-});
+  });
+}
 
 export default function TestimonialsPage() {
   return (

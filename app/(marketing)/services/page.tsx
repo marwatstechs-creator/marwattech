@@ -11,12 +11,14 @@ import { buildMetadata } from "@/lib/seo";
 
 export const revalidate = 3600;
 
-export const metadata: Metadata = buildMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildMetadata({
   title: "Services",
   description:
     "Explore Marwat Tech services — web development, Next.js, WordPress, ecommerce, mobile apps, UI/UX design, SEO, maintenance and AI solutions.",
   path: "/services",
-});
+  });
+}
 
 const SERVICES_FAQ = [
   { question: "How much does a website cost?", answer: "Pricing depends on the scope — a brochure site, custom web app and e-commerce store all differ. Send us your requirements and we'll give you a free, no-obligation quote within 24 hours." },

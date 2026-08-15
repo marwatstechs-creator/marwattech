@@ -32,7 +32,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!page) return {};
   return buildMetadata({
     title: page.meta_title ?? page.title,
-    description: page.meta_description ?? undefined,
+    description: page.meta_description ?? page.title,
     path: `/pages/${slug}`,
   });
 }

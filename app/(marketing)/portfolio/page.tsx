@@ -11,12 +11,14 @@ import { buildMetadata } from "@/lib/seo";
 
 export const revalidate = 3600;
 
-export const metadata: Metadata = buildMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildMetadata({
   title: "Portfolio",
   description:
     "Browse recent web design, web development, graphic design, social media and SEO projects by Marwat Tech.",
   path: "/portfolio",
-});
+  });
+}
 
 export default async function PortfolioPage() {
   let projects = DEMO_PROJECTS;

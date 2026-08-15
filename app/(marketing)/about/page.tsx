@@ -8,12 +8,14 @@ import { Badge } from "@/components/ui/badge";
 import { STATS } from "@/lib/constants";
 import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = buildMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildMetadata({
   title: "About Us",
   description:
     "Learn about Marwat Tech — the team, mission and values behind fast, secure and beautiful websites, apps and AI solutions.",
   path: "/about",
-});
+  });
+}
 
 const VALUES = [
   {

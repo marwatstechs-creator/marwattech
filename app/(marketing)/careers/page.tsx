@@ -17,12 +17,14 @@ import { SITE } from "@/lib/constants";
 
 export const revalidate = 3600;
 
-export const metadata: Metadata = buildMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildMetadata({
   title: "Careers",
   description:
     "Join the Marwat Tech team — we’re hiring developers, designers and marketers. See open positions and apply today.",
   path: "/careers",
-});
+  });
+}
 
 const PERKS = [
   { icon: "wallet" as const, title: "Competitive pay", text: "Fair, market-aligned salaries reviewed regularly." },

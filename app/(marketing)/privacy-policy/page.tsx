@@ -1,10 +1,13 @@
+import type { Metadata } from "next";
 import { LegalPage, legalMetadata } from "@/components/marketing/legal-page";
 
-export const metadata = legalMetadata(
-  "Privacy Policy",
-  "How Marwat Tech collects, uses and protects your personal information.",
-  "/privacy-policy"
-);
+export async function generateMetadata(): Promise<Metadata> {
+  return legalMetadata(
+    "Privacy Policy",
+    "How Marwat Tech collects, uses and protects your personal information.",
+    "/privacy-policy"
+  );
+}
 
 export default function PrivacyPolicyPage() {
   return (

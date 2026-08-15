@@ -10,11 +10,13 @@ import { unsubscribeByToken } from "@/lib/actions/marketing";
 import { unsubscribeCourseByToken } from "@/lib/actions/course-notifications";
 import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = buildMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildMetadata({
   title: "Unsubscribe",
   description: "Unsubscribe from Marwat Tech email updates.",
   path: "/unsubscribe",
-});
+  });
+}
 
 type SearchParams = Promise<{ token?: string }>;
 

@@ -32,11 +32,13 @@ import { SITE } from "@/lib/constants";
 
 export const revalidate = 3600; // ISR — revalidate hourly
 
-export const metadata: Metadata = buildMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildMetadata({
   title: `${SITE.name} | Web Development, Ecommerce, SEO & AI Solutions`,
   description: SITE.description,
   path: "/",
-});
+  });
+}
 
 const FEATURES = [
   {

@@ -21,12 +21,14 @@ import { formatBytes, formatDate } from "@/lib/utils";
 
 export const revalidate = 3600;
 
-export const metadata: Metadata = buildMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildMetadata({
   title: "Study Materials",
   description:
     "Free downloadable resources, guides, templates and study material from Marwat Tech — web development, SEO, ecommerce, design and AI.",
   path: "/study-materials",
-});
+  });
+}
 
 const FILE_ICONS: Record<string, string> = {
   pdf: "document",

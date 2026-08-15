@@ -8,12 +8,14 @@ import { buildMetadata } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = buildMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildMetadata({
   title: "Pay Online",
   description:
     "Pay Marwat Tech securely online via PayPal. Cards, PayPal balance, Venmo and Pay Later accepted where available.",
   path: "/payment",
-});
+  });
+}
 
 type SearchParams = Promise<{
   amount?: string;

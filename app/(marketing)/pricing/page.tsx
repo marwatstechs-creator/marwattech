@@ -11,12 +11,14 @@ import { buildMetadata } from "@/lib/seo";
 
 export const revalidate = 300;
 
-export const metadata: Metadata = buildMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildMetadata({
   title: "Pricing & Subscriptions",
   description:
     "Flexible plans and retainers from Marwat Tech — ongoing development, support and growth at a predictable monthly or yearly rate.",
   path: "/pricing",
-});
+  });
+}
 
 export default async function PricingPage() {
   let plans: PlanCardData[] = [];

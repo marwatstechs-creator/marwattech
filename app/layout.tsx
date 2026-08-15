@@ -3,6 +3,7 @@ import { Inter, Space_Grotesk } from "next/font/google";
 
 import "./globals.css";
 import { Providers } from "@/app/providers";
+import { getDefaultOgImage } from "@/lib/seo";
 import { PwaRegister } from "@/components/pwa-register";
 import { PwaInstallPrompt } from "@/components/pwa-install-prompt";
 import { CookieConsent } from "@/components/marketing/cookie-consent";
@@ -25,52 +26,55 @@ const spaceGrotesk = Space_Grotesk({
   weight: ["300", "400", "500", "600", "700"],
 });
 
-export const metadata: Metadata = {
-  metadataBase: new URL(SITE.url),
-  title: {
-    default: `${SITE.name} | Web Development, Ecommerce, SEO & AI Solutions`,
-    template: `%s | ${SITE.name}`,
-  },
-  description: SITE.description,
-  keywords: [
-    "web development",
-    "next.js development",
-    "wordpress design",
-    "ecommerce website",
-    "mobile app development",
-    "ui ux design",
-    "seo services",
-    "ai solutions",
-    "Marwat Tech",
-  ],
-  authors: [{ name: SITE.name, url: SITE.url }],
-  creator: SITE.name,
-  openGraph: {
-    type: "website",
-    locale: "en_US",
-    url: SITE.url,
-    siteName: SITE.name,
-    title: `${SITE.name} | Web Development, Ecommerce, SEO & AI Solutions`,
+export async function generateMetadata(): Promise<Metadata> {
+  const ogImage = await getDefaultOgImage();
+  return {
+    metadataBase: new URL(SITE.url),
+    title: {
+      default: `${SITE.name} | Web Development, Ecommerce, SEO & AI Solutions`,
+      template: `%s | ${SITE.name}`,
+    },
     description: SITE.description,
-    images: [{ url: `${SITE.url}/og-default.png`, width: 1200, height: 630 }],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: `${SITE.name} | Web Development, Ecommerce, SEO & AI Solutions`,
-    description: SITE.description,
-    images: [`${SITE.url}/og-default.png`],
-  },
-  icons: {
-    icon: "/assets/logo-dark-square.svg",
-    apple: "/icons/apple-touch-icon.png",
-  },
-  appleWebApp: {
-    capable: true,
-    title: SITE.name,
-    statusBarStyle: "black-translucent",
-  },
-  manifest: "/manifest.webmanifest",
-};
+    keywords: [
+      "web development",
+      "next.js development",
+      "wordpress design",
+      "ecommerce website",
+      "mobile app development",
+      "ui ux design",
+      "seo services",
+      "ai solutions",
+      "Marwat Tech",
+    ],
+    authors: [{ name: SITE.name, url: SITE.url }],
+    creator: SITE.name,
+    openGraph: {
+      type: "website",
+      locale: "en_US",
+      url: SITE.url,
+      siteName: SITE.name,
+      title: `${SITE.name} | Web Development, Ecommerce, SEO & AI Solutions`,
+      description: SITE.description,
+      images: [{ url: ogImage, width: 1200, height: 630 }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${SITE.name} | Web Development, Ecommerce, SEO & AI Solutions`,
+      description: SITE.description,
+      images: [ogImage],
+    },
+    icons: {
+      icon: "/assets/logo-dark-square.svg",
+      apple: "/icons/apple-touch-icon.png",
+    },
+    appleWebApp: {
+      capable: true,
+      title: SITE.name,
+      statusBarStyle: "black-translucent",
+    },
+    manifest: "/manifest.webmanifest",
+  };
+}
 
 export const viewport: Viewport = {
   themeColor: [

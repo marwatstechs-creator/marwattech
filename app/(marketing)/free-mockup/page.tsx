@@ -7,12 +7,14 @@ import { AppIcon } from "@/components/app-icon";
 import { Card, CardContent } from "@/components/ui/card";
 import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = buildMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildMetadata({
   title: "Free Website Mockup",
   description:
     "Get a free homepage mockup design for your business — no obligation. See your idea before you commit.",
   path: "/free-mockup",
-});
+  });
+}
 
 const STEPS = [
   {

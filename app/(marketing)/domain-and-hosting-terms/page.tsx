@@ -1,10 +1,13 @@
+import type { Metadata } from "next";
 import { LegalPage, legalMetadata } from "@/components/marketing/legal-page";
 
-export const metadata = legalMetadata(
-  "Domain & Hosting Terms",
-  "Terms that apply to domain registration and hosting services provided by Marwat Tech.",
-  "/domain-and-hosting-terms"
-);
+export async function generateMetadata(): Promise<Metadata> {
+  return legalMetadata(
+    "Domain & Hosting Terms",
+    "Terms that apply to domain registration and hosting services provided by Marwat Tech.",
+    "/domain-and-hosting-terms"
+  );
+}
 
 export default function DomainHostingTermsPage() {
   return (

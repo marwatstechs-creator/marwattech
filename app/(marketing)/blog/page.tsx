@@ -13,12 +13,14 @@ import { buildMetadata } from "@/lib/seo";
 
 export const revalidate = 3600;
 
-export const metadata: Metadata = buildMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildMetadata({
   title: "Blog",
   description:
     "Insights, tutorials and guides on web development, SEO, ecommerce, hosting and AI from the Marwat Tech team.",
   path: "/blog",
-});
+  });
+}
 
 type SearchParams = Promise<{ page?: string; q?: string; category?: string }>;
 

@@ -8,12 +8,14 @@ import { AppIcon } from "@/components/app-icon";
 import { SITE } from "@/lib/constants";
 import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = buildMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildMetadata({
   title: "Contact Us",
   description:
     "Get in touch with Marwat Tech for a free quote, project consultation or any question. We reply within 24 hours.",
   path: "/contact",
-});
+  });
+}
 
 const CONTACT_CARDS = [
   {
