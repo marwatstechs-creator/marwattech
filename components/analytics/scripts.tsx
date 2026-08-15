@@ -11,6 +11,10 @@ import { getSiteSettings } from "@/lib/db/content";
  * IDs are read from Admin → Settings (site_settings table) first, falling
  * back to NEXT_PUBLIC_* env vars — so you can change them in the dashboard
  * without a redeploy.
+ *
+ * IMPORTANT: if a "Custom head code" is set in Admin → Settings, this entire
+ * component is skipped — the pasted snippet in the code box is the single
+ * source of truth for analytics/scripts, so nothing here double-fires.
  */
 async function AnalyticsScripts() {
   let settings: Record<string, string> = {};
@@ -20,6 +24,9 @@ async function AnalyticsScripts() {
   } catch {
     // fall through to env vars
   }
+
+  // The Custom Head Code box takes priority — skip all managed scripts when it's set.
+  if (settings.custom_head_code?.trim()) return null;
 
   const gtmId = settings.gtm_id?.trim() || process.env.NEXT_PUBLIC_GTM_ID;
   const gaId = settings.ga_id?.trim() || process.env.NEXT_PUBLIC_GA_ID;
