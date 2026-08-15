@@ -1,5 +1,4 @@
 import { Suspense } from "react";
-import Script from "next/script";
 
 import { createClient } from "@/lib/supabase/server";
 import { getSiteSettings } from "@/lib/db/content";
@@ -10,6 +9,11 @@ import { getSiteSettings } from "@/lib/db/content";
  * snippet here and it lands in the <head>" box.
  *
  * Supports: <script src>, inline <script>, <meta>, <link> and <style> tags.
+ *
+ * IMPORTANT: scripts are emitted as literal <script> tags in the server-rendered
+ * HTML (not via next/script afterInteractive) so Google's "tag not detected"
+ * checker — which scans the served HTML — actually sees them.
+ *
  * Rendered as a dynamic island inside <Suspense> so it's server-rendered per
  * request without forcing the rest of the page to be dynamic.
  */
@@ -48,14 +52,22 @@ function ParsedHeadCode({ html }: { html: string }) {
     const inner = m[3] ?? "";
     if (tag === "script") {
       if (attrs.src) {
+        // Literal <script src> in the SSR HTML so Google's detector sees it.
         nodes.push(
-          <Script key={key++} strategy="afterInteractive" src={attrs.src} />
+          // eslint-disable-next-line react/no-danger
+          <script
+            key={key++}
+            src={attrs.src}
+            {...(attrs.async !== undefined ? { async: true } : {})}
+          />
         );
       } else if (inner.trim()) {
+        // Literal inline <script> in the SSR HTML (executes on load).
         nodes.push(
-          <Script
+          // eslint-disable-next-line react/no-danger
+          <script
             key={key++}
-            strategy="afterInteractive"
+            // eslint-disable-next-line react/no-danger
             dangerouslySetInnerHTML={{ __html: inner }}
           />
         );
