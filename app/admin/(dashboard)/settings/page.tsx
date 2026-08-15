@@ -162,7 +162,7 @@ export default async function AdminSettingsPage() {
     <>
       <AdminPageHeader
         title="Site Settings"
-        description="Global SEO defaults, contact emails, analytics, email (SMTP) and payment gateway."
+        description="Global SEO defaults, contact emails, custom head code, email (SMTP) and payment gateway."
       />
       <div className="space-y-8">
         <SettingsForm initial={settings} />

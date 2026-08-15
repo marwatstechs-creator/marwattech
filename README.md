@@ -95,16 +95,15 @@ Recipients come from the `form_notify_email` site setting (fallback: `FORM_NOTIF
 
 ---
 
-## 📊 Analytics
+## 📊 Analytics / tracking scripts
 
-All analytics IDs are read from env vars (or **Admin → Settings**) and loaded via `components/analytics/scripts.tsx`:
+There are no built-in analytics IDs. To add Google Analytics (or any other
+tracking script — GTM, Clarity, PostHog, etc.), paste the full snippet into
+**Admin → Settings → "Custom head code"**. It is injected into the `<head>` of
+every page as literal server-rendered `<script>` tags (`components/seo/custom-head-code.tsx`).
 
-- `NEXT_PUBLIC_GTM_ID` — Google Tag Manager
-- `NEXT_PUBLIC_GA_ID` — Google Analytics (only when GTM is not set)
-- `NEXT_PUBLIC_CLARITY_ID` — Microsoft Clarity
-- `NEXT_PUBLIC_POSTHOG_KEY` / `NEXT_PUBLIC_POSTHOG_HOST` — PostHog
-
-Form submissions and CTA clicks are tracked with `trackEvent` (`lib/analytics.ts`).
+Form submissions and CTA clicks are tracked with `trackEvent` (`lib/analytics.ts`)
+when a `gtag` function exists (i.e. when you've added the Google tag via the box above).
 
 ---
 

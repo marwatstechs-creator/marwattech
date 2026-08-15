@@ -3,7 +3,6 @@ import { Inter, Space_Grotesk } from "next/font/google";
 
 import "./globals.css";
 import { Providers } from "@/app/providers";
-import { Analytics } from "@/components/analytics/scripts";
 import { PwaRegister } from "@/components/pwa-register";
 import { PwaInstallPrompt } from "@/components/pwa-install-prompt";
 import { CookieConsent } from "@/components/marketing/cookie-consent";
@@ -105,7 +104,6 @@ export default function RootLayout({
         <AdSenseHead />
         <Providers>
           {children}
-          <Analytics />
         </Providers>
         <PwaRegister />
         <PwaInstallPrompt />
