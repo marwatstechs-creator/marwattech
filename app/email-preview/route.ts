@@ -3,6 +3,7 @@ import {
   adminResetPasswordEmail,
   courseUpdateEmail,
   invoiceEmail,
+  orderConfirmationEmail,
   paymentReceiptEmail,
   payoutNoticeEmail,
   quoteRequestEmail,
@@ -56,6 +57,23 @@ export async function GET() {
         customerName: "Ahmed Khan",
         payerEmail: "ahmed@example.com",
         date: "15 Aug 2026",
+      }),
+    },
+    {
+      name: "Order Confirmation (Google-style)",
+      html: orderConfirmationEmail({
+        orderNumber: "PDS.6669-3610-9957-37306",
+        placedDate: "Sat 15 Aug 2026",
+        customerName: "Ahmed Khan",
+        items: [
+          { name: "Developer Registration Fee", quantity: 1, price: "US$25.00" },
+        ],
+        subtotal: "US$25.00",
+        tax: "US$0.00",
+        total: "US$25.00",
+        currency: "US$",
+        paymentMethod: "Mastercard •••• 4548",
+        viewUrl: `${site}/client/orders/sample`,
       }),
     },
     {

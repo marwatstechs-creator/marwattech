@@ -408,6 +408,96 @@ export function invoiceEmail(opts: {
   });
 }
 
+export type OrderLine = {
+  name: string;
+  quantity: number;
+  price: string; // formatted, e.g. "US$25.00"
+};
+
+/**
+ * Google-style order confirmation — item / qty / price / tax / total /
+ * payment method / order number, matching the layout of Google's own
+ * "Thank you — you've made a purchase" receipt.
+ */
+export function orderConfirmationEmail(opts: {
+  orderNumber: string;
+  placedDate: string;
+  customerName?: string | null;
+  items: OrderLine[];
+  subtotal: string;
+  tax: string;
+  total: string;
+  currency: string;
+  paymentMethod: string;
+  viewUrl?: string;
+}): string {
+  const linesHtml = opts.items
+    .map(
+      (it, i) => `
+      <tr>
+        <td style="padding:12px 18px;border-bottom:1px solid ${BORDER};color:${INK};font-size:13px;line-height:1.5;">${esc(it.name)}</td>
+        <td align="center" style="padding:12px 12px;border-bottom:1px solid ${BORDER};color:${MUTED};font-size:13px;">${esc(String(it.quantity))}</td>
+        <td align="right" style="padding:12px 18px;border-bottom:1px solid ${BORDER};color:${INK};font-size:13px;font-weight:700;white-space:nowrap;">${esc(it.price)}</td>
+      </tr>`
+    )
+    .join("");
+
+  const summaryRow = (label: string, value: string, bold = false, last = false) => `
+      <tr>
+        <td colspan="2" style="padding:10px 18px;border-bottom:${last ? "none" : `1px solid ${BORDER}`};color:${MUTED};font-size:13px;">${label}</td>
+        <td align="right" style="padding:10px 18px;border-bottom:${last ? "none" : `1px solid ${BORDER}`};color:${bold ? PURPLE_DARK : INK};font-size:${bold ? "17px" : "13px"};font-weight:${bold ? "800" : "600"};white-space:nowrap;">${esc(value)}</td>
+      </tr>`;
+
+  return emailLayout({
+    badge: "Order confirmation",
+    title: "Thank you 🎉",
+    preheader: `Your order ${opts.orderNumber} of ${opts.total} ${opts.currency} was placed.`,
+    body: `
+      <p style="margin:0 0 6px;font-size:14px;line-height:1.7;color:${MUTED};">Hi${opts.customerName ? ` ${esc(opts.customerName)}` : ""}, thank you for your purchase from ${SITE.name}. Your order is confirmed and a receipt is below.</p>
+      <p style="margin:0 0 22px;font-size:12px;color:${MUTED};">A confirmation has been sent to the payment method on file.</p>
+
+      <!-- Order meta -->
+      ${infoCard({
+        headerLeft: "Order placed",
+        headerRight: esc(opts.placedDate),
+        rows: [
+          { label: "Order number", value: esc(opts.orderNumber) },
+          { label: "Status", value: "✅ Confirmed" },
+        ],
+      })}
+
+      <!-- Itemised order table (Google receipt style) -->
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid ${BORDER};border-radius:${RADIUS - 8}px;overflow:hidden;margin:0 0 18px;box-shadow:0 1px 2px rgba(16,24,40,0.04),0 6px 20px rgba(75,62,161,0.08);">
+        <tr>
+          <td style="padding:11px 18px;background:${BG};color:${MUTED};font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.9px;">Item</td>
+          <td align="center" style="padding:11px 12px;background:${BG};color:${MUTED};font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.9px;">Qty</td>
+          <td align="right" style="padding:11px 18px;background:${BG};color:${MUTED};font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.9px;">Price</td>
+        </tr>
+        ${linesHtml}
+        ${summaryRow("Subtotal", `${opts.subtotal} ${opts.currency}`)}
+        ${summaryRow("Tax", `${opts.tax} ${opts.currency}`)}
+        <tr>
+          <td style="padding:14px 18px;background:${PURPLE}10;color:${PURPLE_DARK};font-size:14px;font-weight:800;">Total</td>
+          <td align="right" colspan="2" style="padding:14px 18px;background:${PURPLE}10;color:${PURPLE};font-size:19px;font-weight:800;white-space:nowrap;">${esc(opts.total)} ${esc(opts.currency)}</td>
+        </tr>
+      </table>
+
+      <!-- Payment method -->
+      ${infoCard({
+        rows: [
+          { label: "Payment method", value: esc(opts.paymentMethod) },
+          { label: "Order number", value: esc(opts.orderNumber) },
+        ],
+      })}
+
+      <p style="margin:0;font-size:12px;color:${MUTED};">Questions about this order? Reply to this email or contact <a href="mailto:${esc(SITE.supportEmail)}" style="color:${PURPLE};font-weight:600;">${esc(SITE.supportEmail)}</a>.</p>
+    `,
+    cta: opts.viewUrl
+      ? { label: "View your order", href: opts.viewUrl }
+      : undefined,
+  });
+}
+
 export function welcomeEmail(opts: { name?: string | null; loginUrl: string }): string {
   return emailLayout({
     badge: "Welcome aboard",
