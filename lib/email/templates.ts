@@ -265,32 +265,47 @@ export function marketingEmail(opts: {
   });
 }
 
-/** Course Update digest email — lists each updated course with "What's new". */
+/**
+ * Course Update digest email — aggressive, high-energy promo that pushes the
+ * reader to visit the site. Free courses get a bold "100% FREE" badge, paid
+ * ones show the price, and every card has a strong CTA.
+ */
 export function courseUpdateEmail(opts: {
-  courses: { title: string; summaryPoints: string[]; url: string }[];
+  courses: { title: string; summaryPoints: string[]; url: string; isFree?: boolean; price?: number | null }[];
   recipientEmail: string;
   unsubscribeUrl: string;
 }): string {
   const count = opts.courses.length;
+  const freeCount = opts.courses.filter((c) => c.isFree).length;
+  const siteUrl = SITE.url.replace(/\/$/, "");
+
+  const priceLabel = (c: { isFree?: boolean; price?: number | null }) => {
+    if (c.isFree) return { badge: "100% FREE", bg: "#e7f6ec", fg: "#128a3c", icon: "🎁" };
+    const p = c.price ? `$${Number(c.price).toFixed(c.price % 1 ? 2 : 0)}` : "PREMIUM";
+    return { badge: p, bg: `${GOLD}26`, fg: GOLD_DARK, icon: "🔥" };
+  };
+
   const cards = opts.courses
-    .map(
-      (c) => `
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid ${BORDER};border-radius:${RADIUS - 6}px;overflow:hidden;margin:0 0 20px;box-shadow:0 1px 2px rgba(16,24,40,0.04),0 6px 20px rgba(75,62,161,0.08);">
+    .map((c, idx) => {
+      const { badge, bg, fg, icon } = priceLabel(c);
+      return `
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid ${BORDER};border-radius:${RADIUS - 6}px;overflow:hidden;margin:0 0 20px;box-shadow:0 1px 2px rgba(16,24,40,0.04),0 10px 30px rgba(75,62,161,0.14);">
       <tr>
-        <td style="padding:16px 20px;background:linear-gradient(135deg, ${PURPLE}12 0%, ${GOLD}1c 100%);border-bottom:1px solid ${BORDER};">
-          <table role="presentation" cellpadding="0" cellspacing="0"><tr>
-            <td style="padding-right:12px;vertical-align:middle;">${iconTile("📚", `${PURPLE}18`, 34)}</td>
+        <td style="padding:18px 20px;background:linear-gradient(135deg, ${c.isFree ? "#0f9d58" : PURPLE_DEEP} 0%, ${c.isFree ? "#0b7a45" : PURPLE} 100%);">
+          <table role="presentation" width="100%"><tr>
             <td style="vertical-align:middle;">
-              <div style="font-size:15px;font-weight:800;color:${INK};line-height:1.35;">${esc(c.title)}</div>
+              <div style="display:inline-block;background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.35);color:#ffffff;font-size:11px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;padding:4px 12px;border-radius:999px;margin-bottom:8px;">${icon} ${esc(badge)}</div>
+              <div style="font-size:17px;font-weight:800;color:#ffffff;line-height:1.35;">${esc(c.title)}</div>
             </td>
+            <td align="right" valign="middle" style="white-space:nowrap;">${iconTile(c.isFree ? "🎉" : "🚀", "rgba(255,255,255,0.18)", 40)}</td>
           </tr></table>
         </td>
       </tr>
       <tr>
-        <td style="padding:18px 20px 6px;">
+        <td style="padding:18px 20px 4px;">
           <div style="font-size:11px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:${PURPLE};margin-bottom:9px;">✦ What's new</div>
           <ul style="margin:0;padding-left:20px;">
-            ${c.summaryPoints
+            ${(c.summaryPoints.length ? c.summaryPoints : ["Fresh updated content — don't miss out!"])
               .map(
                 (p) =>
                   `<li style="font-size:13px;line-height:1.7;color:${MUTED};margin-bottom:6px;">${esc(p)}</li>`
@@ -300,23 +315,51 @@ export function courseUpdateEmail(opts: {
         </td>
       </tr>
       <tr>
-        <td style="padding:4px 20px 20px;">${ctaButton("View Course", c.url)}</td>
+        <td style="padding:4px 20px 20px;">
+          <table role="presentation" cellpadding="0" cellspacing="0" style="margin:6px auto 0;"><tr>
+            <td align="center" style="border-radius:999px;background:linear-gradient(180deg, ${c.isFree ? "#11a65c" : GOLD} 0%, ${c.isFree ? "#0b7a45" : GOLD_DARK} 100%);box-shadow:0 8px 20px ${c.isFree ? "rgba(15,157,88,0.4)" : "rgba(224,165,30,0.42)"}, inset 0 1px 0 rgba(255,255,255,0.3);">
+              <a href="${esc(c.url)}" style="display:inline-block;padding:13px 34px;border-radius:999px;color:${c.isFree ? "#ffffff" : "#3a2d00"};font-size:14px;font-weight:800;text-decoration:none;letter-spacing:0.3px;">${c.isFree ? "🎁 CLAIM FREE ACCESS" : "🔥 GET ACCESS NOW"}&nbsp;&nbsp;→</a>
+            </td>
+          </tr></table>
+        </td>
       </tr>
-    </table>`
-    )
+    </table>`;
+    })
     .join("");
 
+  const urgencyBanner = `
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid ${GOLD}44;border-radius:${RADIUS - 8}px;overflow:hidden;margin:0 0 20px;background:linear-gradient(135deg, ${GOLD}22 0%, #fff7e0 100%);">
+      <tr>
+        <td style="padding:16px 20px;text-align:center;">
+          <div style="font-size:14px;font-weight:800;color:${INK};">${freeCount > 0 ? `⚡ ${freeCount} course${freeCount > 1 ? "s are" : " is"} 100% FREE right now — zero cost, lifetime access!` : "⚡ Fresh updates are live — see what's new!"}</div>
+          <div style="font-size:12px;color:${MUTED};margin-top:4px;">Limited-time access — start today before it changes.</div>
+        </td>
+      </tr>
+    </table>`;
+
+  const exploreCta = `
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:8px 0 0;">
+      <tr>
+        <td align="center" style="border-radius:999px;background:linear-gradient(180deg, ${PURPLE_SOFT} 0%, ${PURPLE} 55%, ${PURPLE_DEEP} 100%);box-shadow:0 8px 20px rgba(88,74,176,0.42), inset 0 1px 0 rgba(255,255,255,0.3);">
+          <a href="${esc(siteUrl)}/free-courses" style="display:inline-block;padding:15px 38px;border-radius:999px;color:#ffffff;font-size:15px;font-weight:800;text-decoration:none;letter-spacing:0.3px;">🚀 EXPLORE ALL FREE COURSES&nbsp;&nbsp;→</a>
+        </td>
+      </tr>
+      <tr><td style="font-size:0;line-height:14px;">&nbsp;</td></tr>
+    </table>`;
+
   return emailLayout({
-    preheader: `${count} course${count > 1 ? "s" : ""} you follow ${count > 1 ? "have" : "has"} been updated.`,
-    badge: "Course Update",
+    preheader: `${freeCount > 0 ? `${freeCount} FREE course${freeCount > 1 ? "s" : ""}! ` : ""}${count} course${count > 1 ? "s have" : " has"} fresh updates — check them out now.`,
+    badge: "🔥 Course Alert",
     title:
       count > 1
-        ? "Your courses have been updated — check out what's new"
-        : "Your course has been updated — check out what's new",
+        ? "New updates are LIVE — don't miss out! 🚀"
+        : "Your course just got updated! 🚀",
     body: `
-      <p style="margin:0 0 20px;font-size:14px;line-height:1.7;color:${MUTED};">Hi there, a course you're following has new updates. Here's what changed:</p>
+      <p style="margin:0 0 18px;font-size:15px;line-height:1.7;color:${INK};font-weight:700;">👋 Hey${opts.recipientEmail ? "" : ""}, something new just dropped. Check it out below — the best time to start is <span style="color:${PURPLE};">right now</span>:</p>
+      ${urgencyBanner}
       ${cards}
-      <p style="margin:12px 0 0;font-size:12px;line-height:1.65;color:${MUTED};">You're receiving this email because you subscribed to <strong>course update notifications</strong> from ${esc(SITE.name)}. We only send useful course-update digests — never spam.</p>
+      ${exploreCta}
+      <p style="margin:14px 0 0;font-size:12px;line-height:1.65;color:${MUTED};text-align:center;">You're getting these because you subscribed to <strong>course update notifications</strong> from ${esc(SITE.name)}. No spam, ever — just the good stuff.</p>
     `,
     unsubscribeUrl: opts.unsubscribeUrl,
     recipientEmail: opts.recipientEmail,

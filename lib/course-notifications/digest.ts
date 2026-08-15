@@ -68,23 +68,30 @@ export async function sendCourseDigest(opts: { force?: boolean } = {}): Promise<
     const courseIds = [...new Set(events.map((e) => e.course_id))];
     const { data: courses } = await db
       .from("courses")
-      .select("id, title, slug, status")
+      .select("id, title, slug, status, is_free, price")
       .in("id", courseIds);
-    const published = new Map<string, { title: string; url: string }>();
+    const published = new Map<string, { title: string; url: string; isFree: boolean; price: number | null }>();
     for (const c of courses ?? []) {
       if (c.status === "published") {
         published.set(c.id, {
           title: c.title,
           url: `${SITE.url.replace(/\/$/, "")}/client/courses/${c.slug}`,
+          isFree: c.is_free === true,
+          price: c.price ?? null,
         });
       }
     }
 
-    const groups = new Map<string, { title: string; url: string; summaryPoints: string[] }>();
+    const groups = new Map<
+      string,
+      { title: string; url: string; isFree: boolean; price: number | null; summaryPoints: string[] }
+    >();
     for (const e of events) {
       const c = published.get(e.course_id);
       if (!c) continue;
-      const g = groups.get(e.course_id) ?? { title: c.title, url: c.url, summaryPoints: [] };
+      const g =
+        groups.get(e.course_id) ??
+        { title: c.title, url: c.url, isFree: c.isFree, price: c.price, summaryPoints: [] };
       if (e.summary) g.summaryPoints.push(e.summary);
       groups.set(e.course_id, g);
     }
