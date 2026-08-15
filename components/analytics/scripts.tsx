@@ -1,15 +1,33 @@
+import { Suspense } from "react";
 import Script from "next/script";
+
+import { createClient } from "@/lib/supabase/server";
+import { getSiteSettings } from "@/lib/db/content";
 
 /**
  * Loads Google Tag Manager (which can then load GA), plus optional direct
- * GA, Microsoft Clarity and PostHog snippets — gated by env vars (FR-26).
+ * GA, Microsoft Clarity and PostHog snippets.
+ *
+ * IDs are read from Admin → Settings (site_settings table) first, falling
+ * back to NEXT_PUBLIC_* env vars — so you can change them in the dashboard
+ * without a redeploy.
  */
-export function Analytics() {
-  const gtmId = process.env.NEXT_PUBLIC_GTM_ID;
-  const gaId = process.env.NEXT_PUBLIC_GA_ID;
-  const clarityId = process.env.NEXT_PUBLIC_CLARITY_ID;
-  const posthogKey = process.env.NEXT_PUBLIC_POSTHOG_KEY;
+async function AnalyticsScripts() {
+  let settings: Record<string, string> = {};
+  try {
+    const db = await createClient();
+    settings = await getSiteSettings(db);
+  } catch {
+    // fall through to env vars
+  }
+
+  const gtmId = settings.gtm_id?.trim() || process.env.NEXT_PUBLIC_GTM_ID;
+  const gaId = settings.ga_id?.trim() || process.env.NEXT_PUBLIC_GA_ID;
+  const clarityId = settings.clarity_id?.trim() || process.env.NEXT_PUBLIC_CLARITY_ID;
+  const posthogKey = settings.posthog_key?.trim() || process.env.NEXT_PUBLIC_POSTHOG_KEY;
   const posthogHost = process.env.NEXT_PUBLIC_POSTHOG_HOST;
+
+  if (!gtmId && !gaId && !clarityId && !posthogKey) return null;
 
   return (
     <>
@@ -77,5 +95,13 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         />
       )}
     </>
+  );
+}
+
+export function Analytics() {
+  return (
+    <Suspense fallback={null}>
+      <AnalyticsScripts />
+    </Suspense>
   );
 }
