@@ -34,6 +34,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
 import { DeleteButton } from "@/components/admin/delete-button";
 import { formatDate } from "@/lib/utils";
 import {
@@ -42,6 +43,7 @@ import {
   deleteCourseSubscriber,
   saveCourseNotificationConfig,
   sendCourseDigestNow,
+  sendSubscriberBroadcast,
 } from "@/lib/actions/admin/course-notifications";
 
 export type CourseSubscriberRow = {
@@ -289,6 +291,7 @@ function ConfigTab({
             <AppIcon name="refresh" size={15} className="mr-1.5" />
             {sending ? "Sending…" : "Send digest now"}
           </Button>
+          <BroadcastDialog emailConfigured={emailConfigured} subscriberCount={stats.active} />
         </div>
       </div>
 
@@ -314,6 +317,92 @@ function ConfigTab({
         </p>
       </div>
     </div>
+  );
+}
+
+/** Manual broadcast — send a custom branded email to all active subscribers. */
+function BroadcastDialog({
+  emailConfigured,
+  subscriberCount,
+}: {
+  emailConfigured: boolean;
+  subscriberCount: number;
+}) {
+  const [open, setOpen] = React.useState(false);
+  const [subject, setSubject] = React.useState("");
+  const [body, setBody] = React.useState("");
+  const [sending, setSending] = React.useState(false);
+
+  const send = async () => {
+    if (!subject.trim() || !body.trim()) {
+      toast.error("Subject and message are required.");
+      return;
+    }
+    setSending(true);
+    const res = await sendSubscriberBroadcast({ subject, body });
+    setSending(false);
+    if (!res.ok) {
+      toast.error(res.error || "Broadcast failed");
+      return;
+    }
+    toast.success(
+      res.sent && res.sent > 0
+        ? `Email sent to ${res.sent} subscriber(s)`
+        : "No emails sent"
+    );
+    if (res.error) toast.warning(res.error);
+    setOpen(false);
+    setSubject("");
+    setBody("");
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button variant="default">
+          <AppIcon name="mailSend" size={15} className="mr-1.5" />
+          Email all subscribers
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle>Email all course subscribers</DialogTitle>
+          <DialogDescription>
+            Send a branded email to {subscriberCount} active subscriber(s). Each recipient
+            gets their own unsubscribe link. Emails are sent in batches of 50 per run to stay
+            within server limits — click again to continue for larger lists.
+          </DialogDescription>
+        </DialogHeader>
+        {!emailConfigured && (
+          <div className="flex items-start gap-2 rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">
+            <AppIcon name="alertCircle" size={16} className="mt-0.5 shrink-0" />
+            <span>Email isn&apos;t configured yet. Add SMTP/Resend credentials in Admin → Settings → Email.</span>
+          </div>
+        )}
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <Label>Subject *</Label>
+            <Input value={subject} onChange={(e) => setSubject(e.target.value)} placeholder="Big news from Marwat Tech…" maxLength={200} />
+          </div>
+          <div className="space-y-2">
+            <Label>Message *</Label>
+            <Textarea
+              value={body}
+              onChange={(e) => setBody(e.target.value)}
+              rows={7}
+              placeholder={"Write your message here…\n\nPlain text is fine — it's sent in our branded email layout."}
+            />
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+          <Button onClick={send} disabled={sending || !emailConfigured}>
+            <AppIcon name="mailSend" size={15} className="mr-1.5" />
+            {sending ? "Sending…" : `Send to ${subscriberCount} subscribers`}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 

@@ -23,6 +23,15 @@ export type DigestResult = {
 const BATCH_SIZE = 12;
 const MAX_EVENTS = 200;
 const MAX_SUBSCRIBERS = 10000;
+/**
+ * Emails per invocation. Sending hundreds over SMTP in one Worker request
+ * exceeds Cloudflare's CPU/wall-clock limits (Error 1102), which silently
+ * kills the run mid-way. By capping each cron hit, the digest stays under the
+ * limit; the every-10-minute cron drains the queue across runs (idempotent —
+ * delivered recipients are skipped via course_digest_sends dedup, and events
+ * stay pending until everyone is sent).
+ */
+const MAX_PER_RUN = 50;
 
 /** Read the course-update config from site_settings (with sane defaults). */
 export async function getCourseUpdateConfig(db: ReturnType<typeof createAdminClient>) {
@@ -114,6 +123,10 @@ export async function sendCourseDigest(opts: { force?: boolean } = {}): Promise<
       return { ok: true, reason: "already-sent" };
     }
 
+    // Cap per invocation so the Worker stays within Cloudflare's resource
+    // limits — remaining recipients are picked up by the next cron run.
+    const toSend = recipients.slice(0, MAX_PER_RUN);
+
     const siteUrl = SITE.url.replace(/\/$/, "");
     const subject =
       courseList.length > 1
@@ -123,8 +136,8 @@ export async function sendCourseDigest(opts: { force?: boolean } = {}): Promise<
 
     // 4) Send per-recipient (unique unsubscribe token) in small batches.
     let sent = 0;
-    for (let i = 0; i < recipients.length; i += BATCH_SIZE) {
-      const batch = recipients.slice(i, i + BATCH_SIZE);
+    for (let i = 0; i < toSend.length; i += BATCH_SIZE) {
+      const batch = toSend.slice(i, i + BATCH_SIZE);
       const results = await Promise.allSettled(
         batch.map(async (s) => {
           await sendEmail({
@@ -163,10 +176,13 @@ export async function sendCourseDigest(opts: { force?: boolean } = {}): Promise<
       });
     }
 
-    // 5) Mark events as included ONLY when every remaining recipient was sent,
-    //    so a partial run leaves events pending (dedup skips the ones already
-    //    delivered on the next run instead of re-sending).
-    if (sent === recipients.length && recipients.length > 0) {
+    // 5) Mark events as included ONLY when every recipient in this run was
+    //    sent AND the whole list fits within the per-run cap (i.e. nothing is
+    //    left over for the next cron run). Otherwise leave events pending so
+    //    the remaining recipients get them on the next run (dedup skips the
+    //    already-delivered ones instead of re-sending).
+    const fullySent = sent === toSend.length && toSend.length === recipients.length;
+    if (fullySent) {
       await db
         .from("course_update_events")
         .update({ included_in_digest: true })
@@ -177,7 +193,7 @@ export async function sendCourseDigest(opts: { force?: boolean } = {}): Promise<
       ok: true,
       sent,
       total: recipients.length,
-      ...(sent < recipients.length ? { error: `${recipients.length - sent} recipient(s) failed` } : {}),
+      ...(sent < toSend.length ? { error: `${toSend.length - sent} recipient(s) failed` } : {}),
     };
   } catch (err) {
     return { ok: false, error: (err as Error)?.message ?? "digest failed" };
