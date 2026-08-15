@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { AppIcon } from "@/components/app-icon";
 import { Logo } from "@/components/marketing/logo";
@@ -18,6 +18,7 @@ import {
 import { AvatarMenu } from "@/components/profile/avatar-menu";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { CollapsibleSidebar, type CollapsibleSidebarItem } from "@/components/admin/collapsible-sidebar";
+import { AdminSectionTabs, type SectionTabItem } from "@/components/admin/admin-section-tabs";
 import { trackEvent } from "@/lib/analytics";
 import { cn } from "@/lib/utils";
 import type { UserRole } from "@/types/database";
@@ -29,31 +30,133 @@ type NavItem = {
   roles: UserRole[];
 };
 
-const NAV: NavItem[] = [
-  { label: "Dashboard", href: "/admin", icon: "dashboard", roles: ["super_admin", "editor", "support"] },
-  { label: "My Profile", href: "/admin/profile", icon: "edit", roles: ["super_admin", "editor", "support"] },
-  { label: "Clients", href: "/admin/clients", icon: "userAdd", roles: ["super_admin", "editor"] },
-  { label: "Projects", href: "/admin/projects", icon: "briefcase", roles: ["super_admin", "editor"] },
-  { label: "Services", href: "/admin/services", icon: "code", roles: ["super_admin", "editor"] },
-  { label: "Portfolio", href: "/admin/portfolio", icon: "layers", roles: ["super_admin", "editor"] },
-  { label: "Blog", href: "/admin/blog", icon: "file", roles: ["super_admin", "editor"] },
-  { label: "Pages", href: "/admin/pages", icon: "document", roles: ["super_admin", "editor"] },
-  { label: "Testimonials", href: "/admin/testimonials", icon: "quote", roles: ["super_admin", "editor"] },
-  { label: "Careers", href: "/admin/careers", icon: "briefcase", roles: ["super_admin", "editor"] },
-  { label: "Applications", href: "/admin/applications", icon: "userAdd", roles: ["super_admin", "editor"] },
-  { label: "Messages", href: "/admin/messages", icon: "message", roles: ["super_admin", "editor", "support"] },
-  { label: "Payments", href: "/admin/payments", icon: "wallet", roles: ["super_admin", "editor", "support"] },
-  { label: "Marketing", href: "/admin/marketing", icon: "megaphone", roles: ["super_admin", "editor"] },
-  { label: "Courses", href: "/admin/courses", icon: "layers", roles: ["super_admin", "editor"] },
-  { label: "Course Updates", href: "/admin/course-updates", icon: "bell", roles: ["super_admin", "editor"] },
-  { label: "AdSense Ads", href: "/admin/ads", icon: "tag", roles: ["super_admin", "editor"] },
-  { label: "Study Materials", href: "/admin/study-materials", icon: "folder", roles: ["super_admin", "editor"] },
-  { label: "Promo Codes", href: "/admin/promo-codes", icon: "dollar", roles: ["super_admin", "editor"] },
-  { label: "Media Library", href: "/admin/media", icon: "image", roles: ["super_admin", "editor"] },
-  { label: "Settings", href: "/admin/settings", icon: "settings", roles: ["super_admin"] },
-  { label: "Users", href: "/admin/users", icon: "team", roles: ["super_admin"] },
-  { label: "Client Users", href: "/admin/users/clients", icon: "team", roles: ["super_admin"] },
+type NavGroup = {
+  label: string;
+  icon: Parameters<typeof AppIcon>[0]["name"];
+  roles: UserRole[];
+  items: NavItem[];
+};
+
+/* ── Grouped navigation: sidebar shows parents, body shows children as tabs ── */
+const NAV_GROUPS: NavGroup[] = [
+  {
+    label: "Overview",
+    icon: "dashboard",
+    roles: ["super_admin", "editor", "support"],
+    items: [
+      { label: "Dashboard", href: "/admin", icon: "dashboard", roles: ["super_admin", "editor", "support"] },
+      { label: "My Profile", href: "/admin/profile", icon: "edit", roles: ["super_admin", "editor", "support"] },
+    ],
+  },
+  {
+    label: "CRM",
+    icon: "userAdd",
+    roles: ["super_admin", "editor"],
+    items: [
+      { label: "Clients", href: "/admin/clients", icon: "userAdd", roles: ["super_admin", "editor"] },
+      { label: "Projects", href: "/admin/projects", icon: "briefcase", roles: ["super_admin", "editor"] },
+    ],
+  },
+  {
+    label: "Content",
+    icon: "layers",
+    roles: ["super_admin", "editor"],
+    items: [
+      { label: "Services", href: "/admin/services", icon: "code", roles: ["super_admin", "editor"] },
+      { label: "Portfolio", href: "/admin/portfolio", icon: "layers", roles: ["super_admin", "editor"] },
+      { label: "Blog", href: "/admin/blog", icon: "file", roles: ["super_admin", "editor"] },
+      { label: "Pages", href: "/admin/pages", icon: "document", roles: ["super_admin", "editor"] },
+      { label: "Testimonials", href: "/admin/testimonials", icon: "quote", roles: ["super_admin", "editor"] },
+      { label: "Careers", href: "/admin/careers", icon: "briefcase", roles: ["super_admin", "editor"] },
+      { label: "Applications", href: "/admin/applications", icon: "userAdd", roles: ["super_admin", "editor"] },
+    ],
+  },
+  {
+    label: "Messages",
+    icon: "message",
+    roles: ["super_admin", "editor", "support"],
+    items: [
+      { label: "Messages", href: "/admin/messages", icon: "message", roles: ["super_admin", "editor", "support"] },
+    ],
+  },
+  {
+    label: "Payments",
+    icon: "wallet",
+    roles: ["super_admin", "editor", "support"],
+    items: [
+      { label: "Payments", href: "/admin/payments", icon: "wallet", roles: ["super_admin", "editor", "support"] },
+      { label: "Promo Codes", href: "/admin/promo-codes", icon: "dollar", roles: ["super_admin", "editor"] },
+    ],
+  },
+  {
+    label: "Marketing",
+    icon: "megaphone",
+    roles: ["super_admin", "editor"],
+    items: [
+      { label: "Marketing", href: "/admin/marketing", icon: "megaphone", roles: ["super_admin", "editor"] },
+      { label: "AdSense Ads", href: "/admin/ads", icon: "tag", roles: ["super_admin", "editor"] },
+    ],
+  },
+  {
+    label: "Courses",
+    icon: "folder",
+    roles: ["super_admin", "editor"],
+    items: [
+      { label: "Courses", href: "/admin/courses", icon: "layers", roles: ["super_admin", "editor"] },
+      { label: "Course Updates", href: "/admin/course-updates", icon: "bell", roles: ["super_admin", "editor"] },
+      { label: "Study Materials", href: "/admin/study-materials", icon: "folder", roles: ["super_admin", "editor"] },
+    ],
+  },
+  {
+    label: "Media",
+    icon: "image",
+    roles: ["super_admin", "editor"],
+    items: [
+      { label: "Media Library", href: "/admin/media", icon: "image", roles: ["super_admin", "editor"] },
+    ],
+  },
+  {
+    label: "System",
+    icon: "settings",
+    roles: ["super_admin"],
+    items: [
+      { label: "Settings", href: "/admin/settings", icon: "settings", roles: ["super_admin"] },
+      { label: "Users", href: "/admin/users", icon: "team", roles: ["super_admin"] },
+      { label: "Client Users", href: "/admin/users/clients", icon: "team", roles: ["super_admin"] },
+    ],
+  },
 ];
+
+/** Resolve the group + tabs for the current path. */
+function useAdminNav(role: UserRole) {
+  const pathname = usePathname();
+
+  const groups = useMemo(
+    () =>
+      NAV_GROUPS.map((g) => ({
+        ...g,
+        items: g.items.filter((i) => i.roles.includes(role)),
+      })).filter((g) => g.items.length > 0),
+    [role]
+  );
+
+  const activeGroup = useMemo(() => {
+    // Exact /admin → Overview.
+    if (pathname === "/admin") return groups.find((g) => g.label === "Overview") ?? groups[0];
+    // Longest-matching group.
+    const matches = groups.filter((g) =>
+      g.items.some((i) => pathname.startsWith(i.href))
+    );
+    return (
+      matches.sort((a, b) =>
+        Math.max(...b.items.map((i) => i.href.length)) -
+        Math.max(...a.items.map((i) => i.href.length))
+      )[0] ?? groups[0]
+    );
+  }, [pathname, groups]);
+
+  return { groups, activeGroup };
+}
 
 function SidebarContent({
   role,
@@ -63,7 +166,7 @@ function SidebarContent({
   onNavigate?: () => void;
 }) {
   const pathname = usePathname();
-  const items = NAV.filter((n) => n.roles.includes(role));
+  const { groups } = useAdminNav(role);
 
   return (
     <div className="flex h-full flex-col">
@@ -72,15 +175,18 @@ function SidebarContent({
       </div>
 
       <nav className="flex-1 space-y-1 overflow-y-auto p-3">
-        {items.map((item) => {
-          const active =
-            item.href === "/admin"
-              ? pathname === "/admin"
-              : pathname.startsWith(item.href);
+        {groups.map((group) => {
+          const active = group.items.some(
+            (i) =>
+              i.href === "/admin"
+                ? pathname === "/admin"
+                : pathname.startsWith(i.href)
+          );
+          const first = group.items[0];
           return (
             <Link
-              key={item.href}
-              href={item.href}
+              key={group.label}
+              href={first.href}
               onClick={onNavigate}
               className={cn(
                 "nav-item-3d flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
@@ -89,8 +195,9 @@ function SidebarContent({
                   : "text-foreground/70 hover:bg-accent-hover hover:text-foreground"
               )}
             >
-              <AppIcon name={item.icon} size={18} />
-              {item.label}
+              <AppIcon name={group.icon} size={18} />
+              <span className="flex-1">{group.label}</span>
+              <AppIcon name="arrowRight" size={14} className="opacity-40" />
             </Link>
           );
         })}
@@ -122,6 +229,8 @@ export function AdminShell({
   const [pinned, setPinned] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  const { groups, activeGroup } = useAdminNav(user.role);
+
   // Restore the pinned state on mount (localStorage).
   useEffect(() => {
     try {
@@ -144,16 +253,32 @@ export function AdminShell({
     });
   };
 
-  const items: CollapsibleSidebarItem[] = NAV.filter((n) =>
-    n.roles.includes(user.role)
-  ).map(({ label, href, icon }) => ({ label, href, icon }));
+  // Sidebar = parent groups only.
+  const items: CollapsibleSidebarItem[] = groups.map((g) => ({
+    label: g.label,
+    href: g.items[0].href,
+    icon: g.icon,
+  }));
 
-  const isActive = (href: string) =>
-    href === "/admin" ? pathname === "/admin" : pathname.startsWith(href);
+  const isActive = (href: string) => {
+    const g = groups.find((grp) => grp.items[0].href === href);
+    if (!g) return false;
+    return g.items.some(
+      (i) =>
+        i.href === "/admin" ? pathname === "/admin" : pathname.startsWith(i.href)
+    );
+  };
+
+  // Body tabs = children of the active group.
+  const tabs: SectionTabItem[] = (activeGroup?.items ?? []).map((i) => ({
+    label: i.label,
+    href: i.href,
+    icon: i.icon,
+  }));
 
   return (
     <div className="flex min-h-screen bg-muted/30">
-      {/* Desktop collapsible sidebar */}
+      {/* Desktop collapsible sidebar (parent groups only) */}
       <CollapsibleSidebar
         items={items}
         isActive={isActive}
@@ -235,6 +360,8 @@ export function AdminShell({
 
         {/* Content */}
         <main className="flex-1 p-4 sm:p-6 lg:p-8" key={pathname}>
+          {/* Group tabs — children of the active parent */}
+          <AdminSectionTabs items={tabs} />
           {children}
         </main>
       </div>
