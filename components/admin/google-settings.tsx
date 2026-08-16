@@ -76,9 +76,20 @@ export function GoogleSettings({ status }: { status: GoogleSettingsStatus }) {
   const [oneTap, setOneTap] = React.useState(status.oneTapEnabled);
   const [pending, setPending] = React.useState(false);
   const [origin, setOrigin] = React.useState("https://your-site.com");
+  const [oneTapStatus, setOneTapStatus] = React.useState<{
+    type: string;
+    reason: string | null;
+    at: number;
+  } | null>(null);
 
   React.useEffect(() => {
     setOrigin(window.location.origin);
+    try {
+      const raw = localStorage.getItem("mts_onetap_last");
+      if (raw) setOneTapStatus(JSON.parse(raw));
+    } catch {
+      // ignore
+    }
   }, []);
 
   const submit = async () => {
@@ -125,6 +136,38 @@ export function GoogleSettings({ status }: { status: GoogleSettingsStatus }) {
         </div>
       </CardHeader>
       <CardContent className="space-y-5">
+        {oneTapStatus && (
+          <div className="rounded-xl border bg-muted/40 p-4">
+            <div className="flex items-center gap-2">
+              <AppIcon
+                name={oneTapStatus.type === "displayed" ? "check" : "alert"}
+                size={15}
+                className={oneTapStatus.type === "displayed" ? "text-emerald-500" : "text-amber-500"}
+              />
+              <p className="text-sm font-semibold">
+                Last One Tap attempt: {oneTapStatus.type}
+              </p>
+            </div>
+            {oneTapStatus.reason && (
+              <p className="mt-1 text-xs text-muted-foreground">
+                Reason: <code className="rounded bg-background px-1 py-0.5">{oneTapStatus.reason}</code>
+              </p>
+            )}
+            <p className="mt-2 text-xs text-muted-foreground">
+              One Tap is controlled by Google — it only appears for visitors signed into a Google account
+              in this browser, and Google/browsers often skip it (FedCM, cookies, frequency limits). The
+              regular buttons still work.
+            </p>
+            {oneTapStatus.reason === "unregistered_origin" && (
+              <p className="mt-2 rounded-md border border-amber-400/40 bg-amber-400/10 p-2 text-xs text-amber-600 dark:text-amber-400">
+                Fix: add <code className="rounded bg-background/60 px-1">{origin}</code> to the OAuth
+                client&apos;s <b>Authorized JavaScript origins</b> in Google Cloud Console, and publish the
+                OAuth consent screen (not &quot;Testing&quot; mode).
+              </p>
+            )}
+          </div>
+        )}
+
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">
             <Label htmlFor="google-client-id">Client ID (OAuth 2.0) *</Label>

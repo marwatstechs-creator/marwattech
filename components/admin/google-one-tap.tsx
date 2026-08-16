@@ -11,7 +11,31 @@ type GsiPromptMoment = {
   isSkippedMoment: () => boolean;
   isDismissedMoment: () => boolean;
   getNotDisplayedReason?: () => string;
+  getSkippedReason?: () => string;
+  getDismissedReason?: () => string;
 };
+
+const STORAGE_KEY = "mts_onetap_last";
+const CONFIG_REASONS = [
+  "unregistered_origin",
+  "invalid_client",
+  "missing_google_client_id",
+  "secure_http_required",
+  "browser_not_supported",
+];
+
+/** Remember the last One Tap outcome so the admin settings page can show it. */
+function recordOneTap(type: string, reason?: string) {
+  try {
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({ type, reason: reason ?? null, at: Date.now() })
+    );
+  } catch {
+    // ignore
+  }
+  console.info(`[GoogleOneTap] ${type}${reason ? ` — ${reason}` : ""}`);
+}
 
 declare global {
   interface Window {
@@ -59,6 +83,46 @@ export function GoogleOneTap({
     // Only attempt once per page view to avoid looping prompts.
     started.current = true;
 
+    let retryOnce: (() => void) | null = null;
+
+    const promptWithTracking = () => {
+      window.google?.accounts?.id?.prompt((moment) => {
+        let type = "displayed";
+        let reason: string | undefined;
+        if (moment.isNotDisplayed()) {
+          type = "not_displayed";
+          reason = moment.getNotDisplayedReason?.() || "unknown_reason";
+        } else if (moment.isSkippedMoment()) {
+          type = "skipped";
+          reason = moment.getSkippedReason?.() || "unknown_reason";
+        } else if (moment.isDismissedMoment()) {
+          type = "dismissed";
+          reason = moment.getDismissedReason?.() || "unknown_reason";
+        }
+        recordOneTap(type, reason);
+
+        // If Google skipped the on-load prompt for a non-config reason (e.g.
+        // it was suppressed or FedCM hiccuped), retry once on the first
+        // interaction — One Tap often appears when explicitly re-prompted.
+        if (
+          type !== "displayed" &&
+          reason &&
+          !CONFIG_REASONS.includes(reason)
+        ) {
+          retryOnce = () => {
+            if (retryOnce) {
+              retryOnce = null;
+              window.google?.accounts?.id?.prompt();
+            }
+          };
+          document.addEventListener("pointerdown", retryOnce, { once: true });
+          document.addEventListener("keydown", retryOnce, { once: true });
+        } else {
+          retryOnce = null;
+        }
+      });
+    };
+
     const initialize = () => {
       window.google?.accounts?.id?.initialize({
         client_id: clientId,
@@ -78,10 +142,7 @@ export function GoogleOneTap({
           }
         },
       });
-      window.google?.accounts?.id?.prompt(() => {
-        // One Tap may be skipped when the user has no eligible Google session;
-        // that's fine — they can use the regular buttons below.
-      });
+      promptWithTracking();
     };
 
     if (window.google?.accounts?.id) {
@@ -94,6 +155,13 @@ export function GoogleOneTap({
     s.defer = true;
     s.onload = initialize;
     document.body.appendChild(s);
+
+    return () => {
+      if (retryOnce) {
+        document.removeEventListener("pointerdown", retryOnce);
+        document.removeEventListener("keydown", retryOnce);
+      }
+    };
   }, [enabled, clientId, mode]);
 
   return null;
