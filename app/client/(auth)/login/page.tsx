@@ -122,8 +122,10 @@ export default function ClientLoginPage() {
           <span className="h-px flex-1 bg-border" />
         </div>
 
-        <GoogleSignIn mode="client" />
-        <GitHubSignIn mode="client" />
+        <div className="flex flex-col gap-3">
+          <GoogleSignIn mode="client" />
+          <GitHubSignIn mode="client" />
+        </div>
 
         <p className="mt-4 text-center text-sm text-muted-foreground">
           Don&apos;t have an account?{" "}

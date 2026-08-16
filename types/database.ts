@@ -1802,6 +1802,8 @@ export interface Database {
           video_url: string | null;
           sort_order: number;
           duration_minutes: number | null;
+          duration_hours: number | null;
+          duration_seconds: number | null;
           is_free_preview: boolean;
           created_at: string;
         };
@@ -1814,6 +1816,8 @@ export interface Database {
           video_url?: string | null;
           sort_order?: number;
           duration_minutes?: number | null;
+          duration_hours?: number | null;
+          duration_seconds?: number | null;
           is_free_preview?: boolean;
           created_at?: string;
         };
@@ -1826,6 +1830,8 @@ export interface Database {
           video_url?: string | null;
           sort_order?: number;
           duration_minutes?: number | null;
+          duration_hours?: number | null;
+          duration_seconds?: number | null;
           is_free_preview?: boolean;
           created_at?: string;
         };

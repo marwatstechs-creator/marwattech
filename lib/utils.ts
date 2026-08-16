@@ -37,6 +37,23 @@ export function formatDateTime(date: string | Date | null | undefined) {
   }).format(new Date(date));
 }
 
+/**
+ * Format a duration from hours / minutes / seconds parts, e.g.
+ * "1h 5m 30s", "5m", or "" when nothing is set. Omits zero leading units
+ * (30 seconds → "30s", not "0h 0m 30s").
+ */
+export function formatDuration(
+  hours?: number | null,
+  minutes?: number | null,
+  seconds?: number | null
+) {
+  const parts: string[] = [];
+  if (hours) parts.push(`${hours}h`);
+  if (minutes) parts.push(`${minutes}m`);
+  if (seconds) parts.push(`${seconds}s`);
+  return parts.join(" ");
+}
+
 /** Convert arbitrary text into a URL-safe slug. */
 export function slugify(text: string) {
   return text

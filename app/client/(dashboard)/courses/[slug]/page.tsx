@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { createClient } from "@/lib/supabase/server";
 import { getSessionUser } from "@/lib/auth";
 import { sanitizeHtml } from "@/lib/sanitize";
+import { formatDuration } from "@/lib/utils";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -18,7 +19,7 @@ export default async function ClientCourseDetailPage({ params }: Props) {
   const cid = session?.user.id ?? "";
 
   let course: { id: string; title: string; description: string | null; difficulty: string; duration_hours: number | null } | null = null;
-  let lessons: { id: string; title: string; slug: string; content: string | null; video_url: string | null; sort_order: number; duration_minutes: number | null; is_free_preview: boolean }[] = [];
+  let lessons: { id: string; title: string; slug: string; content: string | null; video_url: string | null; sort_order: number; duration_minutes: number | null; duration_hours: number | null; duration_seconds: number | null; is_free_preview: boolean }[] = [];
   let enrolled = false;
   let progress: Map<string, boolean> = new Map();
 
@@ -65,7 +66,7 @@ export default async function ClientCourseDetailPage({ params }: Props) {
                 </span>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2"><h3 className="font-medium truncate">{l.title}</h3>{l.is_free_preview && <Badge variant="gold" className="text-[10px]">Free</Badge>}{done && <Badge variant="default" className="text-[10px]">Done</Badge>}</div>
-                  {l.duration_minutes && <p className="text-xs text-muted-foreground">{l.duration_minutes} min</p>}
+                  {formatDuration(l.duration_hours, l.duration_minutes, l.duration_seconds) && <p className="text-xs text-muted-foreground">{formatDuration(l.duration_hours, l.duration_minutes, l.duration_seconds)}</p>}
                 </div>
                 {l.video_url && <a href={l.video_url} target="_blank" rel="noopener noreferrer"><Button variant="outline" size="sm"><AppIcon name="external" size={14} />Watch</Button></a>}
               </div>

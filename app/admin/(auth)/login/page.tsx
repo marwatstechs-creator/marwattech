@@ -134,8 +134,10 @@ export default function AdminLoginPage() {
           <span className="h-px flex-1 bg-border" />
         </div>
 
-        <GoogleSignIn mode="admin" />
-        <GitHubSignIn mode="admin" />
+        <div className="flex flex-col gap-3">
+          <GoogleSignIn mode="admin" />
+          <GitHubSignIn mode="admin" />
+        </div>
 
         <p className="mt-4 text-center text-xs text-muted-foreground">
           Authorized staff only. Contact the administrator if you need access.

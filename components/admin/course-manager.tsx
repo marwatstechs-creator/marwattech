@@ -30,7 +30,7 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DeleteButton } from "@/components/admin/delete-button";
-import { formatDate } from "@/lib/utils";
+import { formatDate, formatDuration } from "@/lib/utils";
 import {
   createCourse,
   updateCourse,
@@ -69,6 +69,8 @@ export type LessonRow = {
   video_url: string | null;
   sort_order: number;
   duration_minutes: number | null;
+  duration_hours: number | null;
+  duration_seconds: number | null;
   is_free_preview: boolean;
   created_at: string;
 };
@@ -95,7 +97,9 @@ type LessonFormState = {
   title: string;
   content: string;
   video_url: string;
+  duration_hours: string;
   duration_minutes: string;
+  duration_seconds: string;
   is_free_preview: boolean;
 };
 
@@ -116,9 +120,64 @@ const emptyLesson: LessonFormState = {
   title: "",
   content: "",
   video_url: "",
+  duration_hours: "",
   duration_minutes: "",
+  duration_seconds: "",
   is_free_preview: false,
 };
+
+/* Quick-pick presets for the lesson duration fields — admin can type a
+ * number or pick one from these options. */
+const HOUR_OPTIONS = ["0", "1", "2", "3", "4", "5", "6", "8", "10", "12"];
+const MIN_OPTIONS = [
+  "0", "5", "10", "15", "20", "25", "30", "35", "40", "45", "50", "55",
+];
+const SEC_OPTIONS = [
+  "0", "5", "10", "15", "20", "25", "30", "35", "40", "45", "50", "55",
+];
+
+function DurationUnit({
+  label,
+  value,
+  onChange,
+  options,
+  max,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  options: string[];
+  max?: number;
+}) {
+  return (
+    <div className="space-y-1">
+      <Label className="text-[11px] font-medium text-muted-foreground">{label}</Label>
+      <div className="flex gap-1.5">
+        <Input
+          type="number"
+          min={0}
+          max={max}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder="0"
+          className="w-full"
+        />
+        <Select onValueChange={onChange}>
+          <SelectTrigger className="w-[80px] shrink-0 px-2" title="Quick pick">
+            <SelectValue placeholder="pick" />
+          </SelectTrigger>
+          <SelectContent>
+            {options.map((o) => (
+              <SelectItem key={o} value={o}>
+                {o}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+    </div>
+  );
+}
 
 const TABS = [
   { id: "all", label: "All" },
@@ -234,7 +293,9 @@ function CourseFormDialog({
       title: lessonForm.title.trim(),
       content: lessonForm.content.trim() || null,
       video_url: lessonForm.video_url.trim() || null,
+      duration_hours: lessonForm.duration_hours ? Number(lessonForm.duration_hours) : null,
       duration_minutes: lessonForm.duration_minutes ? Number(lessonForm.duration_minutes) : null,
+      duration_seconds: lessonForm.duration_seconds ? Number(lessonForm.duration_seconds) : null,
       is_free_preview: lessonForm.is_free_preview,
     };
     const res = editingLesson
@@ -270,7 +331,9 @@ function CourseFormDialog({
       title: l.title,
       content: l.content ?? "",
       video_url: l.video_url ?? "",
+      duration_hours: l.duration_hours != null ? String(l.duration_hours) : "",
       duration_minutes: l.duration_minutes != null ? String(l.duration_minutes) : "",
+      duration_seconds: l.duration_seconds != null ? String(l.duration_seconds) : "",
       is_free_preview: l.is_free_preview,
     });
   };
@@ -417,7 +480,9 @@ function CourseFormDialog({
                         <p className="truncate text-sm font-medium">{l.title}</p>
                         <p className="flex flex-wrap items-center gap-x-2 truncate text-xs text-muted-foreground">
                           <span>{l.video_url ? "🎬 video" : "📝 text"}</span>
-                          {l.duration_minutes ? <span>· {l.duration_minutes} min</span> : null}
+                          {formatDuration(l.duration_hours, l.duration_minutes, l.duration_seconds) ? (
+                            <span>· {formatDuration(l.duration_hours, l.duration_minutes, l.duration_seconds)}</span>
+                          ) : null}
                           {l.is_free_preview ? <Badge variant="gold" className="text-[10px]">Free preview</Badge> : null}
                         </p>
                       </div>
@@ -438,9 +503,11 @@ function CourseFormDialog({
                 {editingLesson ? `Edit lesson: ${editingLesson.title}` : "Add a new lesson"}
               </p>
               <Input value={lessonForm.title} onChange={(e) => setLessonForm((f) => ({ ...f, title: e.target.value }))} placeholder="Lesson title" />
-              <div className="grid gap-2 sm:grid-cols-2">
-                <Input value={lessonForm.video_url} onChange={(e) => setLessonForm((f) => ({ ...f, video_url: e.target.value }))} placeholder="Video URL (optional)" />
-                <Input type="number" min={0} value={lessonForm.duration_minutes} onChange={(e) => setLessonForm((f) => ({ ...f, duration_minutes: e.target.value }))} placeholder="Duration (min, optional)" />
+              <Input value={lessonForm.video_url} onChange={(e) => setLessonForm((f) => ({ ...f, video_url: e.target.value }))} placeholder="Video URL (optional)" />
+              <div className="grid gap-2 sm:grid-cols-3">
+                <DurationUnit label="Hours" value={lessonForm.duration_hours} onChange={(v) => setLessonForm((f) => ({ ...f, duration_hours: v }))} options={HOUR_OPTIONS} max={24} />
+                <DurationUnit label="Minutes" value={lessonForm.duration_minutes} onChange={(v) => setLessonForm((f) => ({ ...f, duration_minutes: v }))} options={MIN_OPTIONS} max={59} />
+                <DurationUnit label="Seconds" value={lessonForm.duration_seconds} onChange={(v) => setLessonForm((f) => ({ ...f, duration_seconds: v }))} options={SEC_OPTIONS} max={59} />
               </div>
               <Textarea rows={2} value={lessonForm.content} onChange={(e) => setLessonForm((f) => ({ ...f, content: e.target.value }))} placeholder="Lesson content (optional)" />
               <div className="flex items-center justify-between rounded-md border px-3 py-2">

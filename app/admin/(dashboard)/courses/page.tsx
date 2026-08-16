@@ -18,7 +18,7 @@ export default async function AdminCoursesPage() {
       db
         .from("course_lessons")
         .select(
-          "id, course_id, title, slug, content, video_url, sort_order, duration_minutes, is_free_preview, created_at",
+          "id, course_id, title, slug, content, video_url, sort_order, duration_minutes, duration_hours, duration_seconds, is_free_preview, created_at",
         )
         .order("sort_order", { ascending: true })
         .limit(2000),

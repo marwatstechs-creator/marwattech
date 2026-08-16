@@ -26,6 +26,8 @@ const lessonSchema = z.object({
   content: z.string().max(20000).nullable().optional(),
   video_url: z.string().max(2000).nullable().optional(),
   duration_minutes: z.number().min(0).nullable().optional(),
+  duration_hours: z.number().min(0).nullable().optional(),
+  duration_seconds: z.number().min(0).nullable().optional(),
   is_free_preview: z.boolean().default(false),
 });
 
@@ -175,6 +177,8 @@ export async function addLesson(courseId: string, input: z.input<typeof lessonSc
       video_url: parsed.data.video_url ?? null,
       sort_order: (max?.sort_order ?? 0) + 1,
       duration_minutes: parsed.data.duration_minutes ?? null,
+      duration_hours: parsed.data.duration_hours ?? null,
+      duration_seconds: parsed.data.duration_seconds ?? null,
       is_free_preview: parsed.data.is_free_preview,
     })
     .select("id")
@@ -200,6 +204,8 @@ export async function updateLesson(id: string, input: z.input<typeof lessonSchem
       content: parsed.data.content ?? null,
       video_url: parsed.data.video_url ?? null,
       duration_minutes: parsed.data.duration_minutes ?? null,
+      duration_hours: parsed.data.duration_hours ?? null,
+      duration_seconds: parsed.data.duration_seconds ?? null,
       is_free_preview: parsed.data.is_free_preview,
     })
     .eq("id", id);

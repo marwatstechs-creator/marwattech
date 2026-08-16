@@ -47,6 +47,25 @@ export async function getSessionUser(): Promise<SessionWithProfile | null> {
   }
 }
 
+/** Providers used to authenticate the current account (e.g. ["google"],
+ * ["email"], ["github"]). Used to decide whether a password exists. */
+export async function getAuthProviders(): Promise<string[]> {
+  try {
+    const db = await createClient();
+    const {
+      data: { user },
+    } = await db.auth.getUser();
+    return (user?.app_metadata?.providers as string[]) ?? [];
+  } catch {
+    return [];
+  }
+}
+
+/** True when the account was created with / has an email+password login. */
+export function hasPassword(providers: string[]): boolean {
+  return providers.includes("email") || providers.includes("password");
+}
+
 export function canManageContent(role: UserRole) {
   return role === "super_admin" || role === "editor";
 }

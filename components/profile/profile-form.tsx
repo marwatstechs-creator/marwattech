@@ -10,19 +10,29 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { updateProfileName, uploadProfileAvatar } from "@/lib/actions/profile";
+import {
+  changePassword,
+  updateProfileName,
+  uploadProfileAvatar,
+} from "@/lib/actions/profile";
 import { initials } from "@/lib/utils";
 
 export function ProfileForm({
   user,
+  hasPassword = true,
 }: {
   user: { email?: string; full_name: string | null; avatar_url?: string | null };
+  hasPassword?: boolean;
 }) {
   const router = useRouter();
   const [fullName, setFullName] = React.useState(user.full_name ?? "");
   const [avatar, setAvatar] = React.useState<string | null>(user.avatar_url ?? null);
   const [saving, setSaving] = React.useState(false);
   const [uploading, setUploading] = React.useState(false);
+  const [curPw, setCurPw] = React.useState("");
+  const [newPw, setNewPw] = React.useState("");
+  const [confirmPw, setConfirmPw] = React.useState("");
+  const [pwPending, setPwPending] = React.useState(false);
   const fileRef = React.useRef<HTMLInputElement>(null);
 
   const onPickAvatar = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -33,8 +43,8 @@ export function ProfileForm({
       const fd = new FormData();
       fd.append("avatar", file);
       const res = await uploadProfileAvatar(fd);
-      if (res.ok && res.url) {
-        setAvatar(res.url);
+      if (res.ok) {
+        if (res.url) setAvatar(res.url);
         toast.success("Profile picture updated");
       } else {
         toast.error(res.error || "Upload failed");
@@ -63,6 +73,25 @@ export function ProfileForm({
     } else {
       toast.error(res.error || "Could not save");
     }
+  };
+
+  const onChangePassword = async () => {
+    if (hasPassword && !curPw) return toast.error("Enter your current password.");
+    if (newPw.length < 8) {
+      return toast.error("New password must be at least 8 characters.");
+    }
+    if (newPw !== confirmPw) return toast.error("New passwords don't match.");
+    setPwPending(true);
+    const res = await changePassword({
+      currentPassword: hasPassword ? curPw : undefined,
+      newPassword: newPw,
+    });
+    setPwPending(false);
+    if (!res.ok) return toast.error(res.error || "Could not change password");
+    toast.success(hasPassword ? "Password updated" : "Password set");
+    setCurPw("");
+    setNewPw("");
+    setConfirmPw("");
   };
 
   return (
@@ -113,7 +142,8 @@ export function ProfileForm({
         </CardContent>
       </Card>
 
-      {/* Details card */}
+      {/* Details + password cards */}
+      <div className="flex flex-col gap-6">
       <Card className="card-3d">
         <CardContent className="flex flex-col gap-6 p-6">
           <div className="grid gap-1.5">
@@ -147,6 +177,65 @@ export function ProfileForm({
           </div>
         </CardContent>
       </Card>
+
+      {/* Change password card */}
+      <Card className="card-3d">
+        <CardContent className="flex flex-col gap-4 p-6">
+          <div>
+            <h3 className="font-medium">Change password</h3>
+            <p className="text-xs text-muted-foreground">
+              {hasPassword
+                ? "Use your current password to set a new one."
+                : "You signed in with Google — no password needed. You can set one below if you like."}
+            </p>
+          </div>
+
+          {hasPassword && (
+            <div className="grid gap-1.5">
+              <Label htmlFor="pw-current">Current password</Label>
+              <Input
+                id="pw-current"
+                type="password"
+                value={curPw}
+                onChange={(e) => setCurPw(e.target.value)}
+                autoComplete="current-password"
+                placeholder="••••••••"
+              />
+            </div>
+          )}
+
+          <div className="grid gap-1.5">
+            <Label htmlFor="pw-new">New password</Label>
+            <Input
+              id="pw-new"
+              type="password"
+              value={newPw}
+              onChange={(e) => setNewPw(e.target.value)}
+              autoComplete="new-password"
+              placeholder="At least 8 characters with letters & numbers"
+            />
+          </div>
+
+          <div className="grid gap-1.5">
+            <Label htmlFor="pw-confirm">Confirm new password</Label>
+            <Input
+              id="pw-confirm"
+              type="password"
+              value={confirmPw}
+              onChange={(e) => setConfirmPw(e.target.value)}
+              autoComplete="new-password"
+              placeholder="Re-enter new password"
+            />
+          </div>
+
+          <div className="flex items-center gap-3 border-t pt-4">
+            <Button onClick={onChangePassword} disabled={pwPending} className="btn-3d">
+              {pwPending ? "Saving…" : hasPassword ? "Update password" : "Set password"}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+      </div>
     </div>
   );
 }
