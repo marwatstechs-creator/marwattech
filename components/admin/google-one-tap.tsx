@@ -50,6 +50,7 @@ declare global {
             cancel_on_tap_outside?: boolean;
             context?: string;
             ux_mode?: string;
+            use_fedcm_for_prompt?: boolean;
           }) => void;
           prompt: (momentListener?: (n: GsiPromptMoment) => void) => void;
           cancel: () => void;
@@ -128,7 +129,10 @@ export function GoogleOneTap({
         client_id: clientId,
         itp_support: true,
         cancel_on_tap_outside: false,
-        auto_select: false,
+        // Auto-select a single eligible Google account (smoother "one tap")
+        // and explicitly opt into FedCM (Google's recommended prompt path).
+        auto_select: true,
+        use_fedcm_for_prompt: true,
         context: "signin",
         callback: async (resp) => {
           if (!resp.credential) return;
