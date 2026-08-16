@@ -219,3 +219,34 @@ export async function deleteLesson(id: string) {
   revalidateContent(["/client/courses"]);
   return { ok: true };
 }
+
+/** Move a lesson up/down within its course (swaps sort_order with a neighbour). */
+export async function moveLesson(id: string, direction: "up" | "down") {
+  const { session, db } = await requireEditor();
+  const { data: lesson } = await db
+    .from("course_lessons")
+    .select("id, course_id, sort_order")
+    .eq("id", id)
+    .maybeSingle();
+  if (!lesson) return { error: "Lesson not found" };
+
+  // Load the course's ordered lessons.
+  const { data: all } = await db
+    .from("course_lessons")
+    .select("id, sort_order")
+    .eq("course_id", lesson.course_id)
+    .order("sort_order", { ascending: true })
+    .order("created_at", { ascending: true });
+  const ordered = (all ?? []).sort((a, b) => a.sort_order - b.sort_order);
+  const idx = ordered.findIndex((l) => l.id === lesson.id);
+  const swapWith = direction === "up" ? ordered[idx - 1] : ordered[idx + 1];
+  if (idx < 0 || !swapWith) return { ok: true }; // already at an edge
+
+  const e1 = await db.from("course_lessons").update({ sort_order: swapWith.sort_order }).eq("id", lesson.id);
+  const e2 = await db.from("course_lessons").update({ sort_order: lesson.sort_order }).eq("id", swapWith.id);
+  if (e1.error || e2.error) return { error: e1.error?.message || e2.error?.message };
+
+  await logActivity(db, session, "update", "course_lessons", id, { move: direction });
+  revalidateContent(["/client/courses"]);
+  return { ok: true };
+}
