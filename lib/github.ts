@@ -75,7 +75,10 @@ export async function buildGitHubLoginUrl(
   if (!cfg.enabled || !cfg.clientId) {
     return { url: "", enabled: false };
   }
-  const redirectUri = `${origin}/auth/github/callback?mode=${mode}`;
+  // GitHub Apps require the redirect URI to match the registered value exactly
+  // (no query string), so the mode travels via the `state` param instead (see
+  // getGitHubLoginUrl).
+  const redirectUri = `${origin}/auth/github/callback`;
   const params = new URLSearchParams({
     client_id: cfg.clientId,
     redirect_uri: redirectUri,

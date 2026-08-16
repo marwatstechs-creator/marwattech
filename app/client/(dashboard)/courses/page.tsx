@@ -15,13 +15,13 @@ const DIFF_MAP: Record<string, "default" | "gold" | "destructive"> = {
 
 export default async function ClientCoursesPage() {
   const session = await getSessionUser();
-  let courses: { id: string; title: string; slug: string; description: string | null; cover_image: string | null; category: string | null; difficulty: string; duration_hours: number | null }[] = [];
+  let courses: { id: string; title: string; slug: string; description: string | null; cover_image: string | null; category: string | null; difficulty: string; duration_hours: number | null; is_free: boolean }[] = [];
   let enrolled: Set<string> = new Set();
 
   try {
     const db = await createClient();
     const [c, e] = await Promise.all([
-      db.from("courses").select("id, title, slug, description, cover_image, category, difficulty, duration_hours").eq("is_published", true).order("created_at", { ascending: false }),
+      db.from("courses").select("id, title, slug, description, cover_image, category, difficulty, duration_hours, is_free").eq("is_published", true).order("created_at", { ascending: false }),
       db.from("enrollments").select("course_id").eq("client_id", session?.user.id ?? ""),
     ]);
     courses = c.data ?? [];
@@ -39,20 +39,36 @@ export default async function ClientCoursesPage() {
             const isEnrolled = enrolled.has(c.id);
             return (
               <Link key={c.id} href={`/client/courses/${c.slug}`} className="group block h-full">
-                <Card className="h-full transition-all duration-300 group-hover:-translate-y-1 group-hover:border-primary/40 group-hover:shadow-lg">
-                  <CardContent className="flex flex-col gap-4 p-6">
-                    <div className="flex items-start justify-between">
-                      <span className="icon-3d-tile grid size-12 place-items-center rounded-xl bg-primary/10 text-primary"><AppIcon name="grid" size={24} /></span>
-                      <div className="flex gap-2">
-                        {isEnrolled && <Badge variant="default">Enrolled</Badge>}
-                        <Badge variant={DIFF_MAP[c.difficulty] ?? "outline"}>{c.difficulty}</Badge>
+                <Card className="h-full overflow-hidden transition-all duration-300 group-hover:-translate-y-1 group-hover:border-primary/40 group-hover:shadow-lg">
+                  {/* Cover thumbnail */}
+                  <div className="relative aspect-[16/9] w-full overflow-hidden bg-muted">
+                    {c.cover_image ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={c.cover_image}
+                        alt={c.title}
+                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                    ) : (
+                      <div className="grid h-full w-full place-items-center" style={{ background: "linear-gradient(135deg, #7464c6 0%, #4b3ea1 100%)" }}>
+                        <AppIcon name="layers" size={40} className="text-white/40" />
                       </div>
+                    )}
+                    <div className="absolute left-3 top-3 flex gap-1.5">
+                      <Badge variant={c.is_free ? "gold" : "default"}>{c.is_free ? "Free" : "Paid"}</Badge>
+                      {isEnrolled && <Badge variant="default" className="bg-background/80 backdrop-blur">Enrolled</Badge>}
                     </div>
-                    <h3 className="font-display text-lg font-semibold">{c.title}</h3>
+                  </div>
+                  <CardContent className="flex flex-col gap-3 p-5">
+                    <div className="flex items-center justify-between gap-2">
+                      <Badge variant={DIFF_MAP[c.difficulty] ?? "outline"} className="capitalize">{c.difficulty}</Badge>
+                      {c.category && <span className="truncate text-xs text-muted-foreground">{c.category}</span>}
+                    </div>
+                    <h3 className="font-display text-lg font-semibold leading-snug">{c.title}</h3>
                     {c.description && <p className="line-clamp-2 text-sm text-muted-foreground">{c.description}</p>}
                     <div className="mt-auto flex items-center justify-between text-xs text-muted-foreground">
-                      {c.category && <span>{c.category}</span>}
-                      {c.duration_hours && <span>{c.duration_hours}h</span>}
+                      <span className="inline-flex items-center gap-1.5"><AppIcon name="play" size={13} /> Lessons</span>
+                      {c.duration_hours ? <span>{c.duration_hours}h</span> : <span>&nbsp;</span>}
                     </div>
                   </CardContent>
                 </Card>

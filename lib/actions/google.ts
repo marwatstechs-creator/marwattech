@@ -96,11 +96,14 @@ export async function saveGoogleSettings(input: z.infer<typeof googleSchema>) {
 
 /** Build the Google OAuth authorize URL for "Sign in with Google". */
 export async function getGoogleLoginUrl(mode: GoogleLoginMode) {
-  // Random state bound to the user's session (login-CSRF protection).
-  const state =
+  // Random state bound to the user's session (login-CSRF protection). The mode
+  // is prefixed so the callback knows which dashboard to route to — Google
+  // rejects query strings in the redirect URI, so mode can't travel in the URI.
+  const token =
     typeof crypto !== "undefined" && crypto.randomUUID
       ? crypto.randomUUID()
       : `go-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  const state = `${mode}:${token}`;
   const cookieStore = await cookies();
   cookieStore.set("oauth_state_google", state, {
     httpOnly: true,

@@ -88,10 +88,14 @@ export async function saveGitHubSettings(input: z.infer<typeof githubSchema>) {
 
 /** Build the GitHub App authorize URL for "Sign in with GitHub". */
 export async function getGitHubLoginUrl(mode: GitHubLoginMode) {
-  const state =
+  // Random state bound to the user's session (login-CSRF protection). The mode
+  // is prefixed so the callback knows which dashboard to route to — GitHub Apps
+  // reject query strings in the redirect URI, so mode can't travel in the URI.
+  const token =
     typeof crypto !== "undefined" && crypto.randomUUID
       ? crypto.randomUUID()
       : `gh-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  const state = `${mode}:${token}`;
   const cookieStore = await cookies();
   cookieStore.set("oauth_state_github", state, {
     httpOnly: true,

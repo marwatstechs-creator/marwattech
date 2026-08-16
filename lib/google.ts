@@ -86,7 +86,10 @@ export async function buildGoogleLoginUrl(
   if (!cfg.enabled || !cfg.clientId) {
     return { url: "", enabled: false };
   }
-  const redirectUri = `${origin}/auth/google/callback?mode=${mode}`;
+  // Google rejects query strings in the redirect URI (Error 400
+  // redirect_uri_mismatch) — it must match the registered URI exactly, so the
+  // mode travels via the `state` param instead (see getGoogleLoginUrl).
+  const redirectUri = `${origin}/auth/google/callback`;
   const params = new URLSearchParams({
     client_id: cfg.clientId,
     redirect_uri: redirectUri,

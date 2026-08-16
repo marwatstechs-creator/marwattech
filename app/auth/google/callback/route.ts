@@ -13,18 +13,22 @@ import { signInWithVerifiedEmail } from "@/lib/auth";
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
-  const mode: GoogleLoginMode = searchParams.get("mode") === "client" ? "client" : "admin";
-  const redirectUri = `${origin}/auth/google/callback?mode=${mode}`;
   const fail = (err = "google") => NextResponse.redirect(`${origin}/admin/login?error=${err}`);
 
   if (!code) return fail();
 
-  // Verify the OAuth state (login-CSRF protection). We always send a state now.
+  // Verify the OAuth state (login-CSRF protection). The state carries both the
+  // CSRF token and the login mode ("admin:<uuid>" / "client:<uuid>") because
+  // Google rejects query strings in the redirect URI (Error 400
+  // redirect_uri_mismatch), so the mode can't travel in the URI itself.
   const state = searchParams.get("state");
   const cookieStore = await cookies();
   const expected = cookieStore.get("oauth_state_google")?.value;
   cookieStore.delete("oauth_state_google");
   if (!state || !expected || state !== expected) return fail("google");
+
+  const mode: GoogleLoginMode = state.startsWith("client:") ? "client" : "admin";
+  const redirectUri = `${origin}/auth/google/callback`;
 
   try {
     const identity = await exchangeGoogleCode(code, redirectUri);
