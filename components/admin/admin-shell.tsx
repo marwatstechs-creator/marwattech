@@ -127,6 +127,19 @@ const NAV_GROUPS: NavGroup[] = [
   },
 ];
 
+/* Sidebar section grouping for the parent items */
+const SIDEBAR_SECTIONS: Record<string, string> = {
+  Overview: "General",
+  CRM: "Manage",
+  Content: "Content",
+  Messages: "Inbox",
+  Payments: "Sales",
+  Marketing: "Sales",
+  Courses: "Learning",
+  Media: "Library",
+  System: "System",
+};
+
 /** Resolve the group + tabs for the current path. */
 function useAdminNav(role: UserRole) {
   const pathname = usePathname();
@@ -258,6 +271,8 @@ export function AdminShell({
     label: g.label,
     href: g.items[0].href,
     icon: g.icon,
+    section: SIDEBAR_SECTIONS[g.label],
+    count: g.items.length,
   }));
 
   const isActive = (href: string) => {
@@ -361,7 +376,11 @@ export function AdminShell({
         {/* Content */}
         <main className="flex-1 p-4 sm:p-6 lg:p-8" key={pathname}>
           {/* Group tabs — children of the active parent */}
-          <AdminSectionTabs items={tabs} />
+          <AdminSectionTabs
+            groupLabel={activeGroup?.label ?? ""}
+            groupIcon={activeGroup?.icon ?? "dashboard"}
+            items={tabs}
+          />
           {children}
         </main>
       </div>
