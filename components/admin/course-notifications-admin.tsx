@@ -43,7 +43,9 @@ import {
   deleteCourseSubscriber,
   saveCourseNotificationConfig,
   sendCourseDigestNow,
-  sendSubscriberBroadcast,
+  startBroadcast,
+  resumePendingSends,
+  getLiveDigestSends,
 } from "@/lib/actions/admin/course-notifications";
 
 export type CourseSubscriberRow = {
@@ -73,6 +75,8 @@ export type CourseDigestSendRow = {
   status: string;
   error: string | null;
   sent_at: string;
+  batch_id: string | null;
+  subject: string | null;
 };
 
 export type CourseNotifConfig = {
@@ -339,17 +343,18 @@ function BroadcastDialog({
       return;
     }
     setSending(true);
-    const res = await sendSubscriberBroadcast({ subject, body });
+    const res = await startBroadcast({ subject, body });
     setSending(false);
     if (!res.ok) {
       toast.error(res.error || "Broadcast failed");
       return;
     }
-    toast.success(
-      res.sent && res.sent > 0
-        ? `Email sent to ${res.sent} subscriber(s)`
-        : "No emails sent"
-    );
+    if (res.total === 0) {
+      toast.info("Everyone has already received this subject.");
+      setOpen(false);
+      return;
+    }
+    toast.success(`Queued ${res.total} email(s) — watch the History tab for live progress`);
     if (res.error) toast.warning(res.error);
     setOpen(false);
     setSubject("");
@@ -369,8 +374,9 @@ function BroadcastDialog({
           <DialogTitle>Email all course subscribers</DialogTitle>
           <DialogDescription>
             Send a branded email to {subscriberCount} active subscriber(s). Each recipient
-            gets their own unsubscribe link. Emails are sent in batches of 50 per run to stay
-            within server limits — click again to continue for larger lists.
+            gets their own unsubscribe link and the send runs in the background — watch the
+            <b> History tab</b> for live status (pending → sending → sent). Sends up to 50 per
+            click; click again to queue the next group.
           </DialogDescription>
         </DialogHeader>
         {!emailConfigured && (
@@ -398,11 +404,40 @@ function BroadcastDialog({
           <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
           <Button onClick={send} disabled={sending || !emailConfigured}>
             <AppIcon name="mailSend" size={15} className="mr-1.5" />
-            {sending ? "Sending…" : `Send to ${subscriberCount} subscribers`}
+            {sending ? "Queuing…" : `Send to ${subscriberCount} subscribers`}
           </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+}
+
+function StatusBadge({ status }: { status: string }) {
+  if (status === "sent") {
+    return (
+      <Badge variant="outline" className="border-emerald-500/40 text-emerald-600 dark:text-emerald-400">
+        <AppIcon name="check" size={12} className="mr-1" /> Sent
+      </Badge>
+    );
+  }
+  if (status === "failed") {
+    return (
+      <Badge variant="outline" className="border-destructive/40 text-destructive">
+        <AppIcon name="alertCircle" size={12} className="mr-1" /> Failed
+      </Badge>
+    );
+  }
+  if (status === "sending") {
+    return (
+      <Badge variant="outline" className="border-blue-400/50 text-blue-500">
+        <AppIcon name="refresh" size={12} className="mr-1 animate-spin" /> Sending
+      </Badge>
+    );
+  }
+  return (
+    <Badge variant="outline" className="border-amber-400/50 text-amber-500">
+      Pending
+    </Badge>
   );
 }
 
@@ -414,9 +449,47 @@ function HistoryTab({
   digestSends: CourseDigestSendRow[];
 }) {
   const [showAll, setShowAll] = React.useState(false);
-  const sentCount = digestSends.filter((d) => d.status === "sent").length;
-  const failedCount = digestSends.filter((d) => d.status === "failed").length;
-  const visible = showAll ? digestSends : digestSends.slice(0, 100);
+  const [live, setLive] = React.useState<CourseDigestSendRow[] | null>(null);
+  const [resuming, setResuming] = React.useState(false);
+
+  const data = live ?? digestSends;
+  const pendingCount = data.filter((d) => d.status === "pending").length;
+  const sendingCount = data.filter((d) => d.status === "sending").length;
+  const sentCount = data.filter((d) => d.status === "sent").length;
+  const failedCount = data.filter((d) => d.status === "failed").length;
+  const active = pendingCount + sendingCount;
+  const visible = showAll ? data : data.slice(0, 100);
+
+  // Poll the live send log while a broadcast is in progress.
+  React.useEffect(() => {
+    if (active === 0) return;
+    let stopped = false;
+    const poll = async () => {
+      const rows = await getLiveDigestSends(500).catch(() => null);
+      if (!stopped && rows) setLive(rows);
+    };
+    poll();
+    const id = setInterval(poll, 2500);
+    return () => {
+      stopped = true;
+      clearInterval(id);
+    };
+  }, [active]);
+
+  const refresh = async () => {
+    const rows = await getLiveDigestSends(500).catch(() => null);
+    if (rows) setLive(rows);
+  };
+
+  const resume = async () => {
+    setResuming(true);
+    const res = await resumePendingSends();
+    setResuming(false);
+    if (!res.ok) return toast.error(res.error || "Could not resume");
+    if (res.sent && res.sent > 0) toast.success(`Resumed ${res.sent} email(s)`);
+    else toast.info("Nothing stuck to resume");
+    await refresh();
+  };
 
   return (
     <div className="space-y-8">
@@ -425,15 +498,59 @@ function HistoryTab({
           <div>
             <h3 className="font-display text-base font-bold">Email send log</h3>
             <p className="text-xs text-muted-foreground">
-              Complete record of every email sent to subscribers — with time stamps.
+              Complete record of every email sent to subscribers — updates live while a broadcast runs.
             </p>
           </div>
-          <div className="flex flex-wrap gap-2">
-            <Badge variant="default">Total: {digestSends.length}</Badge>
+          <div className="flex flex-wrap items-center gap-2">
+            {active > 0 && (
+              <Badge variant="outline" className="border-blue-400/50 text-blue-500">
+                <AppIcon name="refresh" size={12} className="mr-1 animate-spin" /> Live
+              </Badge>
+            )}
+            <Badge variant="default">Total: {data.length}</Badge>
+            {pendingCount > 0 && <Badge variant="outline" className="border-amber-400/50 text-amber-500">Pending: {pendingCount}</Badge>}
+            {sendingCount > 0 && <Badge variant="outline" className="border-blue-400/50 text-blue-500">Sending: {sendingCount}</Badge>}
             <Badge variant="secondary">Sent: {sentCount}</Badge>
             {failedCount > 0 && <Badge variant="destructive">Failed: {failedCount}</Badge>}
+            <Button variant="ghost" size="icon" className="size-8" onClick={refresh} title="Refresh" aria-label="Refresh">
+              <AppIcon name="refresh" size={15} />
+            </Button>
           </div>
         </div>
+
+        {active > 0 && (
+          <div className="mb-3 rounded-xl border border-blue-400/30 bg-blue-400/5 p-4">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <AppIcon name="refresh" size={16} className="animate-spin text-blue-500" />
+                <p className="text-sm font-semibold">Broadcast in progress — sending live</p>
+              </div>
+              <div className="flex flex-wrap items-center gap-3 text-xs">
+                <span className="text-amber-500">{pendingCount} pending</span>
+                <span className="text-blue-500">{sendingCount} sending</span>
+                <span className="text-emerald-600">{sentCount} sent</span>
+                {failedCount > 0 && <span className="text-destructive">{failedCount} failed</span>}
+                <Button variant="outline" size="sm" onClick={resume} disabled={resuming}>
+                  <AppIcon name="refresh" size={13} className="mr-1" />
+                  {resuming ? "Resuming…" : "Resume stuck"}
+                </Button>
+              </div>
+            </div>
+            <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-muted">
+              <div
+                className="h-full rounded-full bg-emerald-500 transition-all duration-700"
+                style={{
+                  width: `${
+                    sentCount + failedCount > 0
+                      ? Math.round(((sentCount + failedCount) / data.length) * 100)
+                      : 0
+                  }%`,
+                }}
+              />
+            </div>
+          </div>
+        )}
+
         <div className="rounded-xl border bg-card">
           <Table>
             <TableHeader>
@@ -447,17 +564,15 @@ function HistoryTab({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {digestSends.length === 0 ? (
+              {data.length === 0 ? (
                 <TableRow><TableCell colSpan={6} className="py-8 text-center text-sm text-muted-foreground">No emails sent yet.</TableCell></TableRow>
               ) : (
                 visible.map((d, i) => (
-                  <TableRow key={d.id}>
+                  <TableRow key={d.id} className={d.status === "pending" || d.status === "sending" ? "bg-blue-400/[0.03]" : ""}>
                     <TableCell className="w-12 text-muted-foreground">{i + 1}</TableCell>
                     <TableCell className="font-medium">{d.email}</TableCell>
                     <TableCell className="max-w-[280px] truncate">{d.courses.join(", ") || "—"}</TableCell>
-                    <TableCell>
-                      <Badge variant={d.status === "sent" ? "default" : d.status === "failed" ? "destructive" : "outline"}>{d.status}</Badge>
-                    </TableCell>
+                    <TableCell><StatusBadge status={d.status} /></TableCell>
                     <TableCell className="max-w-[220px] truncate text-xs text-destructive" title={d.error ?? undefined}>
                       {d.error ?? "—"}
                     </TableCell>
@@ -470,10 +585,10 @@ function HistoryTab({
             </TableBody>
           </Table>
         </div>
-        {digestSends.length > 100 && (
+        {data.length > 100 && (
           <div className="mt-3 text-center">
             <Button variant="outline" size="sm" onClick={() => setShowAll((v) => !v)}>
-              {showAll ? "Show less" : `Show all ${digestSends.length} records`}
+              {showAll ? "Show less" : `Show all ${data.length} records`}
             </Button>
           </div>
         )}

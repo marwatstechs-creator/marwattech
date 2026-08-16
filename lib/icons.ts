@@ -97,6 +97,7 @@ import Cancel01Icon from "@hugeicons/core-free-icons/Cancel01Icon";
 import Megaphone01Icon from "@hugeicons/core-free-icons/Megaphone01Icon";
 import PlayIcon from "@hugeicons/core-free-icons/PlayIcon";
 import Video01Icon from "@hugeicons/core-free-icons/Video01Icon";
+import MailSend01Icon from "@hugeicons/core-free-icons/MailSend01Icon";
 
 // Social / brand
 import Linkedin01Icon from "@hugeicons/core-free-icons/Linkedin01Icon";
@@ -193,6 +194,7 @@ export const ICONS = {
   lock: LockIcon,
   play: PlayIcon,
   video: Video01Icon,
+  mailSend: MailSend01Icon,
   userAdd: UserAdd01Icon,
   message: Message01Icon,
   bell: BellIcon,

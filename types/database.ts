@@ -1333,6 +1333,9 @@ export interface Database {
           status: string;
           error: string | null;
           sent_at: string;
+          batch_id: string | null;
+          subject: string | null;
+          body: string | null;
         };
         Insert: {
           id?: string;
@@ -1342,6 +1345,9 @@ export interface Database {
           status?: string;
           error?: string | null;
           sent_at?: string;
+          batch_id?: string | null;
+          subject?: string | null;
+          body?: string | null;
         };
         Update: {
           id?: string;
@@ -1351,6 +1357,9 @@ export interface Database {
           status?: string;
           error?: string | null;
           sent_at?: string;
+          batch_id?: string | null;
+          subject?: string | null;
+          body?: string | null;
         };
         Relationships: [];
       };
