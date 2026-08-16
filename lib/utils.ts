@@ -21,6 +21,22 @@ export function formatDate(
   }).format(new Date(date));
 }
 
+/** Format a date + time as e.g. "Aug 10, 2026, 6:05 PM UTC" (deterministic UTC). */
+export function formatDateTime(date: string | Date | null | undefined) {
+  if (!date) return "";
+  return new Intl.DateTimeFormat("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: true,
+    timeZone: "UTC",
+    timeZoneName: "short",
+  }).format(new Date(date));
+}
+
 /** Convert arbitrary text into a URL-safe slug. */
 export function slugify(text: string) {
   return text

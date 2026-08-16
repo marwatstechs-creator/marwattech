@@ -31,7 +31,7 @@ export default async function AdminCourseUpdatesPage() {
         .select("id, course_id, event_type, summary, meaningful, included_in_digest, created_at")
         .order("created_at", { ascending: false })
         .limit(200),
-      db.from("course_digest_sends").select("*").order("sent_at", { ascending: false }).limit(200),
+      db.from("course_digest_sends").select("*").order("sent_at", { ascending: false }).limit(2000),
       getSiteSettings(db),
     ]);
     subscribers = (subs.data ?? []) as CourseSubscriberRow[];

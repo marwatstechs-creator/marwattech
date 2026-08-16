@@ -36,7 +36,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { DeleteButton } from "@/components/admin/delete-button";
-import { formatDate } from "@/lib/utils";
+import { formatDate, formatDateTime } from "@/lib/utils";
 import {
   addCourseSubscriber,
   setCourseSubscriberStatus,
@@ -413,10 +413,27 @@ function HistoryTab({
   events: CourseUpdateEventRow[];
   digestSends: CourseDigestSendRow[];
 }) {
+  const [showAll, setShowAll] = React.useState(false);
+  const sentCount = digestSends.filter((d) => d.status === "sent").length;
+  const failedCount = digestSends.filter((d) => d.status === "failed").length;
+  const visible = showAll ? digestSends : digestSends.slice(0, 100);
+
   return (
     <div className="space-y-8">
       <div>
-        <h3 className="font-display mb-2 text-base font-bold">Recent notification sends</h3>
+        <div className="mb-2 flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h3 className="font-display text-base font-bold">Email send log</h3>
+            <p className="text-xs text-muted-foreground">
+              Complete record of every email sent to subscribers — with time stamps.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Badge variant="default">Total: {digestSends.length}</Badge>
+            <Badge variant="secondary">Sent: {sentCount}</Badge>
+            {failedCount > 0 && <Badge variant="destructive">Failed: {failedCount}</Badge>}
+          </div>
+        </div>
         <div className="rounded-xl border bg-card">
           <Table>
             <TableHeader>
@@ -425,28 +442,41 @@ function HistoryTab({
                 <TableHead>Email</TableHead>
                 <TableHead>Courses</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead>Sent</TableHead>
+                <TableHead>Error</TableHead>
+                <TableHead>Sent (UTC)</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {digestSends.length === 0 ? (
-                <TableRow><TableCell colSpan={5} className="py-8 text-center text-sm text-muted-foreground">No digests sent yet.</TableCell></TableRow>
+                <TableRow><TableCell colSpan={6} className="py-8 text-center text-sm text-muted-foreground">No emails sent yet.</TableCell></TableRow>
               ) : (
-                digestSends.slice(0, 50).map((d, i) => (
+                visible.map((d, i) => (
                   <TableRow key={d.id}>
                     <TableCell className="w-12 text-muted-foreground">{i + 1}</TableCell>
                     <TableCell className="font-medium">{d.email}</TableCell>
                     <TableCell className="max-w-[280px] truncate">{d.courses.join(", ") || "—"}</TableCell>
                     <TableCell>
-                      <Badge variant={d.status === "sent" ? "default" : "destructive"}>{d.status}</Badge>
+                      <Badge variant={d.status === "sent" ? "default" : d.status === "failed" ? "destructive" : "outline"}>{d.status}</Badge>
                     </TableCell>
-                    <TableCell className="text-muted-foreground">{formatDate(d.sent_at)}</TableCell>
+                    <TableCell className="max-w-[220px] truncate text-xs text-destructive" title={d.error ?? undefined}>
+                      {d.error ?? "—"}
+                    </TableCell>
+                    <TableCell className="whitespace-nowrap text-muted-foreground" title={formatDateTime(d.sent_at)}>
+                      {formatDateTime(d.sent_at)}
+                    </TableCell>
                   </TableRow>
                 ))
               )}
             </TableBody>
           </Table>
         </div>
+        {digestSends.length > 100 && (
+          <div className="mt-3 text-center">
+            <Button variant="outline" size="sm" onClick={() => setShowAll((v) => !v)}>
+              {showAll ? "Show less" : `Show all ${digestSends.length} records`}
+            </Button>
+          </div>
+        )}
       </div>
 
       <div>
@@ -460,7 +490,7 @@ function HistoryTab({
                 <TableHead>Type</TableHead>
                 <TableHead>Summary</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead>Created</TableHead>
+                <TableHead>Created (UTC)</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -482,7 +512,9 @@ function HistoryTab({
                         <Badge variant="secondary">Minor</Badge>
                       )}
                     </TableCell>
-                    <TableCell className="text-muted-foreground">{formatDate(e.created_at)}</TableCell>
+                    <TableCell className="whitespace-nowrap text-muted-foreground" title={formatDateTime(e.created_at)}>
+                      {formatDateTime(e.created_at)}
+                    </TableCell>
                   </TableRow>
                 ))
               )}
