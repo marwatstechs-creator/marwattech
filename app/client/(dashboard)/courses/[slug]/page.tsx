@@ -4,6 +4,7 @@ import { AdminPageHeader } from "@/components/admin/page-header";
 import { CoursePlayer, type PlayerLesson } from "@/components/client/course-player";
 import { createClient } from "@/lib/supabase/server";
 import { getSessionUser } from "@/lib/auth";
+import { sanitizeHtml } from "@/lib/sanitize";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -48,7 +49,7 @@ export default async function ClientCourseDetailPage({ params }: Props) {
     lessons = (l ?? []).map((x) => ({
       id: x.id,
       title: x.title,
-      content: x.content,
+      content: x.content ? sanitizeHtml(x.content) : null,
       has_video: !!x.video_url,
       duration_hours: x.duration_hours,
       duration_minutes: x.duration_minutes,

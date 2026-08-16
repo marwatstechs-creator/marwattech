@@ -11,7 +11,6 @@ import { EnrollButton } from "@/components/client/enroll-button";
 import { LessonPlayer } from "@/components/client/lesson-player";
 import { setLessonProgress } from "@/lib/actions/client/courses";
 import { cn, formatDuration } from "@/lib/utils";
-import { sanitizeHtml } from "@/lib/sanitize";
 
 export type PlayerLesson = {
   id: string;
@@ -146,7 +145,8 @@ export function CoursePlayer({
         {enrolled && active?.content && (
           <div
             className="prose-cms rounded-xl border bg-card p-5 text-sm"
-            dangerouslySetInnerHTML={{ __html: sanitizeHtml(active.content) }}
+            // content is sanitized server-side before it reaches this component
+            dangerouslySetInnerHTML={{ __html: active.content }}
           />
         )}
       </div>
