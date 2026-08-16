@@ -29,5 +29,11 @@
       "binding": "NEXT_CACHE_WORKERS_KV",
       "id": "ad13268b6fbf45949a00136fc911cb4a"
     }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "COURSE_MEDIA",
+      "bucket_name": "marwattech-media"
+    }
   ]
 }

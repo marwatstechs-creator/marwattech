@@ -87,3 +87,65 @@ export function youtubeEmbedUrl(id: string): string {
 export function driveDirectUrl(id: string): string {
   return `https://drive.usercontent.google.com/download?id=${encodeURIComponent(id)}&export=download&confirm=t`;
 }
+
+/** Classic Drive download endpoint — used as a fallback when the primary URL
+ * fails or returns an interstitial (it auto-redirects to usercontent). */
+export function driveFallbackUrl(id: string): string {
+  return `https://drive.google.com/uc?export=download&id=${encodeURIComponent(id)}`;
+}
+
+/**
+ * Google Drive shows an HTML "this file can't be scanned" interstitial page
+ * for larger files instead of the video. The page embeds a hidden `uuid`
+ * (confirm) token inside a form — extract it so we can retry with
+ * `confirm=<token>`.
+ */
+export function extractDriveConfirmToken(html: string): string | null {
+  if (!html) return null;
+  // <input type="hidden" name="uuid" value="..." />
+  const m = html.match(/name=["']uuid["'][^>]*value=["']([^"']+)["']/i);
+  if (m && /^[A-Za-z0-9_-]{8,}$/.test(m[1])) return m[1];
+  // alternate markup: value then name
+  const m2 = html.match(/value=["']([A-Za-z0-9_-]{8,})["'][^>]*name=["']uuid["']/i);
+  if (m2) return m2[1];
+  return null;
+}
+
+/**
+ * Resolve the correct video MIME type. Prefers an upstream video/* type; falls
+ * back to sniffing the filename extension, then a sensible default.
+ */
+export function inferVideoContentType(
+  contentType: string | null | undefined,
+  filename?: string | null
+): string {
+  const ct = contentType?.trim().toLowerCase() ?? "";
+  if (ct.startsWith("video/")) return ct;
+  // `filename` may be a Content-Disposition header — pull out the real filename.
+  let file = (filename ?? "").trim();
+  const cdMatch = file.match(/filename="?([^";]+)"?/i);
+  if (cdMatch) file = cdMatch[1];
+  const ext = file.toLowerCase().split(".").pop() ?? "";
+  const byExt: Record<string, string> = {
+    mp4: "video/mp4",
+    m4v: "video/mp4",
+    webm: "video/webm",
+    mov: "video/quicktime",
+    qt: "video/quicktime",
+    ogv: "video/ogg",
+    ogg: "video/ogg",
+    mkv: "video/x-matroska",
+    avi: "video/x-msvideo",
+    mpeg: "video/mpeg",
+  };
+  return byExt[ext] ?? "video/mp4";
+}
+
+/** Build a `Content-Range` header value for a byte range response. */
+export function formatContentRange(
+  start: number,
+  end: number,
+  total: number
+): string {
+  return `bytes ${start}-${end}/${total}`;
+}
