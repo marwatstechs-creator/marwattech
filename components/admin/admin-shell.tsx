@@ -69,6 +69,7 @@ const NAV_GROUPS: NavGroup[] = [
       { label: "Testimonials", href: "/admin/testimonials", icon: "quote", roles: ["super_admin", "editor"] },
       { label: "Careers", href: "/admin/careers", icon: "briefcase", roles: ["super_admin", "editor"] },
       { label: "Applications", href: "/admin/applications", icon: "userAdd", roles: ["super_admin", "editor"] },
+      { label: "Code Scripts", href: "/admin/code-scripts", icon: "code", roles: ["super_admin", "editor"] },
     ],
   },
   {

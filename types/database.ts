@@ -1363,6 +1363,126 @@ export interface Database {
         };
         Relationships: [];
       };
+      code_scripts: {
+        Row: {
+          id: string;
+          source_url: string;
+          title: string;
+          slug: string;
+          category: string | null;
+          version: string | null;
+          content: string | null;
+          excerpt: string | null;
+          cover_image: string | null;
+          source_image: string | null;
+          download_url: string | null;
+          source_download_url: string | null;
+          seo_title: string | null;
+          seo_description: string | null;
+          faqs: Json;
+          json_ld: Json | null;
+          status: string;
+          created_at: string;
+          updated_at: string;
+          last_synced_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          source_url: string;
+          title: string;
+          slug: string;
+          category?: string | null;
+          version?: string | null;
+          content?: string | null;
+          excerpt?: string | null;
+          cover_image?: string | null;
+          source_image?: string | null;
+          download_url?: string | null;
+          source_download_url?: string | null;
+          seo_title?: string | null;
+          seo_description?: string | null;
+          faqs?: Json;
+          json_ld?: Json | null;
+          status?: string;
+          created_at?: string;
+          updated_at?: string;
+          last_synced_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          source_url?: string;
+          title?: string;
+          slug?: string;
+          category?: string | null;
+          version?: string | null;
+          content?: string | null;
+          excerpt?: string | null;
+          cover_image?: string | null;
+          source_image?: string | null;
+          download_url?: string | null;
+          source_download_url?: string | null;
+          seo_title?: string | null;
+          seo_description?: string | null;
+          faqs?: Json;
+          json_ld?: Json | null;
+          status?: string;
+          created_at?: string;
+          updated_at?: string;
+          last_synced_at?: string | null;
+        };
+        Relationships: [];
+      };
+      code_script_syncs: {
+        Row: {
+          id: string;
+          ran_at: string;
+          sitemap_urls: number;
+          new_found: number;
+          imported: number;
+          failed: number;
+          error: string | null;
+        };
+        Insert: {
+          id?: string;
+          ran_at?: string;
+          sitemap_urls?: number;
+          new_found?: number;
+          imported?: number;
+          failed?: number;
+          error?: string | null;
+        };
+        Update: {
+          id?: string;
+          ran_at?: string;
+          sitemap_urls?: number;
+          new_found?: number;
+          imported?: number;
+          failed?: number;
+          error?: string | null;
+        };
+        Relationships: [];
+      };
+      code_script_sync_requests: {
+        Row: {
+          id: string;
+          status: string;
+          created_at: string;
+          processed_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          status?: string;
+          created_at?: string;
+          processed_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          status?: string;
+          created_at?: string;
+          processed_at?: string | null;
+        };
+        Relationships: [];
+      };
       email_campaigns: {
         Row: {
           id: string;

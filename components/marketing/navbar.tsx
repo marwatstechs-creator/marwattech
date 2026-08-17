@@ -84,6 +84,29 @@ function ArrowBtn({ href, children, variant, showArrow = true }: { href: string;
 
 /* ── MEGA MENU DATA ─────────────────────────────────────────────────── */
 
+const CODE_SCRIPTS_MENU = {
+  columns: [
+    {
+      label: "Categories",
+      items: [
+        { icon: <AppIcon name="code" size={17} />, title: "PHP Scripts", desc: "Standalone apps & tools", href: "/code-scripts?category=php-scripts" },
+        { icon: <AppIcon name="box" size={17} />, title: "WordPress Plugins", desc: "Extend your site", href: "/code-scripts?category=wordpress-plugins" },
+        { icon: <AppIcon name="design" size={17} />, title: "WP Themes", desc: "Ready-made themes", href: "/code-scripts?category=wordpress-themes" },
+        { icon: <AppIcon name="ecommerce" size={17} />, title: "E-Commerce", desc: "Stores & marketplaces", href: "/code-scripts?category=ecommerce" },
+      ],
+    },
+    {
+      label: "More",
+      items: [
+        { icon: <AppIcon name="rocket" size={17} />, title: "SaaS & Web Apps", desc: "Full app code", href: "/code-scripts?category=saas-apps" },
+        { icon: <AppIcon name="database" size={17} />, title: "Laravel", desc: "Packages & boilerplates", href: "/code-scripts?category=laravel" },
+        { icon: <AppIcon name="ai" size={17} />, title: "JavaScript & React", desc: "JS & Next.js code", href: "/code-scripts?category=javascript" },
+        { icon: <AppIcon name="settings" size={17} />, title: "Tools & Utilities", desc: "Dev tools & snippets", href: "/code-scripts?category=tools" },
+      ],
+    },
+  ],
+};
+
 const MEGA_MENU = {
   featured: {
     badge: "For the best experience",
@@ -129,9 +152,12 @@ export function Navbar() {
   const [megaOpen, setMegaOpen] = React.useState(false);
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const [mobileExploreOpen, setMobileExploreOpen] = React.useState(false);
+  const [mobileCodeOpen, setMobileCodeOpen] = React.useState(false);
+  const [codeOpen, setCodeOpen] = React.useState(false);
   const [isLoggedIn, setIsLoggedIn] = React.useState(false);
   const navRef = React.useRef<HTMLDivElement>(null);
   const closeTimer = React.useRef<ReturnType<typeof setTimeout>>(undefined);
+  const codeCloseTimer = React.useRef<ReturnType<typeof setTimeout>>(undefined);
 
   /* Keep the auth-aware buttons in sync (login / logout anywhere updates them). */
   React.useEffect(() => {
@@ -246,6 +272,63 @@ export function Navbar() {
                 </div>
               </div>
 
+              {/* Code Scripts mega menu trigger */}
+              <div className="relative"
+                onMouseEnter={() => { clearTimeout(codeCloseTimer.current); setCodeOpen(true); }}
+                onMouseLeave={() => { codeCloseTimer.current = setTimeout(() => setCodeOpen(false), 200); }}>
+                <button
+                  className={cn("nav-link-3d inline-flex items-center gap-1 whitespace-nowrap rounded-full px-3 py-2 text-sm font-medium transition-colors", codeOpen ? "text-foreground" : "text-foreground/60 hover:text-foreground")}>
+                  Code Scripts
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"
+                    className={cn("transition-transform duration-200", codeOpen && "rotate-180")}>
+                    <path d="m6 9 6 6 6-6"/>
+                  </svg>
+                </button>
+
+                {/* Code Scripts dropdown */}
+                <div
+                  onMouseEnter={() => { clearTimeout(codeCloseTimer.current); setCodeOpen(true); }}
+                  onMouseLeave={() => { codeCloseTimer.current = setTimeout(() => setCodeOpen(false), 200); }}
+                  className={cn("pointer-events-none absolute left-0 top-full z-50 pt-2 transition-all duration-200", codeOpen ? "pointer-events-auto visible translate-y-0 opacity-100" : "invisible translate-y-1 opacity-0")}>
+                  <div className="card-3d glass-strong flex w-[720px] max-w-[calc(100vw-2rem)] items-stretch gap-2.5 rounded-4xl border p-3 shadow-lg">
+                    <div className="card-3d hidden lg:flex flex-col rounded-2xl bg-accent/30 w-[240px] shrink-0 p-5">
+                      <span className="self-start rounded-full bg-[#f8c640] px-3 py-1 text-[11px] font-semibold uppercase text-black">Free downloads</span>
+                      <span className="mt-3 flex items-center gap-2 text-lg font-bold tracking-tight text-foreground">
+                        <span className="text-primary"><AppIcon name="code" size={20} /></span>
+                        Browse Code Scripts
+                      </span>
+                      <p className="mt-1.5 text-sm text-muted-foreground mb-6">Ready-made PHP scripts, WP plugins &amp; themes, SaaS code — with free downloads.</p>
+                      <Link href="/code-scripts" onClick={() => setCodeOpen(false)} className="group mt-auto inline-flex items-center justify-between whitespace-nowrap rounded-full btn-3d pb-1.5 pl-5 pr-1.5 pt-1.5 text-sm font-medium">
+                        All scripts
+                        <span className="relative flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary-foreground/15">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="transition-transform duration-300 ease-out group-hover:translate-x-[220%]">
+                            <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
+                          </svg>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="absolute inset-0 m-auto -translate-x-[220%] transition-transform duration-300 ease-out group-hover:translate-x-0">
+                            <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
+                          </svg>
+                        </span>
+                      </Link>
+                    </div>
+
+                    <div className="grid flex-1 grid-cols-2">
+                      {CODE_SCRIPTS_MENU.columns.map((col) => (
+                        <div key={col.label} className="flex min-w-0 flex-col gap-1 border-l py-1 pe-1 ps-3">
+                          <span className="px-2 pb-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                            {col.label}
+                          </span>
+                          {col.items.map((item) => (
+                            <div key={item.href} onClick={() => setCodeOpen(false)}>
+                              <MegaItem icon={item.icon} title={item.title} desc={item.desc} href={item.href} />
+                            </div>
+                          ))}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               {/* Regular nav links */}
               {(
                 [
@@ -349,6 +432,48 @@ export function Navbar() {
                               <AppIcon name="arrowRight" size={16} />
                             </Link>
                             {MEGA_MENU.columns.map((col) => (
+                              <div key={col.label} className="flex flex-col gap-0.5">
+                                <span className="px-2 pt-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{col.label}</span>
+                                {col.items.map((item) => (
+                                  <div key={item.href} onClick={() => setMobileOpen(false)}>
+                                    <MegaItem icon={item.icon} title={item.title} desc={item.desc} href={item.href} />
+                                  </div>
+                                ))}
+                              </div>
+                            ))}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </li>
+
+                  {/* Code Scripts (mobile) */}
+                  <li className="flex flex-col">
+                    <button className="dropdown-item-3d group flex min-h-[44px] w-full items-center gap-3 rounded-2xl px-3 text-start text-base font-semibold text-foreground/70 transition-colors hover:bg-accent-hover hover:text-foreground"
+                      onClick={() => setMobileCodeOpen((v) => !v)}>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-muted-foreground group-hover:text-primary transition-colors">
+                        <path d="m8 6-5 6 5 6"/><path d="m16 6 5 6-5 6"/>
+                      </svg>
+                      <span className="flex-1 text-start transition-transform duration-200 group-hover:translate-x-[3px]">Code Scripts</span>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className={cn("shrink-0 text-muted-foreground transition-transform duration-200", mobileCodeOpen && "rotate-180")}><path d="m6 9 6 6 6-6"/></svg>
+                    </button>
+
+                    <AnimatePresence initial={false}>
+                      {mobileCodeOpen && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.2 }}
+                          className="overflow-hidden"
+                        >
+                          <div className="card-3d mt-1 flex flex-col gap-1 rounded-2xl border bg-accent/20 p-2">
+                            <Link href="/code-scripts" onClick={() => setMobileOpen(false)} className="flex items-center gap-3 rounded-xl bg-primary p-3 text-sm font-semibold text-primary-foreground">
+                              <AppIcon name="code" size={18} />
+                              <span className="flex-1">Browse all Code Scripts</span>
+                              <AppIcon name="arrowRight" size={16} />
+                            </Link>
+                            {CODE_SCRIPTS_MENU.columns.map((col) => (
                               <div key={col.label} className="flex flex-col gap-0.5">
                                 <span className="px-2 pt-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{col.label}</span>
                                 {col.items.map((item) => (
