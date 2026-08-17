@@ -19,6 +19,7 @@
  */
 import { readFile } from "node:fs/promises";
 import { createClient } from "@supabase/supabase-js";
+import WebSocket from "ws";
 import * as cheerio from "cheerio";
 import sharp from "sharp";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
@@ -41,7 +42,10 @@ if (!SUPABASE_URL || !SERVICE_KEY) {
   console.error("Missing SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY");
   process.exit(1);
 }
-const db = createClient(SUPABASE_URL, SERVICE_KEY);
+// Node 20 has no native WebSocket — supply `ws` as the realtime transport.
+const db = createClient(SUPABASE_URL, SERVICE_KEY, {
+  realtime: { transport: WebSocket },
+});
 
 const CATEGORY_MAP = [
   [/php/i, "php-scripts"],
