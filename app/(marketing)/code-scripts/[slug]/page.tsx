@@ -13,6 +13,7 @@ import {
   buildFaqJsonLd,
   buildSeoTitle,
   buildSeoDescription,
+  stripSourceLinks,
   type CodeScript,
 } from "@/lib/code-scripts";
 import { createClient } from "@/lib/supabase/server";
@@ -78,6 +79,11 @@ export default async function CodeScriptDetailPage({ params }: Props) {
   const s = script as CodeScript;
   const cat = CODE_SCRIPT_CATEGORIES.find((c) => c.slug === s.category);
 
+  const dlLinks = (Array.isArray(s.download_links) ? s.download_links : [])
+    .map((l) => l?.trim())
+    .filter((l): l is string => Boolean(l));
+  const downloadLinks = dlLinks.length ? dlLinks : s.download_url ? [s.download_url] : [];
+
   const softwareLd = buildSoftwareJsonLd(s);
   const faqLd = buildFaqJsonLd(Array.isArray(s.faqs) ? s.faqs : []);
 
@@ -125,23 +131,13 @@ export default async function CodeScriptDetailPage({ params }: Props) {
             <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
               {s.download_url ? (
                 <Button asChild variant="gold" className="btn-3d">
-                  <a href={s.download_url} target="_blank" rel="noopener noreferrer">
+                  <a href={s.download_url} target="_blank" rel="nofollow noopener noreferrer">
                     <AppIcon name="download" size={16} className="mr-1.5" />
                     Download {s.version ? `v${s.version}` : "Now"}
                   </a>
                 </Button>
               ) : (
                 <Button variant="gold" disabled>Download coming soon</Button>
-              )}
-              {s.source_url && (
-                <a
-                  href={s.source_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
-                >
-                  View source <AppIcon name="external" size={14} />
-                </a>
               )}
             </div>
           </div>
@@ -153,8 +149,27 @@ export default async function CodeScriptDetailPage({ params }: Props) {
         {s.content && (
           <div
             className="prose-cms text-[15px] leading-relaxed"
-            dangerouslySetInnerHTML={{ __html: sanitizeHtml(s.content) }}
+            dangerouslySetInnerHTML={{ __html: sanitizeHtml(stripSourceLinks(s.content)) }}
           />
+        )}
+
+        {downloadLinks.length > 0 && (
+          <div className="mt-10 rounded-2xl border bg-muted/40 p-6 sm:p-8">
+            <h2 className="font-display mb-1 text-2xl font-bold">Download</h2>
+            <p className="mb-5 text-sm text-muted-foreground">
+              Grab the package from any of the mirrors below — all point to the same release.
+            </p>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {downloadLinks.map((link, i) => (
+                <Button key={i} asChild variant="gold" className="btn-3d">
+                  <a href={link} target="_blank" rel="nofollow noopener noreferrer">
+                    <AppIcon name="download" size={16} className="mr-1.5" />
+                    {downloadLinks.length > 1 ? `Mirror ${i + 1}` : "Download"} {s.version ? `v${s.version}` : ""}
+                  </a>
+                </Button>
+              ))}
+            </div>
+          </div>
         )}
 
         {Array.isArray(s.faqs) && s.faqs.length > 0 && (

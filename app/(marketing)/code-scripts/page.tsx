@@ -1,17 +1,16 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { CodeScriptsGrid } from "@/components/marketing/code-scripts-grid";
 import { PageHero } from "@/components/marketing/page-hero";
 import { AppIcon } from "@/components/app-icon";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
   CODE_SCRIPT_CATEGORIES,
   CODE_SCRIPTS_PATH,
-  codeScriptUrl,
-  buildExcerpt,
-  type CodeScript,
+  CODE_SCRIPTS_PAGE_SIZE,
 } from "@/lib/code-scripts";
+import { type CodeScriptCard } from "@/lib/actions/public/code-scripts";
 import { createClient } from "@/lib/supabase/server";
 import { buildMetadata } from "@/lib/seo";
 import { SITE } from "@/lib/constants";
@@ -34,11 +33,6 @@ export async function generateMetadata({
   });
 }
 
-type Row = Pick<
-  CodeScript,
-  "id" | "title" | "slug" | "category" | "version" | "cover_image" | "content" | "created_at"
->;
-
 export default async function CodeScriptsPage({
   searchParams,
 }: {
@@ -47,7 +41,7 @@ export default async function CodeScriptsPage({
   const { category } = await searchParams;
   const cat = CODE_SCRIPT_CATEGORIES.find((c) => c.slug === category);
 
-  let scripts: Row[] = [];
+  let scripts: CodeScriptCard[] = [];
   try {
     const db = await createClient();
     let q = db
@@ -55,8 +49,10 @@ export default async function CodeScriptsPage({
       .select("id, title, slug, category, version, cover_image, content, created_at")
       .eq("status", "published");
     if (category) q = q.eq("category", category);
-    const { data } = await q.order("created_at", { ascending: false }).limit(60);
-    scripts = (data ?? []) as Row[];
+    const { data } = await q
+      .order("created_at", { ascending: false })
+      .limit(CODE_SCRIPTS_PAGE_SIZE);
+    scripts = (data ?? []) as CodeScriptCard[];
   } catch {
     // fallback — empty
   }
@@ -96,63 +92,7 @@ export default async function CodeScriptsPage({
             <p className="text-muted-foreground">No scripts here yet — check back soon.</p>
           </div>
         ) : (
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {scripts.map((s) => (
-              <Link
-                key={s.id}
-                href={codeScriptUrl(s.slug)}
-                className="group flex flex-col overflow-hidden rounded-2xl border bg-card transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-lg"
-              >
-                <div className="relative aspect-[16/9] w-full overflow-hidden bg-muted">
-                  {s.cover_image ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={s.cover_image}
-                      alt={s.title}
-                      loading="lazy"
-                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                  ) : (
-                    <div
-                      className="grid h-full w-full place-items-center"
-                      style={{ background: "linear-gradient(135deg,#7464c6 0%,#4b3ea1 100%)" }}
-                    >
-                      <AppIcon name="code" size={40} className="text-white/40" />
-                    </div>
-                  )}
-                  <div className="absolute left-3 top-3 flex gap-1.5">
-                    {s.category && (
-                      <Badge variant="gold" className="text-[11px] capitalize">
-                        {s.category.replace("-", " ")}
-                      </Badge>
-                    )}
-                  </div>
-                  {s.version && (
-                    <div className="absolute right-3 top-3">
-                      <Badge className="bg-background/80 text-[11px] backdrop-blur">v{s.version}</Badge>
-                    </div>
-                  )}
-                </div>
-
-                <div className="flex flex-1 flex-col gap-2 p-5">
-                  <h3 className="font-display text-lg font-semibold leading-snug group-hover:text-primary">
-                    {s.title}
-                  </h3>
-                  {s.content && (
-                    <p className="line-clamp-2 text-sm text-muted-foreground">{buildExcerpt(s.content, 120)}</p>
-                  )}
-                  <div className="mt-auto flex items-center justify-between pt-3">
-                    <span className="text-xs text-muted-foreground">
-                      {new Date(s.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
-                    </span>
-                    <span className="inline-flex items-center gap-1 text-sm font-medium text-primary">
-                      View <AppIcon name="arrowRight" size={15} />
-                    </span>
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
+          <CodeScriptsGrid initial={scripts} category={category} />
         )}
       </section>
     </>

@@ -21,6 +21,7 @@ const updateSchema = z.object({
   excerpt: z.string().max(400).nullable().optional(),
   cover_image: z.string().max(1000).nullable().optional(),
   download_url: z.string().max(2000).nullable().optional(),
+  download_links: z.array(z.string().max(2000)).max(20).optional(),
   seo_title: z.string().max(300).nullable().optional(),
   seo_description: z.string().max(400).nullable().optional(),
 });
@@ -53,7 +54,7 @@ export async function getCodeScriptDetails(id: string) {
   const { data } = await db
     .from("code_scripts")
     .select(
-      "id, title, slug, category, version, content, excerpt, cover_image, download_url, source_url, seo_title, seo_description, faqs"
+      "id, title, slug, category, version, content, excerpt, cover_image, download_url, download_links, source_url, seo_title, seo_description, faqs"
     )
     .eq("id", id)
     .single();
@@ -100,6 +101,14 @@ export async function updateCodeScript(id: string, input: z.infer<typeof updateS
     ...(d.excerpt !== undefined ? { excerpt: norm(d.excerpt) } : {}),
     ...(d.cover_image !== undefined ? { cover_image: norm(d.cover_image) } : {}),
     ...(d.download_url !== undefined ? { download_url: norm(d.download_url) } : {}),
+    ...(d.download_links !== undefined
+      ? {
+          download_links: (() => {
+            const links = (d.download_links ?? []).map(norm).filter((x): x is string => Boolean(x));
+            return links.length ? [...new Set(links)] : null;
+          })(),
+        }
+      : {}),
     ...(d.seo_title !== undefined ? { seo_title: norm(d.seo_title) } : {}),
     ...(d.seo_description !== undefined ? { seo_description: norm(d.seo_description) } : {}),
     updated_at: new Date().toISOString(),

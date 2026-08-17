@@ -7,6 +7,7 @@ import {
   buildSoftwareJsonLd,
   buildFaqJsonLd,
   codeScriptUrl,
+  stripSourceLinks,
 } from "./code-scripts";
 
 describe("parseSitemapUrls", () => {
@@ -33,6 +34,33 @@ describe("parseSitemapUrls", () => {
     expect(parseSitemapUrls("")).toEqual([]);
     expect(parseSitemapUrls("<html></html>")).toEqual([]);
     expect(parseSitemapUrls(null as unknown as string)).toEqual([]);
+  });
+});
+
+describe("stripSourceLinks", () => {
+  it("removes source-site anchors but keeps their text", () => {
+    const html = `Read more <a href="https://nullphpscript.com/post/foo/">here</a> or
+      <a rel="nofollow" target="_blank" href="https://www.nullphpscript.com/file/abc">mirror</a>`;
+    const out = stripSourceLinks(html);
+    expect(out).not.toContain("nullphpscript.com");
+    expect(out).toContain("here");
+    expect(out).toContain("mirror");
+  });
+  it("removes hotlinked source-site images", () => {
+    const html = `Before<img data-src="https://nullphpscript.com/wp-content/uploads/a.png" src="x" alt="">After`;
+    const out = stripSourceLinks(html);
+    expect(out).not.toContain("nullphpscript.com");
+    expect(out).toBe("BeforeAfter");
+  });
+  it("removes source-site JSON-LD script blocks", () => {
+    const html = `<p>ok</p><script type="application/ld+json">{"@id":"https://nullphpscript.com/post/a","author":{"url":"https://nullphpscript.com/post/author/x/"}}</script>`;
+    const out = stripSourceLinks(html);
+    expect(out).not.toContain("nullphpscript.com");
+    expect(out).toBe("<p>ok</p>");
+  });
+  it("leaves unrelated links untouched", () => {
+    const html = `<a href="https://example.com/dl">ok</a>`;
+    expect(stripSourceLinks(html)).toBe(html);
   });
 });
 

@@ -14,6 +14,7 @@ export type CodeScript = {
   source_image: string | null;
   download_url: string | null;
   source_download_url: string | null;
+  download_links: string[] | null;
   seo_title: string | null;
   seo_description: string | null;
   faqs: { q: string; a: string }[];
@@ -42,7 +43,26 @@ export const CODE_SCRIPT_CATEGORIES: {
 ];
 
 export const CODE_SCRIPTS_PATH = "/code-scripts";
+export const CODE_SCRIPTS_PAGE_SIZE = 24;
 export const codeScriptUrl = (slug: string) => `${CODE_SCRIPTS_PATH}/${slug}`;
+
+/** Source site we never want to backlink to (kept out of links/content). */
+export const CODE_SCRIPTS_SOURCE_HOST = "nullphpscript.com";
+
+/** Remove source-site links, hotlinked images and JSON-LD — keep link text. */
+export function stripSourceLinks(html: string): string {
+  let out = html || "";
+  // Drop any <script> block that references the source site (e.g. its JSON-LD).
+  out = out.replace(/<script\b[^>]*>[\s\S]*?nullphpscript\.com[\s\S]*?<\/script>/gi, "");
+  // Drop image tags that hotlink the source site.
+  out = out.replace(/<img\b[^>]*src=["'][^"']*nullphpscript\.com[^"']*["'][^>]*>/gi, "");
+  // Remove anchors pointing at the source site, keep their visible text.
+  out = out.replace(
+    /<a\b[^>]*href=["'][^"']*nullphpscript\.com[^"']*["'][^>]*>([\s\S]*?)<\/a>/gi,
+    "$1"
+  );
+  return out;
+}
 
 /** Extract every <loc> URL from a sitemap (or sitemap index) XML document. */
 export function parseSitemapUrls(xml: string): string[] {

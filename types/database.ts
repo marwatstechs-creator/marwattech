@@ -1377,6 +1377,7 @@ export interface Database {
           source_image: string | null;
           download_url: string | null;
           source_download_url: string | null;
+          download_links: Json | null;
           seo_title: string | null;
           seo_description: string | null;
           faqs: Json;
@@ -1399,6 +1400,7 @@ export interface Database {
           source_image?: string | null;
           download_url?: string | null;
           source_download_url?: string | null;
+          download_links?: Json | null;
           seo_title?: string | null;
           seo_description?: string | null;
           faqs?: Json;
@@ -1421,6 +1423,7 @@ export interface Database {
           source_image?: string | null;
           download_url?: string | null;
           source_download_url?: string | null;
+          download_links?: Json | null;
           seo_title?: string | null;
           seo_description?: string | null;
           faqs?: Json;

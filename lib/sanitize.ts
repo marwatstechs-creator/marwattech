@@ -1,5 +1,9 @@
 import sanitize from "sanitize-html";
 
+import { SITE } from "@/lib/constants";
+
+const SITE_HOST = new URL(SITE.url).hostname.replace(/^www\./, "");
+
 /**
  * Sanitize rich-text HTML coming from the admin CMS before it is rendered
  * to public visitors (XSS protection).
@@ -81,5 +85,26 @@ export function sanitizeHtml(html: string) {
       "youtube-nocookie.com",
       "player.vimeo.com",
     ],
+    // External links get nofollow so we don't pass link equity to third-party
+    // hosts (download mirrors, etc.) — keeps our own SEO value intact.
+    transformTags: {
+      a: (tagName, attribs) => {
+        const href = attribs.href || "";
+        let rel = attribs.rel || "";
+        try {
+          const host = new URL(href).hostname.replace(/^www\./, "");
+          if (host && host !== SITE_HOST) {
+            rel = [...new Set([...(rel ? rel.split(/\s+/) : []), "nofollow", "noopener", "noreferrer"])]
+              .join(" ");
+          }
+        } catch {
+          // relative / non-http link — leave as-is
+        }
+        const next = { ...attribs };
+        if (rel) next.rel = rel;
+        else delete next.rel;
+        return { tagName: "a", attribs: next };
+      },
+    },
   });
 }

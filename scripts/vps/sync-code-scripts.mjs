@@ -81,6 +81,32 @@ function mapCategory(raw) {
   return slugify(t) || "tools";
 }
 
+/* No backlinks to the source site: nullphpscript.com links are never kept. */
+const SOURCE_HOST = "nullphpscript.com";
+
+function isSourceUrl(u) {
+  try {
+    return new URL(u).hostname.replace(/^www\./, "").toLowerCase() === SOURCE_HOST;
+  } catch {
+    return SOURCE_HOST.includes("nullphpscript") && /nullphpscript\.com/i.test(u || "");
+  }
+}
+
+/** Remove source-site links, hotlinked images and JSON-LD — keep link text. */
+function stripSourceLinks(html) {
+  let out = html || "";
+  // Drop any <script> block that references the source site (e.g. its JSON-LD).
+  out = out.replace(/<script\b[^>]*>[\s\S]*?nullphpscript\.com[\s\S]*?<\/script>/gi, "");
+  // Drop image tags that hotlink the source site.
+  out = out.replace(/<img\b[^>]*src=["'][^"']*nullphpscript\.com[^"']*["'][^>]*>/gi, "");
+  // Remove anchors pointing at the source site, keep their visible text.
+  out = out.replace(
+    /<a\b[^>]*href=["'][^"']*nullphpscript\.com[^"']*["'][^>]*>([\s\S]*?)<\/a>/gi,
+    "$1"
+  );
+  return out;
+}
+
 function extractVersion(text) {
   if (!text) return null;
   const m = String(text).match(/ver(?:sion)?[\s:.-]*v?(\d+(?:\.\d+)+)/i);
@@ -156,21 +182,42 @@ async function scrape(url) {
     $(".cat-links a").last().text().trim() ||
     "";
 
+  // Primary: download links live in <input class="nps-form-control"> boxes
+  // inside .download-link-section (the value attribute is the real URL).
+  const downloadLinks = [];
+  $(".download-link-section input.nps-form-control, .download-link-section input, input.nps-form-control").each((_, el) => {
+    const v = ($(el).attr("value") || "").trim();
+    if (/^https?:\/\//i.test(v) && !isSourceUrl(v) && !downloadLinks.includes(v)) downloadLinks.push(v);
+  });
+
   let downloadUrl = null;
   let version = null;
-  $("a").each((_, el) => {
-    const href = $(el).attr("href") || "";
-    const text = $(el).text().trim();
-    const looksDownload =
-      /download/i.test(href) || /\.(zip|rar|7z|tar\.gz|gz)$/i.test(href) || /download/i.test(text);
-    if (!looksDownload) return;
-    if (!downloadUrl) downloadUrl = href;
-    const v = extractVersion(text) || extractVersion(href);
-    if (v && !version) version = v;
-  });
+  if (!downloadLinks.length) {
+    // Fallback: scan anchors for obvious download links.
+    $("a").each((_, el) => {
+      const href = $(el).attr("href") || "";
+      const text = $(el).text().trim();
+      const looksDownload =
+        /download/i.test(href) || /\.(zip|rar|7z|tar\.gz|gz)$/i.test(href) || /download/i.test(text);
+      if (!looksDownload || isSourceUrl(href)) return;
+      if (!downloadUrl) downloadUrl = href;
+      const v = extractVersion(text) || extractVersion(href);
+      if (v && !version) version = v;
+    });
+    if (downloadUrl) downloadLinks.push(downloadUrl);
+  }
   if (!version) version = extractVersion(content);
 
-  return { title, image, content, category: category || null, categorySlug: mapCategory(category), downloadUrl, version };
+  return {
+    title,
+    image,
+    content,
+    category: category || null,
+    categorySlug: mapCategory(category),
+    downloadUrl: downloadLinks[0] || null,
+    downloadLinks: downloadLinks.slice(0, 10),
+    version,
+  };
 }
 
 /* ── Image → watermark → upload ──────────────────────────────────────── */
@@ -269,8 +316,44 @@ Keep the version number if present.`;
   }
 }
 
+/* ── Refresh existing rows' download links (REFRESH=1) ──────────────── */
+async function refreshExistingDownloadLinks() {
+  const { data: rows } = await db
+    .from("code_scripts")
+    .select("id, source_url, title, content")
+    .order("created_at", { ascending: false })
+    .limit(20000);
+  const targets = (rows ?? []).slice(0, MAX_PER_RUN);
+  let updated = 0;
+  let failed = 0;
+  for (const row of targets) {
+    try {
+      const item = await scrape(row.source_url);
+      const cleanContent = stripSourceLinks(row.content ?? "");
+      const patch = {
+        download_url: item.downloadLinks[0] ?? null,
+        source_download_url: item.downloadLinks[0] ?? null,
+        download_links: item.downloadLinks.length ? item.downloadLinks : null,
+        updated_at: new Date().toISOString(),
+      };
+      if (cleanContent !== (row.content ?? "")) patch.content = cleanContent;
+      const { error } = await db.from("code_scripts").update(patch).eq("id", row.id);
+      if (error) throw new Error(error.message);
+      updated++;
+      console.log(`↻ ${row.title}: ${item.downloadLinks.length} link(s)`);
+    } catch (e) {
+      failed++;
+      console.error(`✗ ${row.source_url} — ${e.message}`);
+    }
+  }
+  await logRun(0, 0, updated, failed, "refresh");
+  console.log(`Refresh done: updated=${updated} failed=${failed}`);
+}
+
 /* ── Main ────────────────────────────────────────────────────────────── */
 async function main() {
+  if (env.REFRESH === "1") return refreshExistingDownloadLinks();
+
   const { data: pending } = await db
     .from("code_script_sync_requests")
     .select("id")
@@ -279,7 +362,8 @@ async function main() {
     .maybeSingle();
   const force = !!pending;
 
-  if (!force) {
+  // BULK=1 bypasses the 48h guard (used for one-time full-site imports).
+  if (!force && env.BULK !== "1") {
     const { data: last } = await db
       .from("code_script_syncs")
       .select("ran_at")
@@ -306,6 +390,13 @@ async function main() {
   const seen = new Set((existing ?? []).map((r) => r.source_url));
   const fresh = postUrls.filter((u) => !seen.has(u)).slice(0, MAX_PER_RUN);
 
+  if (!fresh.length) {
+    console.log("All posts already synced");
+    await logRun(sitemapUrls.length, 0, 0, 0, "all-synced");
+    if (pending?.id) await doneRequest(pending.id);
+    process.exit(2);
+  }
+
   const { data: existingSlugs } = await db.from("code_scripts").select("slug").limit(20000);
   const slugSet = new Set((existingSlugs ?? []).map((r) => r.slug));
 
@@ -326,7 +417,7 @@ async function main() {
         contentHtml: item.content,
         url,
       });
-      const content = ai.contentHtml || item.content;
+      const content = stripSourceLinks(ai.contentHtml || item.content);
       const faqs = Array.isArray(ai.faqs) ? ai.faqs.slice(0, 6) : [];
       const { error } = await db.from("code_scripts").insert({
         source_url: url,
@@ -338,8 +429,9 @@ async function main() {
         excerpt: ai.excerpt || buildExcerpt(content),
         cover_image: cover,
         source_image: item.image,
-        download_url: item.downloadUrl,
-        source_download_url: item.downloadUrl,
+        download_url: item.downloadLinks[0] ?? null,
+        source_download_url: item.downloadLinks[0] ?? null,
+        download_links: item.downloadLinks.length ? item.downloadLinks : null,
         seo_title: ai.seoTitle || null,
         seo_description: ai.seoDescription || null,
         faqs,

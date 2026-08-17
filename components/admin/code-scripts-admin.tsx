@@ -118,6 +118,7 @@ function EditDialog({
     version: row.version ?? "",
     cover_image: row.cover_image ?? "",
     download_url: row.source_url,
+    download_links: [] as string[],
     content: "",
     excerpt: "",
     seo_title: "",
@@ -137,6 +138,9 @@ function EditDialog({
           version: full.version ?? "",
           cover_image: full.cover_image ?? "",
           download_url: full.download_url ?? full.source_url ?? "",
+          download_links: Array.isArray(full.download_links)
+            ? (full.download_links as unknown as string[])
+            : [],
           content: full.content ?? "",
           excerpt: full.excerpt ?? "",
           seo_title: full.seo_title ?? "",
@@ -154,6 +158,7 @@ function EditDialog({
       version: form.version || null,
       cover_image: form.cover_image || null,
       download_url: form.download_url || null,
+      download_links: form.download_links.map((l) => l.trim()).filter(Boolean),
       content: form.content || null,
       excerpt: form.excerpt || null,
       seo_title: form.seo_title || null,
@@ -194,6 +199,15 @@ function EditDialog({
             <div className="space-y-1.5">
               <Label>Download URL</Label>
               <Input value={form.download_url} onChange={(e) => setForm((f) => ({ ...f, download_url: e.target.value }))} />
+            </div>
+            <div className="space-y-1.5 sm:col-span-2">
+              <Label>Download links (one per line)</Label>
+              <Textarea
+                rows={4}
+                value={form.download_links.join("\n")}
+                onChange={(e) => setForm((f) => ({ ...f, download_links: e.target.value.split("\n") }))}
+                placeholder={"https://mirror-1.example/file\nhttps://mirror-2.example/file"}
+              />
             </div>
             <div className="space-y-1.5 sm:col-span-2">
               <Label>Cover image URL</Label>
