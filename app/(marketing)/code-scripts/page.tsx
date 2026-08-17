@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { PageHero } from "@/components/marketing/page-hero";
-import { CtaBanner } from "@/components/marketing/cta-banner";
 import { AppIcon } from "@/components/app-icon";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -156,8 +155,6 @@ export default async function CodeScriptsPage({
           </div>
         )}
       </section>
-
-      <CtaBanner />
     </>
   );
 }

@@ -10,7 +10,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Dialog,
   DialogContent,
@@ -312,10 +311,12 @@ function ScriptsTab({ rows }: { rows: CodeScriptAdminRow[] }) {
               filtered.map((r) => (
                 <TableRow key={r.id}>
                   <TableCell>
-                    <Avatar className="size-11 rounded-lg">
-                      {r.cover_image ? <AvatarImage src={r.cover_image} alt={r.title} /> : null}
-                      <AvatarFallback className="rounded-lg bg-primary/10 text-primary">{r.title.slice(0, 1).toUpperCase()}</AvatarFallback>
-                    </Avatar>
+                    {r.cover_image ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={r.cover_image} alt={r.title} className="size-11 rounded-lg object-cover" />
+                    ) : (
+                      <span className="grid size-11 place-items-center rounded-lg bg-primary/10 font-bold text-primary">{r.title.slice(0, 1).toUpperCase()}</span>
+                    )}
                   </TableCell>
                   <TableCell>
                     <div className="min-w-0 max-w-[260px]">

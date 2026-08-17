@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { Breadcrumbs } from "@/components/marketing/breadcrumbs";
-import { CtaBanner } from "@/components/marketing/cta-banner";
 import { AppIcon } from "@/components/app-icon";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -15,7 +13,6 @@ import {
   buildFaqJsonLd,
   buildSeoTitle,
   buildSeoDescription,
-  buildExcerpt,
   type CodeScript,
 } from "@/lib/code-scripts";
 import { createClient } from "@/lib/supabase/server";
@@ -80,22 +77,6 @@ export default async function CodeScriptDetailPage({ params }: Props) {
 
   const s = script as CodeScript;
   const cat = CODE_SCRIPT_CATEGORIES.find((c) => c.slug === s.category);
-
-  // Related scripts (same category) — good for internal linking / SEO.
-  let related: CodeScript[] = [];
-  try {
-    const { data } = await db
-      .from("code_scripts")
-      .select("id, title, slug, category, version, cover_image, content, created_at")
-      .eq("status", "published")
-      .eq("category", s.category ?? "none")
-      .neq("id", s.id)
-      .order("created_at", { ascending: false })
-      .limit(3);
-    related = (data ?? []) as CodeScript[];
-  } catch {
-    // ignore
-  }
 
   const softwareLd = buildSoftwareJsonLd(s);
   const faqLd = buildFaqJsonLd(Array.isArray(s.faqs) ? s.faqs : []);
@@ -189,48 +170,7 @@ export default async function CodeScriptDetailPage({ params }: Props) {
             </div>
           </div>
         )}
-
-        {related.length > 0 && (
-          <div className="mt-12">
-            <h2 className="font-display mb-4 text-2xl font-bold">
-              More {cat ? cat.label.toLowerCase() : "scripts"}
-            </h2>
-            <div className="grid gap-5 sm:grid-cols-3">
-              {related.map((r) => (
-                <Link
-                  key={r.id}
-                  href={codeScriptUrl(r.slug)}
-                  className="group overflow-hidden rounded-xl border bg-card transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-md"
-                >
-                  <div className="relative aspect-[16/9] w-full overflow-hidden bg-muted">
-                    {r.cover_image ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={r.cover_image} alt={r.title} loading="lazy" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
-                    ) : (
-                      <div className="grid h-full w-full place-items-center bg-primary/10">
-                        <AppIcon name="code" size={28} className="text-primary/50" />
-                      </div>
-                    )}
-                    {r.version && (
-                      <div className="absolute right-2 top-2">
-                        <Badge className="bg-background/80 text-[10px] backdrop-blur">v{r.version}</Badge>
-                      </div>
-                    )}
-                  </div>
-                  <div className="p-4">
-                    <h3 className="line-clamp-2 font-medium group-hover:text-primary">{r.title}</h3>
-                    {r.content && (
-                      <p className="mt-1 line-clamp-1 text-xs text-muted-foreground">{buildExcerpt(r.content, 80)}</p>
-                    )}
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
-        )}
       </section>
-
-      <CtaBanner />
     </>
   );
 }
