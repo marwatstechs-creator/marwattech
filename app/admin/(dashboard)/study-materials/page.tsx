@@ -3,38 +3,26 @@ import Link from "next/link";
 import { AdminPageHeader } from "@/components/admin/page-header";
 import { AppIcon } from "@/components/app-icon";
 import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { RowActions } from "@/components/admin/row-actions";
-import { AsyncSwitch } from "@/components/admin/async-switch";
+import { AdminTable } from "@/components/admin/data-table";
 import { createClient } from "@/lib/supabase/server";
 import { guardEditor } from "@/lib/auth";
 import {
   deleteStudyMaterial,
   toggleStudyMaterial,
 } from "@/lib/actions/admin/study-materials";
-import { formatDate, formatBytes } from "@/lib/utils";
+import { formatBytes } from "@/lib/utils";
 
 export const revalidate = 0;
 
 export default async function AdminStudyMaterialsPage() {
   await guardEditor();
 
-  let materials: {
+  let rows: {
     id: string;
     title: string;
     description: string | null;
-    file_url: string;
-    file_type: string | null;
-    file_size: number | null;
     category: string | null;
+    typeLabel: string;
     is_published: boolean;
     created_at: string;
   }[] = [];
@@ -45,7 +33,24 @@ export default async function AdminStudyMaterialsPage() {
       .from("study_materials")
       .select("*")
       .order("created_at", { ascending: false });
-    materials = data ?? [];
+    rows = ((data ?? []) as unknown as {
+      id: string;
+      title: string;
+      description: string | null;
+      category: string | null;
+      file_type: string | null;
+      file_size: number | null;
+      is_published: boolean;
+      created_at: string;
+    }[]).map((m) => ({
+      id: m.id,
+      title: m.title,
+      description: m.description,
+      category: m.category,
+      typeLabel: `${m.file_type?.toUpperCase() ?? "FILE"}${m.file_size != null ? ` · ${formatBytes(m.file_size)}` : ""}`,
+      is_published: m.is_published,
+      created_at: m.created_at,
+    }));
   } catch {
     // Supabase not configured
   }
@@ -65,66 +70,28 @@ export default async function AdminStudyMaterialsPage() {
         }
       />
 
-      <div className="rounded-xl border bg-card">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Title</TableHead>
-              <TableHead>Category</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead>Added</TableHead>
-              <TableHead>Published</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {materials.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={6} className="py-16 text-center text-muted-foreground">
-                  No study materials yet — add your first downloadable resource.
-                </TableCell>
-              </TableRow>
-            ) : (
-              materials.map((m) => (
-                <TableRow key={m.id}>
-                  <TableCell>
-                    <p className="font-medium">{m.title}</p>
-                    <p className="max-w-[260px] truncate text-xs text-muted-foreground">
-                      {m.description}
-                    </p>
-                  </TableCell>
-                  <TableCell>{m.category ?? "—"}</TableCell>
-                  <TableCell>
-                    <Badge variant="outline">
-                      {m.file_type?.toUpperCase() ?? "FILE"}
-                      {m.file_size != null ? ` · ${formatBytes(m.file_size)}` : ""}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-muted-foreground">
-                    {formatDate(m.created_at)}
-                  </TableCell>
-                  <TableCell>
-                    <AsyncSwitch
-                      itemId={m.id}
-                      checked={m.is_published}
-                      action={toggleStudyMaterial}
-                      label="Material"
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <RowActions
-                      itemId={m.id}
-                      editHref={`/admin/study-materials/${m.id}`}
-                      onDelete={deleteStudyMaterial}
-                      label="study material"
-                    />
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </div>
+      <AdminTable
+        rows={rows}
+        columns={[
+          { key: "title", header: "Title", type: "title", subKey: "description", sortable: true },
+          { key: "category", header: "Category" },
+          { key: "typeLabel", header: "Type" },
+          { key: "created_at", header: "Added", type: "date", sortable: true },
+          { key: "is_published", header: "Published", type: "switch", switchAction: toggleStudyMaterial as never, switchLabel: "Material" },
+        ]}
+        searchKeys={["title", "description", "category"]}
+        searchPlaceholder="Search materials…"
+        emptyTitle="No study materials yet"
+        emptyDescription="Add your first downloadable resource."
+        emptyAction={{ label: "New Material", href: "/admin/study-materials/new" }}
+        actions={{
+          editBase: "/admin/study-materials/",
+          statusKey: "is_published",
+          statusOptions: [],
+          onDelete: deleteStudyMaterial as never,
+          label: "material",
+        }}
+      />
     </>
   );
 }

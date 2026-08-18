@@ -15,6 +15,8 @@ import {
 } from "@/components/ui/table";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { RowActions } from "@/components/admin/row-actions";
+import { AsyncSwitch } from "@/components/admin/async-switch";
+import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/admin/empty-state";
 import { cn, formatDate } from "@/lib/utils";
 
@@ -26,7 +28,13 @@ export type AdminColumn<T> = {
   sortable?: boolean;
   /** For type "title": render this sub-field (e.g. slug) below the main value. */
   subKey?: string;
-  type?: "text" | "title" | "status" | "boolean" | "date";
+  type?: "text" | "title" | "status" | "boolean" | "date" | "switch" | "progress" | "badge";
+  /** For type "switch": server action toggling the boolean field (direct ref). */
+  switchAction?: (id: string, value: boolean) => Promise<{ error?: string } | { ok: boolean }>;
+  switchLabel?: string;
+  /** For type "badge": value → badge variant + optional label map. */
+  badgeMap?: Record<string, "default" | "secondary" | "gold" | "outline" | "azure" | "destructive">;
+  badgeLabels?: Record<string, string>;
 };
 
 export type AdminTableActions = {
@@ -227,6 +235,32 @@ export function AdminTable<T extends { id: string }>({
                         <span className="text-muted-foreground">
                           {formatDate(String(row[col.key as keyof T] ?? ""))}
                         </span>
+                      ) : col.type === "switch" ? (
+                        <AsyncSwitch
+                          itemId={row.id}
+                          checked={Boolean(row[col.key as keyof T])}
+                          action={col.switchAction as never}
+                          label={col.switchLabel ?? "Item"}
+                        />
+                      ) : col.type === "progress" ? (
+                        (() => {
+                          const pct = Math.min(100, Math.max(0, Number(row[col.key as keyof T] ?? 0)));
+                          return (
+                            <div className="flex items-center gap-2">
+                              <div className="h-1.5 w-20 overflow-hidden rounded-full bg-muted">
+                                <div className="h-full rounded-full bg-primary" style={{ width: `${pct}%` }} />
+                              </div>
+                              <span className="text-xs text-muted-foreground">{pct}%</span>
+                            </div>
+                          );
+                        })()
+                      ) : col.type === "badge" ? (
+                        (() => {
+                          const raw = String(row[col.key as keyof T] ?? "");
+                          const variant = col.badgeMap?.[raw] ?? "outline";
+                          const label = col.badgeLabels?.[raw] ?? raw.replace(/_/g, " ");
+                          return <Badge variant={variant}>{label}</Badge>;
+                        })()
                       ) : col.type === "title" ? (
                         <div className="min-w-0">
                           <p className="truncate font-medium">{String(row[col.key as keyof T] ?? "")}</p>

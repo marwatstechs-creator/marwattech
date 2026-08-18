@@ -3,17 +3,7 @@ import Link from "next/link";
 import { AdminPageHeader } from "@/components/admin/page-header";
 import { AppIcon } from "@/components/app-icon";
 import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { RowActions } from "@/components/admin/row-actions";
-import { AsyncSwitch } from "@/components/admin/async-switch";
+import { AdminTable } from "@/components/admin/data-table";
 import { UdemySyncButton } from "@/components/admin/udemy-sync-button";
 import { createClient } from "@/lib/supabase/server";
 import { guardEditor } from "@/lib/auth";
@@ -24,12 +14,11 @@ import {
 
 export const revalidate = 0;
 
-const TAG_BADGE: Record<string, string> = {
+const TAG_BADGE: Record<string, "default" | "secondary" | "gold" | "outline" | "azure" | "destructive"> = {
   latest: "gold",
   full_paid: "destructive",
   other: "outline",
 };
-
 const TAG_LABELS: Record<string, string> = {
   latest: "Latest",
   full_paid: "Full-paid",
@@ -39,17 +28,15 @@ const TAG_LABELS: Record<string, string> = {
 export default async function AdminPromoCodesPage() {
   await guardEditor();
 
-  let codes: {
+  let rows: {
     id: string;
     title: string;
     store: string;
     code: string;
-    discount_label: string | null;
     tag: string;
-    source: string;
-    expires_at: string | null;
+    sourceLabel: string;
+    expires: string;
     enabled: boolean;
-    sort_order: number;
   }[] = [];
 
   try {
@@ -59,7 +46,25 @@ export default async function AdminPromoCodesPage() {
       .select("*")
       .order("sort_order", { ascending: true })
       .order("created_at", { ascending: false });
-    codes = data ?? [];
+    rows = ((data ?? []) as unknown as {
+      id: string;
+      title: string;
+      store: string;
+      code: string;
+      tag: string;
+      source: string;
+      expires_at: string | null;
+      enabled: boolean;
+    }[]).map((c) => ({
+      id: c.id,
+      title: c.title,
+      store: c.store,
+      code: c.code,
+      tag: c.tag,
+      sourceLabel: c.source === "auto_udemy" ? "Auto (Udemy)" : "Manual",
+      expires: c.expires_at ? `Exp ${c.expires_at.slice(0, 10)}` : "",
+      enabled: c.enabled,
+    }));
   } catch {
     // Supabase not configured
   }
@@ -82,70 +87,28 @@ export default async function AdminPromoCodesPage() {
         }
       />
 
-      <div className="rounded-xl border bg-card">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Title</TableHead>
-              <TableHead>Code</TableHead>
-              <TableHead>Tag</TableHead>
-              <TableHead>Source</TableHead>
-              <TableHead>Enabled</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {codes.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={6} className="py-16 text-center text-muted-foreground">
-                  No promo codes yet — add your first one.
-                </TableCell>
-              </TableRow>
-            ) : (
-              codes.map((c) => (
-                <TableRow key={c.id}>
-                  <TableCell>
-                    <p className="font-medium">{c.title}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {c.store}
-                      {c.expires_at ? ` · Exp ${c.expires_at.slice(0, 10)}` : ""}
-                    </p>
-                  </TableCell>
-                  <TableCell>
-                    <code className="rounded-md bg-muted px-2 py-1 text-xs font-semibold">
-                      {c.code}
-                    </code>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={TAG_BADGE[c.tag] as "gold" | "destructive" | "outline"}>
-                      {TAG_LABELS[c.tag] ?? c.tag}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-xs text-muted-foreground">
-                    {c.source === "auto_udemy" ? "Auto (Udemy)" : "Manual"}
-                  </TableCell>
-                  <TableCell>
-                    <AsyncSwitch
-                      itemId={c.id}
-                      checked={c.enabled}
-                      action={togglePromoCode}
-                      label="Promo code"
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <RowActions
-                      itemId={c.id}
-                      editHref={`/admin/promo-codes/${c.id}`}
-                      onDelete={deletePromoCode}
-                      label="promo code"
-                    />
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </div>
+      <AdminTable
+        rows={rows}
+        columns={[
+          { key: "title", header: "Title", type: "title", subKey: "store", sortable: true },
+          { key: "code", header: "Code" },
+          { key: "tag", header: "Tag", type: "badge", badgeMap: TAG_BADGE, badgeLabels: TAG_LABELS },
+          { key: "sourceLabel", header: "Source" },
+          { key: "enabled", header: "Enabled", type: "switch", switchAction: togglePromoCode as never, switchLabel: "Promo code" },
+        ]}
+        searchKeys={["title", "store", "code"]}
+        searchPlaceholder="Search promo codes…"
+        emptyTitle="No promo codes yet"
+        emptyDescription="Add your first promo code or sync the Udemy feed."
+        emptyAction={{ label: "New Promo Code", href: "/admin/promo-codes/new" }}
+        actions={{
+          editBase: "/admin/promo-codes/",
+          statusKey: "enabled",
+          statusOptions: [],
+          onDelete: deletePromoCode as never,
+          label: "promo code",
+        }}
+      />
     </>
   );
 }
