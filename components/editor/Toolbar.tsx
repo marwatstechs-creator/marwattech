@@ -14,6 +14,7 @@ import {
   FORMAT_TEXT_COMMAND,
   REDO_COMMAND,
   UNDO_COMMAND,
+  type EditorState,
   type ElementFormatType,
 } from "lexical";
 import { $createCodeNode, $isCodeNode, getCodeLanguageOptions, type CodeNode } from "@lexical/code";
@@ -203,6 +204,12 @@ type ToolbarState = {
   inTable: boolean;
 };
 
+const EMPTY_TOOLBAR_STATE: ToolbarState = {
+  bold: false, italic: false, underline: false, strikethrough: false, code: false,
+  blockType: "paragraph", link: false, ordered: false, unordered: false, checklist: false,
+  align: null, inCode: false, codeLanguage: "", inTable: false,
+};
+
 function useToolbarState(editor: ReturnType<typeof useLexicalComposerContext>[0]): ToolbarState {
   const compute = useCallback((): ToolbarState => {
     const s: ToolbarState = {
@@ -256,11 +263,16 @@ function useToolbarState(editor: ReturnType<typeof useLexicalComposerContext>[0]
     return s;
   }, []);
 
-  const [state, setState] = useState<ToolbarState>(compute);
+  const [state, setState] = useState<ToolbarState>(EMPTY_TOOLBAR_STATE);
 
   useEffect(() => {
-    setState(compute());
-    return editor.registerUpdateListener(() => setState(compute()));
+    // $-helpers must run inside editorState.read() — calling $getSelection()
+    // outside an active editor read throws Lexical error #195.
+    const apply = (editorState: EditorState) => {
+      editorState.read(() => setState(compute()));
+    };
+    apply(editor.getEditorState());
+    return editor.registerUpdateListener(({ editorState }) => apply(editorState));
   }, [editor, compute]);
 
   return state;
@@ -347,7 +359,7 @@ export function EditorToolbar({ onImageUpload }: { onImageUpload?: () => void })
 
   const openLinkDialog = () => {
     let href = "";
-    const selection = $getSelection();
+    const selection = editor.getEditorState().read(() => $getSelection());
     if ($isRangeSelection(selection)) {
       const anchor = selection.anchor.getNode();
       const link = $findMatchingParent(anchor, (n) => n.getType() === "link");

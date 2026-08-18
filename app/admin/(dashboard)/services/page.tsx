@@ -94,7 +94,7 @@ export default async function AdminServicesPage() {
                       viewHref={`/services/${s.slug}`}
                       status={s.status}
                       statusOptions={["draft", "published", "archived"]}
-                      onStatusChange={(id, status) => toggleServiceStatus(id, status as "draft" | "published" | "archived")}
+                      onStatusChange={toggleServiceStatus}
                       onDelete={deleteService}
                       label="service"
                     />

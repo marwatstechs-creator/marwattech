@@ -86,7 +86,7 @@ export default async function AdminTestimonialsPage() {
                       editHref={`/admin/testimonials/${t.id}`}
                       status={t.status}
                       statusOptions={["published", "draft", "archived"]}
-                      onStatusChange={(id, status) => toggleTestimonialStatus(id, status as "draft" | "published" | "archived")}
+                      onStatusChange={toggleTestimonialStatus}
                       onDelete={deleteTestimonial}
                       label="testimonial"
                     />

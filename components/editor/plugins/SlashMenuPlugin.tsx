@@ -102,33 +102,36 @@ export default function SlashMenuPlugin({
   }, [editor, onRequestImageUpload, setBlockType]);
 
   useEffect(() => {
-    return editor.registerUpdateListener(() => {
-      const selection = $getSelection();
-      if (!$isRangeSelection(selection)) {
-        setOpen(false);
-        return;
-      }
-      const node = selection.anchor.getNode();
-      if (!$isTextNode(node)) {
-        setOpen(false);
-        return;
-      }
-      const text = node.getTextContent();
-      const caret = selection.anchor.offset;
-      const before = text.slice(0, caret);
-      const m = before.match(/(^|\s)\/([A-Za-z]*)$/);
-      if (m) {
-        const q = m[2];
-        setQuery(q);
-        const filtered = buildItems().filter((it) =>
-          [it.title, ...it.keywords, it.group].some((s) => s.toLowerCase().includes(q.toLowerCase()))
-        );
-        setItems(filtered);
-        setActive(0);
-        setOpen(filtered.length > 0);
-      } else {
-        setOpen(false);
-      }
+    return editor.registerUpdateListener(({ editorState }) => {
+      // Must run inside editorState.read() or $getSelection() throws #195.
+      editorState.read(() => {
+        const selection = $getSelection();
+        if (!$isRangeSelection(selection)) {
+          setOpen(false);
+          return;
+        }
+        const node = selection.anchor.getNode();
+        if (!$isTextNode(node)) {
+          setOpen(false);
+          return;
+        }
+        const text = node.getTextContent();
+        const caret = selection.anchor.offset;
+        const before = text.slice(0, caret);
+        const m = before.match(/(^|\s)\/([A-Za-z]*)$/);
+        if (m) {
+          const q = m[2];
+          setQuery(q);
+          const filtered = buildItems().filter((it) =>
+            [it.title, ...it.keywords, it.group].some((s) => s.toLowerCase().includes(q.toLowerCase()))
+          );
+          setItems(filtered);
+          setActive(0);
+          setOpen(filtered.length > 0);
+        } else {
+          setOpen(false);
+        }
+      });
     });
   }, [editor, buildItems]);
 

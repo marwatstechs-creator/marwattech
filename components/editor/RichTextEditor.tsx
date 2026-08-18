@@ -1,8 +1,10 @@
 "use client";
 
+import * as React from "react";
 import { useEffect, useMemo, useRef } from "react";
 import { LexicalComposer } from "@lexical/react/LexicalComposer";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
+import { LexicalErrorBoundary } from "@lexical/react/LexicalErrorBoundary";
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
 import { ContentEditable } from "@lexical/react/LexicalContentEditable";
 import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
@@ -253,42 +255,76 @@ export function RichTextEditor({
   }, [value, mode]);
 
   return (
-    <div className="overflow-hidden rounded-xl border bg-card" style={{ minHeight }}>
-      <LexicalComposer initialConfig={initialConfig}>
-        <EditorToolbar />
-        <RichTextPlugin
-          contentEditable={
-            <ContentEditable
-              aria-label={placeholder}
-              className="lexical-editable min-h-[280px] focus:outline-none"
-              style={{ minHeight }}
-            />
-          }
-          placeholder={
-            <div className="pointer-events-none absolute top-0 px-4 py-4 text-muted-foreground/70">
-              {placeholder}
-            </div>
-          }
-          ErrorBoundary={EditorErrorBoundary}
-        />
-        <HistoryPlugin />
-        <ListPlugin />
-        {f.links && <LinkPlugin />}
-        {f.links && <AutoLinkPlugin matchers={urlMatchers} />}
-        {f.tables && <TablePlugin hasCellMerge hasCellBackgroundColor={false} />}
-        {f.codeBlocks && <CodeHighlightPlugin />}
-        {f.images && <ImagePastePlugin />}
-        <CheckListPlugin />
-        {f.slashCommands && <SlashMenuPlugin />}
-        <ValueSyncPlugin value={value} />
-        <OnChangePlugin onChange={onChange} onHtmlChange={onHtmlChange} output={output} />
-      </LexicalComposer>
-    </div>
+    <EditorErrorBoundary>
+      <div className="overflow-hidden rounded-xl border bg-card" style={{ minHeight }}>
+        <LexicalComposer initialConfig={initialConfig}>
+          <EditorToolbar />
+          <RichTextPlugin
+            contentEditable={
+              <ContentEditable
+                aria-label={placeholder}
+                className="lexical-editable min-h-[280px] focus:outline-none"
+                style={{ minHeight }}
+              />
+            }
+            placeholder={
+              <div className="pointer-events-none absolute top-0 px-4 py-4 text-muted-foreground/70">
+                {placeholder}
+              </div>
+            }
+            ErrorBoundary={LexicalErrorBoundary}
+          />
+          <HistoryPlugin />
+          <ListPlugin />
+          {f.links && <LinkPlugin />}
+          {f.links && <AutoLinkPlugin matchers={urlMatchers} />}
+          {f.tables && <TablePlugin hasCellMerge hasCellBackgroundColor={false} />}
+          {f.codeBlocks && <CodeHighlightPlugin />}
+          {f.images && <ImagePastePlugin />}
+          <CheckListPlugin />
+          {f.slashCommands && <SlashMenuPlugin />}
+          <ValueSyncPlugin value={value} />
+          <OnChangePlugin onChange={onChange} onHtmlChange={onHtmlChange} output={output} />
+        </LexicalComposer>
+      </div>
+    </EditorErrorBoundary>
   );
 }
 
-function EditorErrorBoundary({ children }: { children: React.ReactNode }) {
-  return <>{children}</>;
+class EditorErrorBoundary extends React.Component<
+  { children: React.ReactNode },
+  { hasError: boolean; retryKey: number }
+> {
+  state = { hasError: false, retryKey: 0 };
+
+  static getDerivedStateFromError(): { hasError: boolean } {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: Error) {
+    console.error("[lexical] editor error:", error);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="p-6 text-center text-sm text-muted-foreground">
+          The editor hit an unexpected error.{" "}
+          <button
+            type="button"
+            className="text-primary underline"
+            onClick={() => {
+              // Reset the error and bump the key so the editor fully remounts.
+              this.setState((s) => ({ hasError: false, retryKey: s.retryKey + 1 }));
+            }}
+          >
+            Try again
+          </button>
+        </div>
+      );
+    }
+    return <React.Fragment key={this.state.retryKey}>{this.props.children}</React.Fragment>;
+  }
 }
 
 const urlMatchers = [

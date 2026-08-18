@@ -91,7 +91,7 @@ export default async function AdminBlogPage() {
                       viewHref={`/blog/${p.slug}`}
                       status={p.status}
                       statusOptions={["draft", "published", "archived"]}
-                      onStatusChange={(id, status) => togglePostStatus(id, status as "draft" | "published" | "archived")}
+                      onStatusChange={togglePostStatus}
                       onDelete={deletePost}
                       label="post"
                     />
