@@ -1009,6 +1009,31 @@ export interface Database {
         };
         Relationships: [];
       };
+      /* ── AI admin assistant conversation history ───────────── */
+      ai_messages: {
+        Row: {
+          id: string;
+          user_id: string;
+          role: string;
+          content: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          role: string;
+          content: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          role?: string;
+          content?: string;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
       /* ── Promo codes (manual + auto Udemy feed) ─────────────── */
       promo_codes: {
         Row: {
@@ -2053,6 +2078,120 @@ export interface Database {
           category?: string | null;
           is_published?: boolean;
           created_at?: string;
+        };
+        Relationships: [];
+      };
+      /* ── University-style study platform: subjects ─────────── */
+      study_subjects: {
+        Row: {
+          id: string;
+          name: string;
+          slug: string;
+          description: string | null;
+          instructor: string | null;
+          category: string | null;
+          color: string | null;
+          published: boolean;
+          sort_order: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          slug: string;
+          description?: string | null;
+          instructor?: string | null;
+          category?: string | null;
+          color?: string | null;
+          published?: boolean;
+          sort_order?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          slug?: string;
+          description?: string | null;
+          instructor?: string | null;
+          category?: string | null;
+          color?: string | null;
+          published?: boolean;
+          sort_order?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      /* ── University-style study platform: weeks ────────────── */
+      study_weeks: {
+        Row: {
+          id: string;
+          subject_id: string;
+          week_number: number;
+          title: string;
+          description: string | null;
+          pdf_url: string | null;
+          published: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          subject_id: string;
+          week_number: number;
+          title: string;
+          description?: string | null;
+          pdf_url?: string | null;
+          published?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          subject_id?: string;
+          week_number?: number;
+          title?: string;
+          description?: string | null;
+          pdf_url?: string | null;
+          published?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      /* ── University-style study platform: slides ───────────── */
+      study_slides: {
+        Row: {
+          id: string;
+          week_id: string;
+          slide_number: number;
+          title: string;
+          content: string;
+          published: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          week_id: string;
+          slide_number: number;
+          title: string;
+          content: string;
+          published?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          week_id?: string;
+          slide_number?: number;
+          title?: string;
+          content?: string;
+          published?: boolean;
+          created_at?: string;
+          updated_at?: string;
         };
         Relationships: [];
       };

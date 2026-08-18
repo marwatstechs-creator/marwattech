@@ -77,12 +77,14 @@ export function StudyMaterialForm({ initial, isEdit = false }: StudyMaterialForm
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setPending(true);
+    const fileSizeValue: number | "" =
+      form.file_size === "" ? "" : Number(form.file_size) || "";
     const payload = {
       title: form.title,
       description: form.description,
       file_url: form.file_url,
       file_type: form.file_type,
-      file_size: form.file_size,
+      file_size: fileSizeValue,
       category: form.category,
       is_published: form.is_published,
     };

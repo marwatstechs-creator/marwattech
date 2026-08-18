@@ -45,6 +45,7 @@ const NAV_GROUPS: NavGroup[] = [
     roles: ["super_admin", "editor", "support"],
     items: [
       { label: "Dashboard", href: "/admin", icon: "dashboard", roles: ["super_admin", "editor", "support"] },
+      { label: "AI Assistant", href: "/admin/ai", icon: "ai", roles: ["super_admin", "editor"] },
       { label: "My Profile", href: "/admin/profile", icon: "edit", roles: ["super_admin", "editor", "support"] },
     ],
   },
@@ -105,6 +106,7 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { label: "Courses", href: "/admin/courses", icon: "layers", roles: ["super_admin", "editor"] },
       { label: "Course Updates", href: "/admin/course-updates", icon: "bell", roles: ["super_admin", "editor"] },
+      { label: "Study Platform", href: "/admin/study-platform", icon: "folder", roles: ["super_admin", "editor"] },
       { label: "Study Materials", href: "/admin/study-materials", icon: "folder", roles: ["super_admin", "editor"] },
     ],
   },

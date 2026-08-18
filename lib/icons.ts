@@ -19,6 +19,8 @@ import ArtificialIntelligence01Icon from "@hugeicons/core-free-icons/ArtificialI
 import Home02Icon from "@hugeicons/core-free-icons/Home02Icon";
 import Menu01Icon from "@hugeicons/core-free-icons/Menu01Icon";
 import ChevronRightIcon from "@hugeicons/core-free-icons/ChevronRightIcon";
+import ChevronLeftIcon from "@hugeicons/core-free-icons/ChevronLeftIcon";
+import Maximize01Icon from "@hugeicons/core-free-icons/Maximize01Icon";
 import ArrowDown01Icon from "@hugeicons/core-free-icons/ArrowDown01Icon";
 import ArrowLeft01Icon from "@hugeicons/core-free-icons/ArrowLeft01Icon";
 import ArrowRight01Icon from "@hugeicons/core-free-icons/ArrowRight01Icon";
@@ -125,6 +127,8 @@ export const ICONS = {
   home: Home02Icon,
   menu: Menu01Icon,
   chevronRight: ChevronRightIcon,
+  chevronLeft: ChevronLeftIcon,
+  maximize: Maximize01Icon,
   arrowDown: ArrowDown01Icon,
   arrowLeft: ArrowLeft01Icon,
   arrowRight: ArrowRight01Icon,

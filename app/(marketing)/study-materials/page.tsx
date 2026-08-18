@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 
 import { PageHero } from "@/components/marketing/page-hero";
 import { CtaBanner } from "@/components/marketing/cta-banner";
@@ -66,6 +67,28 @@ export default async function StudyMaterialsPage() {
         description="Free guides, templates and downloadable resources to help you learn and grow online."
         breadcrumbs={[{ label: "Study Materials" }]}
       />
+
+      <div className="mx-auto max-w-7xl px-4 pt-8 sm:px-6 lg:px-8">
+        <Link
+          href="/study"
+          className="group flex flex-col gap-2 rounded-2xl border bg-card p-5 transition hover:border-primary/50 sm:flex-row sm:items-center sm:justify-between"
+        >
+          <div className="flex items-center gap-3">
+            <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
+              <AppIcon name="folder" size={22} />
+            </span>
+            <div>
+              <p className="font-display font-semibold group-hover:text-primary">Study Platform</p>
+              <p className="text-sm text-muted-foreground">
+                Structured subjects, weekly lessons and slide decks with progress tracking.
+              </p>
+            </div>
+          </div>
+          <span className="text-sm font-medium text-primary">
+            Open platform <AppIcon name="chevronRight" size={16} className="ml-1 inline" />
+          </span>
+        </Link>
+      </div>
 
       <section
         data-sidebar-start
