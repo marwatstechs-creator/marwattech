@@ -53,6 +53,8 @@ function classifyFromText(t: string): string {
   // WordPress themes (before generic "theme")
   if (/wordpress theme|wp theme|woocommerce theme|elementor theme|divi theme|generatepress/i.test(t))
     return "wordpress-themes";
+  if (/\btheme\b/i.test(t) && /wordpress|woocommerce|elementor|divi|\bwp\b|blogger/i.test(t))
+    return "wordpress-themes";
   // WordPress plugins — most specific first
   if (
     /wordpress plugin|wp plugin|woocommerce plugin|elementor plugin|page builder|forms builder|seo plugin|security plugin|backup plugin|cache plugin|membership plugin|automation plugin|slider plugin|booking plugin|affiliate plugin|woocommerce (addon|extension)/i.test(t)

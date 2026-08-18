@@ -72,6 +72,8 @@ describe("classifyCodeScriptCategory", () => {
     ["Whols Pro - WooCommerce Wholesale Plugin", "wordpress-plugins"],
     ["Automatic.css - CSS Framework for WordPress Page Builders Plugin", "wordpress-plugins"],
     ["Forstron - Legal Business WordPress Theme", "wordpress-themes"],
+    ["Flavor v1.2 - WordPress Theme", "wordpress-themes"],
+    ["Divine - Elementor WordPress Theme", "wordpress-themes"],
     ["Infinia - Business Consulting Startup Laravel Script", "laravel"],
     ["Chat Manager - Codeigniter Node.js Live Chat Script", "saas-apps"],
     ["Hospital AutoManager - Hospital Management System", "saas-apps"],

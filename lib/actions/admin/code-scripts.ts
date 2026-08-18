@@ -31,20 +31,47 @@ function norm(s: string | null | undefined): string | null {
   return t ? t : null;
 }
 
-/** Admin list of all code scripts + counts. */
-export async function getCodeScripts() {
+/** Admin list of code scripts — paginated, filterable, with per-category counts. */
+export async function getCodeScripts(input?: {
+  page?: number;
+  perPage?: number;
+  category?: string;
+  search?: string;
+}) {
   const { db } = await requireEditor();
-  const [rows, counts] = await Promise.all([
-    db
-      .from("code_scripts")
-      .select("id, title, slug, category, version, status, cover_image, source_url, updated_at")
-      .order("updated_at", { ascending: false })
-      .limit(2000),
-    db.from("code_scripts").select("status", { count: "exact", head: true }),
-  ]);
+  const page = Math.max(1, input?.page ?? 1);
+  const perPage = Math.min(500, Math.max(10, input?.perPage ?? 50));
+  const from = (page - 1) * perPage;
+  const to = from + perPage - 1;
+
+  let q = db
+    .from("code_scripts")
+    .select(
+      "id, title, slug, category, version, status, cover_image, source_url, updated_at",
+      { count: "exact" }
+    );
+  if (input?.category) q = q.eq("category", input.category);
+  if (input?.search) {
+    const s = input.search.trim().toLowerCase().replace(/[%_]/g, "");
+    if (s) q = q.or(`title.ilike.%${s}%,slug.ilike.%${s}%`);
+  }
+  const { data, count } = await q.order("updated_at", { ascending: false }).range(from, to);
+
+  // Per-category counts for the filter dropdown (single lightweight column query).
+  const { data: catRows } = await db.from("code_scripts").select("category");
+  const categoryCounts: Record<string, number> = {};
+  for (const r of catRows ?? []) {
+    const c = r.category ?? "(none)";
+    categoryCounts[c] = (categoryCounts[c] ?? 0) + 1;
+  }
+
   return {
-    rows: rows.data ?? [],
-    total: counts.count ?? 0,
+    rows: data ?? [],
+    total: count ?? 0,
+    page,
+    perPage,
+    totalPages: Math.max(1, Math.ceil((count ?? 0) / perPage)),
+    categoryCounts,
   };
 }
 

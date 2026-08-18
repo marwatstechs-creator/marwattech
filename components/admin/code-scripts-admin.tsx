@@ -38,6 +38,7 @@ import { DeleteButton } from "@/components/admin/delete-button";
 import { CODE_SCRIPT_CATEGORIES, codeScriptUrl } from "@/lib/code-scripts";
 import {
   getCodeScripts,
+  getCodeScriptSyncs,
   updateCodeScript,
   setCodeScriptStatus,
   deleteCodeScript,
@@ -73,6 +74,79 @@ export type CodeScriptSyncRequest = {
   created_at: string;
   processed_at: string | null;
 };
+
+export type CodeScriptListData = {
+  rows: CodeScriptAdminRow[];
+  total: number;
+  page: number;
+  perPage: number;
+  totalPages: number;
+  categoryCounts: Record<string, number>;
+};
+
+const PAGE_SIZES = [50, 100, 500];
+
+function Pagination({
+  page,
+  totalPages,
+  perPage,
+  onPage,
+  onPerPage,
+}: {
+  page: number;
+  totalPages: number;
+  perPage: number;
+  onPage: (p: number) => void;
+  onPerPage: (n: number) => void;
+}) {
+  const start = Math.max(1, page - 2);
+  const end = Math.min(totalPages, page + 2);
+  const pages: number[] = [];
+  for (let i = start; i <= end; i++) pages.push(i);
+
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+        Show
+        <Select value={String(perPage)} onValueChange={(v) => onPerPage(Number(v))}>
+          <SelectTrigger className="h-8 w-[72px]">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {PAGE_SIZES.map((n) => (
+              <SelectItem key={n} value={String(n)}>
+                {n}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        per page
+      </div>
+
+      <div className="flex items-center gap-1">
+        <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => onPage(page - 1)}>
+          Prev
+        </Button>
+        {start > 1 && <span className="px-1 text-muted-foreground">…</span>}
+        {pages.map((p) => (
+          <Button
+            key={p}
+            variant={p === page ? "default" : "outline"}
+            size="sm"
+            className="min-w-8"
+            onClick={() => onPage(p)}
+          >
+            {p}
+          </Button>
+        ))}
+        {end < totalPages && <span className="px-1 text-muted-foreground">…</span>}
+        <Button variant="outline" size="sm" disabled={page >= totalPages} onClick={() => onPage(page + 1)}>
+          Next
+        </Button>
+      </div>
+    </div>
+  );
+}
 
 const STATUS_STYLE: Record<string, "default" | "secondary" | "outline"> = {
   published: "default",
@@ -240,71 +314,23 @@ function EditDialog({
   );
 }
 
-function ScriptsTab({ rows }: { rows: CodeScriptAdminRow[] }) {
-  const router = useRouter();
-  const [search, setSearch] = React.useState("");
-  const [cat, setCat] = React.useState("all");
-  const [edit, setEdit] = React.useState<CodeScriptAdminRow | null>(null);
-  const [pending, setPending] = React.useState<string | null>(null);
-
-  const filtered = rows.filter((r) => {
-    if (cat !== "all" && r.category !== cat) return false;
-    const q = search.trim().toLowerCase();
-    if (!q) return true;
-    return r.title.toLowerCase().includes(q) || r.slug.includes(q);
-  });
-
-  const toggleStatus = async (r: CodeScriptAdminRow) => {
-    setPending(r.id);
-    const next = r.status === "published" ? "draft" : "published";
-    const res = await setCodeScriptStatus(r.id, next as "published" | "draft");
-    setPending(null);
-    if (!res.ok) return toast.error(res.error || "Could not update");
-    toast.success(next === "published" ? "Published" : "Unpublished");
-    router.refresh();
-  };
-
-  const onDelete = async (id: string) => {
-    const res = await deleteCodeScript(id);
-    if (!res.ok) toast.error(res.error || "Could not delete");
-    else {
-      toast.success("Deleted");
-      router.refresh();
-    }
-    return res;
-  };
-
+function ScriptsTable({
+  rows,
+  edit,
+  setEdit,
+  pendingStatus,
+  onToggleStatus,
+  onDelete,
+}: {
+  rows: CodeScriptAdminRow[];
+  edit: CodeScriptAdminRow | null;
+  setEdit: (r: CodeScriptAdminRow | null) => void;
+  pendingStatus: string | null;
+  onToggleStatus: (r: CodeScriptAdminRow) => void;
+  onDelete: (id: string) => Promise<{ error?: string } | { ok: boolean }>;
+}) {
   return (
-    <div className="space-y-4">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex flex-1 flex-col gap-2 sm:flex-row">
-          <div className="relative sm:max-w-xs">
-            <AppIcon name="search" size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-            <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search title or slug…" className="pl-9" />
-          </div>
-          <Select value={cat} onValueChange={setCat}>
-            <SelectTrigger className="sm:w-[190px]">
-              <SelectValue>{cat === "all" ? "All categories" : CODE_SCRIPT_CATEGORIES.find((c) => c.slug === cat)?.label}</SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All categories</SelectItem>
-              {CODE_SCRIPT_CATEGORIES.map((c) => (
-                <SelectItem key={c.slug} value={c.slug}>{c.label}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        <Button onClick={async () => {
-          const res = await requestCodeScriptSync();
-          if (!res.ok) return toast.error(res.error || "Could not request sync");
-          toast.success("Sync queued — the VPS picks it up within ~15 min. Check the Sync tab.");
-          router.refresh();
-        }}>
-          <AppIcon name="refresh" size={16} className="mr-1.5" />
-          Sync now
-        </Button>
-      </div>
-
+    <>
       <div className="rounded-xl border bg-card">
         <Table>
           <TableHeader>
@@ -319,10 +345,10 @@ function ScriptsTab({ rows }: { rows: CodeScriptAdminRow[] }) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filtered.length === 0 ? (
+            {rows.length === 0 ? (
               <TableRow><TableCell colSpan={7} className="py-14 text-center text-muted-foreground">No scripts yet — hit “Sync now” to pull from the source site.</TableCell></TableRow>
             ) : (
-              filtered.map((r) => (
+              rows.map((r) => (
                 <TableRow key={r.id}>
                   <TableCell>
                     {r.cover_image ? (
@@ -345,7 +371,7 @@ function ScriptsTab({ rows }: { rows: CodeScriptAdminRow[] }) {
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-1">
                       <Button variant="outline" size="sm" onClick={() => setEdit(r)}>Edit</Button>
-                      <Button variant="ghost" size="sm" onClick={() => toggleStatus(r)} disabled={pending === r.id}>
+                      <Button variant="ghost" size="sm" onClick={() => onToggleStatus(r)} disabled={pendingStatus === r.id}>
                         {r.status === "published" ? "Unpublish" : "Publish"}
                       </Button>
                       <DeleteButton itemId={r.id} onDelete={(id) => onDelete(id)} label="script" />
@@ -357,85 +383,229 @@ function ScriptsTab({ rows }: { rows: CodeScriptAdminRow[] }) {
           </TableBody>
         </Table>
       </div>
-
       {edit && <EditDialog row={edit} onClose={() => setEdit(null)} />}
-    </div>
-  );
-}
-
-function SyncTab({
-  runs,
-  requests,
-}: {
-  runs: CodeScriptSyncRun[];
-  requests: CodeScriptSyncRequest[];
-}) {
-  const pendingReq = requests.find((r) => r.status === "pending");
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-3 rounded-xl border bg-card p-4">
-        <AppIcon name={pendingReq ? "refresh" : "check"} size={18} className={pendingReq ? "animate-spin text-blue-500" : "text-emerald-500"} />
-        <div>
-          <p className="text-sm font-semibold">
-            {pendingReq ? "A sync is queued — the VPS runner will pick it up within ~15 min." : "No sync currently queued."}
-          </p>
-          <p className="text-xs text-muted-foreground">
-            Automatic sync runs every 48h. Manual runs appear here once processed.
-          </p>
-        </div>
-      </div>
-
-      <div className="rounded-xl border bg-card">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Ran at (UTC)</TableHead>
-              <TableHead>Sitemap URLs</TableHead>
-              <TableHead>New found</TableHead>
-              <TableHead>Imported</TableHead>
-              <TableHead>Failed</TableHead>
-              <TableHead>Error</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {runs.length === 0 ? (
-              <TableRow><TableCell colSpan={6} className="py-12 text-center text-muted-foreground">No sync runs yet.</TableCell></TableRow>
-            ) : (
-              runs.map((r) => (
-                <TableRow key={r.id}>
-                  <TableCell className="whitespace-nowrap text-muted-foreground">{formatDateTime(r.ran_at)}</TableCell>
-                  <TableCell>{r.sitemap_urls}</TableCell>
-                  <TableCell>{r.new_found}</TableCell>
-                  <TableCell><Badge variant="default">{r.imported}</Badge></TableCell>
-                  <TableCell>{r.failed > 0 ? <Badge variant="destructive">{r.failed}</Badge> : "0"}</TableCell>
-                  <TableCell className="max-w-[260px] truncate text-xs text-destructive" title={r.error ?? undefined}>{r.error ?? "—"}</TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </div>
-    </div>
+    </>
   );
 }
 
 export function CodeScriptsAdmin({
-  rows,
-  runs,
-  requests,
+  initial,
+  runs: initialRuns,
+  requests: initialRequests,
 }: {
-  rows: CodeScriptAdminRow[];
+  initial: CodeScriptListData;
   runs: CodeScriptSyncRun[];
   requests: CodeScriptSyncRequest[];
 }) {
+  const router = useRouter();
+  const [data, setData] = React.useState<CodeScriptListData>(initial);
+  const [page, setPage] = React.useState(initial.page);
+  const [perPage, setPerPage] = React.useState(initial.perPage);
+  const [cat, setCat] = React.useState("all");
+  const [searchInput, setSearchInput] = React.useState("");
+  const [search, setSearch] = React.useState("");
+  const [loading, setLoading] = React.useState(false);
+  const [edit, setEdit] = React.useState<CodeScriptAdminRow | null>(null);
+  const [pendingStatus, setPendingStatus] = React.useState<string | null>(null);
+  const [runs, setRuns] = React.useState<CodeScriptSyncRun[]>(initialRuns);
+  const [requests, setRequests] = React.useState<CodeScriptSyncRequest[]>(initialRequests);
+  const [syncing, setSyncing] = React.useState(false);
+
+  // Debounce search input, reset to page 1.
+  React.useEffect(() => {
+    const t = setTimeout(() => {
+      setSearch(searchInput.trim());
+      setPage(1);
+    }, 400);
+    return () => clearTimeout(t);
+  }, [searchInput]);
+
+  // Fetch the current page whenever page/perPage/category/search change.
+  React.useEffect(() => {
+    (async () => {
+      setLoading(true);
+      try {
+        const res = await getCodeScripts({
+          page,
+          perPage,
+          category: cat === "all" ? undefined : cat,
+          search: search || undefined,
+        });
+        setData(res);
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, [page, perPage, cat, search]);
+
+  const goPage = (p: number) => {
+    const np = Math.max(1, Math.min(data.totalPages, p));
+    if (np !== page) setPage(np);
+  };
+
+  const toggleStatus = async (r: CodeScriptAdminRow) => {
+    setPendingStatus(r.id);
+    const next = r.status === "published" ? "draft" : "published";
+    const res = await setCodeScriptStatus(r.id, next as "published" | "draft");
+    setPendingStatus(null);
+    if (!res.ok) return toast.error(res.error || "Could not update");
+    toast.success(next === "published" ? "Published" : "Unpublished");
+    router.refresh();
+  };
+
+  const onDelete = async (id: string) => {
+    const res = await deleteCodeScript(id);
+    if (!res.ok) toast.error(res.error || "Could not delete");
+    else {
+      toast.success("Deleted");
+      router.refresh();
+    }
+    return res;
+  };
+
+  const onSyncNow = async () => {
+    setSyncing(true);
+    const res = await requestCodeScriptSync();
+    if (!res.ok) {
+      setSyncing(false);
+      return toast.error(res.error || "Could not start sync");
+    }
+    toast.info("Sync started — fetching the latest posts…");
+    for (let i = 0; i < 50; i++) {
+      await new Promise((r) => setTimeout(r, 6000));
+      const s = await getCodeScriptSyncs();
+      setRuns(s.runs);
+      setRequests(s.requests);
+      if (!s.requests.some((rq) => rq.status === "pending")) {
+        const latest = s.runs[0];
+        if (latest) {
+          if (latest.imported === 0) toast.info("No new recent posts found.");
+          else toast.success(`Imported ${latest.imported} new script${latest.imported > 1 ? "s" : ""}${latest.failed ? ` (${latest.failed} failed)` : ""}.`);
+        }
+        setSyncing(false);
+        router.refresh();
+        return;
+      }
+    }
+    setSyncing(false);
+    toast.error("Sync is taking a while — check the Sync history tab.");
+  };
+
+  const selectedCatLabel =
+    cat === "all" ? `All categories (${data.total})` : (CODE_SCRIPT_CATEGORIES.find((c) => c.slug === cat)?.label ?? cat);
+  const selectedCatCount = cat === "all" ? data.total : (data.categoryCounts[cat] ?? 0);
+  const pendingReq = requests.find((r) => r.status === "pending");
+
   return (
     <Tabs defaultValue="scripts">
-      <TabsList>
-        <TabsTrigger value="scripts">Scripts ({rows.length})</TabsTrigger>
-        <TabsTrigger value="sync">Sync history</TabsTrigger>
-      </TabsList>
-      <TabsContent value="scripts"><ScriptsTab rows={rows} /></TabsContent>
-      <TabsContent value="sync"><SyncTab runs={runs} requests={requests} /></TabsContent>
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+        <TabsList>
+          <TabsTrigger value="scripts">Scripts ({data.total})</TabsTrigger>
+          <TabsTrigger value="sync">Sync history ({runs.length})</TabsTrigger>
+        </TabsList>
+        <Button onClick={onSyncNow} disabled={syncing}>
+          <AppIcon name="refresh" size={16} className={`mr-1.5 ${syncing ? "animate-spin" : ""}`} />
+          {syncing ? "Syncing…" : "Sync now"}
+        </Button>
+      </div>
+
+      <TabsContent value="scripts" className="space-y-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-1 flex-col gap-2 sm:flex-row">
+            <div className="relative sm:max-w-xs">
+              <AppIcon name="search" size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+              <Input value={searchInput} onChange={(e) => setSearchInput(e.target.value)} placeholder="Search title or slug…" className="pl-9" />
+            </div>
+            <Select value={cat} onValueChange={(v) => { setCat(v); setPage(1); }}>
+              <SelectTrigger className="sm:w-[230px]">
+                <SelectValue>{selectedCatLabel}</SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All categories ({data.total})</SelectItem>
+                {CODE_SCRIPT_CATEGORIES.map((c) => (
+                  <SelectItem key={c.slug} value={c.slug}>
+                    {c.label} ({data.categoryCounts[c.slug] ?? 0})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <Badge variant="outline" className="whitespace-nowrap px-3 py-1.5">
+            {selectedCatLabel}
+            {cat !== "all" && <span className="ml-1 font-semibold">— {selectedCatCount} scripts</span>}
+          </Badge>
+        </div>
+
+        <Pagination
+          page={page}
+          totalPages={data.totalPages}
+          perPage={perPage}
+          onPage={goPage}
+          onPerPage={(n) => { setPerPage(n); setPage(1); }}
+        />
+
+        <div className={loading ? "opacity-50 transition-opacity" : "transition-opacity"}>
+          <ScriptsTable
+            rows={data.rows}
+            edit={edit}
+            setEdit={setEdit}
+            pendingStatus={pendingStatus}
+            onToggleStatus={toggleStatus}
+            onDelete={onDelete}
+          />
+        </div>
+
+        <Pagination
+          page={page}
+          totalPages={data.totalPages}
+          perPage={perPage}
+          onPage={goPage}
+          onPerPage={(n) => { setPerPage(n); setPage(1); }}
+        />
+      </TabsContent>
+
+      <TabsContent value="sync" className="space-y-6">
+        <div className="flex items-center gap-3 rounded-xl border bg-card p-4">
+          <AppIcon name={pendingReq ? "refresh" : "check"} size={18} className={pendingReq ? "animate-spin text-blue-500" : "text-emerald-500"} />
+          <div>
+            <p className="text-sm font-semibold">
+              {pendingReq ? "A sync is running — fetching the latest posts (max 50)." : "No sync currently running."}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              Auto-sync is disabled. Press “Sync now” to pull the newest posts (max 50, no duplicates).
+            </p>
+          </div>
+        </div>
+
+        <div className="rounded-xl border bg-card">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Ran at (UTC)</TableHead>
+                <TableHead>New found</TableHead>
+                <TableHead>Imported</TableHead>
+                <TableHead>Failed</TableHead>
+                <TableHead>Error</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {runs.length === 0 ? (
+                <TableRow><TableCell colSpan={5} className="py-12 text-center text-muted-foreground">No sync runs yet.</TableCell></TableRow>
+              ) : (
+                runs.map((r) => (
+                  <TableRow key={r.id}>
+                    <TableCell className="whitespace-nowrap text-muted-foreground">{formatDateTime(r.ran_at)}</TableCell>
+                    <TableCell>{r.new_found}</TableCell>
+                    <TableCell><Badge variant="default">{r.imported}</Badge></TableCell>
+                    <TableCell>{r.failed > 0 ? <Badge variant="destructive">{r.failed}</Badge> : "0"}</TableCell>
+                    <TableCell className="max-w-[260px] truncate text-xs text-destructive" title={r.error ?? undefined}>{r.error ?? "—"}</TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      </TabsContent>
     </Tabs>
   );
 }

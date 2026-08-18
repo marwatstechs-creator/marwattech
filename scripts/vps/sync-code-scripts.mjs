@@ -35,7 +35,7 @@ const R2_BUCKET = env.R2_BUCKET || "marwattech-media";
 const R2_ACCESS_KEY = env.R2_ACCESS_KEY_ID || "";
 const R2_SECRET = env.R2_SECRET_ACCESS_KEY || "";
 const R2_PUBLIC_BASE = (env.R2_PUBLIC_BASE || "https://media.marwattech.com").replace(/\/$/, "");
-const MAX_PER_RUN = Number(env.MAX_PER_RUN || 15);
+const MAX_PER_RUN = Number(env.MAX_PER_RUN || 50);
 const MIN_INTERVAL_MS = 48 * 60 * 60 * 1000;
 
 if (!SUPABASE_URL || !SERVICE_KEY) {
@@ -86,6 +86,7 @@ function mapCategory(raw) {
  * the title gives no signal (so SEO body text repeating "Laravel" etc. can't skew it). */
 function classifyFromText(t) {
   if (/wordpress theme|wp theme|woocommerce theme|elementor theme|divi theme|generatepress/i.test(t)) return "wordpress-themes";
+  if (/\btheme\b/i.test(t) && /wordpress|woocommerce|elementor|divi|\bwp\b|blogger/i.test(t)) return "wordpress-themes";
   if (/wordpress plugin|wp plugin|woocommerce plugin|elementor plugin|page builder|forms builder|seo plugin|security plugin|backup plugin|cache plugin|membership plugin|automation plugin|slider plugin|booking plugin|affiliate plugin/i.test(t)) return "wordpress-plugins";
   if (/\bplugin\b/i.test(t) && /wordpress|woocommerce|elementor|\bwp\b|yoast|rank math|divi|woo/i.test(t)) return "wordpress-plugins";
   if (/\blaravel\b/i.test(t)) return "laravel";
@@ -461,6 +462,11 @@ async function main() {
     .maybeSingle();
   const force = !!pending;
 
+  // MANUAL_ONLY=1: never auto-run — only act when the admin pressed "Sync now".
+  if (!force && env.MANUAL_ONLY === "1") {
+    console.log("Manual-only mode: no pending sync request — skipping");
+    return;
+  }
   // BULK=1 bypasses the 48h guard (used for one-time full-site imports).
   if (!force && env.BULK !== "1") {
     const { data: last } = await db
