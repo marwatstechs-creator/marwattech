@@ -22,8 +22,8 @@ import {
 } from "lexical";
 import { HeadingNode, QuoteNode } from "@lexical/rich-text";
 import { ListNode, ListItemNode } from "@lexical/list";
-import { CodeNode } from "@lexical/code";
-import { LinkNode } from "@lexical/link";
+import { CodeNode, CodeHighlightNode } from "@lexical/code";
+import { AutoLinkNode, LinkNode } from "@lexical/link";
 import { TableNode, TableCellNode, TableRowNode } from "@lexical/table";
 import { ImageNode } from "./nodes/ImageNode";
 import { YouTubeNode } from "./nodes/YouTubeNode";
@@ -43,7 +43,9 @@ const EDITOR_NODES = [
   ListNode,
   ListItemNode,
   CodeNode,
+  CodeHighlightNode,
   LinkNode,
+  AutoLinkNode,
   TableNode,
   TableCellNode,
   TableRowNode,

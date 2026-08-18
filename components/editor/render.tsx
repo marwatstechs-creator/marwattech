@@ -147,6 +147,15 @@ function renderNode(node: LexNode, key: number): React.ReactNode {
       );
     }
 
+    case "autolink": {
+      const href = String(node.url ?? "#");
+      return (
+        <a key={key} href={href} target="_blank" rel="noopener noreferrer" className="text-primary underline underline-offset-2 hover:text-primary/80">
+          {renderChildren(node)}
+        </a>
+      );
+    }
+
     case "image": {
       const src = String(node.src ?? "");
       const alt = String(node.altText ?? "");
@@ -220,6 +229,9 @@ function renderNode(node: LexNode, key: number): React.ReactNode {
       return <hr key={key} className="my-4 border-border" />;
 
     case "text":
+      return renderText(node, key);
+
+    case "code-highlight":
       return renderText(node, key);
 
     default:
