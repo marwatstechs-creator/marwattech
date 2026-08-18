@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { RichTextEditor } from "@/components/editor/RichTextEditor";
 import {
   Dialog,
   DialogContent,
@@ -199,6 +200,11 @@ function EditDialog({
     seo_description: "",
   });
   const [pending, setPending] = React.useState(false);
+  // Stable editor value — set only when a different script is loaded, so the
+  // editor never re-applies its own HTML output while typing.
+  const [editorValue, setEditorValue] = React.useState<string>(
+    (row as { content?: string }).content ?? ""
+  );
 
   // Load full details when the dialog opens (the list row is a light projection).
   React.useEffect(() => {
@@ -206,6 +212,7 @@ function EditDialog({
       const { getCodeScriptDetails } = await import("@/lib/actions/admin/code-scripts");
       const full = await getCodeScriptDetails(row.id);
       if (full) {
+        setEditorValue(full.content ?? "");
         setForm({
           title: full.title ?? row.title,
           category: full.category ?? "",
@@ -301,8 +308,19 @@ function EditDialog({
             <Textarea rows={2} value={form.excerpt} onChange={(e) => setForm((f) => ({ ...f, excerpt: e.target.value }))} />
           </div>
           <div className="space-y-1.5">
-            <Label>Content (HTML)</Label>
-            <Textarea rows={10} value={form.content} onChange={(e) => setForm((f) => ({ ...f, content: e.target.value }))} />
+            <Label>Content</Label>
+            <RichTextEditor
+              value={editorValue}
+              onChange={(html) => setForm((f) => ({ ...f, content: html }))}
+              placeholder="Write the article / description…"
+              output="html"
+              mode="source-code"
+              minHeight={220}
+              features={{ images: false, tables: false, embeds: false }}
+            />
+            <p className="text-xs text-muted-foreground">
+              Source-code posts use HTML output so imported content keeps working.
+            </p>
           </div>
         </div>
         <DialogFooter>

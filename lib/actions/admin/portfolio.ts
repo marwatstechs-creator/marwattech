@@ -5,6 +5,7 @@ import {
   requireEditor,
   logActivity,
   revalidateContent,
+  jsonbFromString,
 } from "@/lib/actions/admin/helpers";
 
 const itemSchema = z.object({
@@ -18,6 +19,7 @@ const itemSchema = z.object({
   industry: z.string().max(120).optional().or(z.literal("")),
   summary: z.string().max(600).optional().or(z.literal("")),
   content: z.string().optional().or(z.literal("")),
+  content_json: z.string().optional().or(z.literal("")),
   technologies: z.array(z.string()).default([]),
   images: z.array(z.object({ url: z.string(), alt: z.string().optional() })).default([]),
   cover_image: z.string().max(600).optional().or(z.literal("")),
@@ -43,7 +45,7 @@ export async function createPortfolioItem(input: PortfolioInput) {
   }
   const { data, error } = await db
     .from("portfolio_items")
-    .insert({ ...parsed.data, category_id: parsed.data.category_id ?? null })
+    .insert({ ...parsed.data, content_json: jsonbFromString(parsed.data.content_json), category_id: parsed.data.category_id ?? null })
     .select("id")
     .single();
   if (error) return { error: error.message };
@@ -60,7 +62,7 @@ export async function updatePortfolioItem(id: string, input: PortfolioInput) {
   }
   const { error } = await db
     .from("portfolio_items")
-    .update({ ...parsed.data, category_id: parsed.data.category_id ?? null })
+    .update({ ...parsed.data, content_json: jsonbFromString(parsed.data.content_json), category_id: parsed.data.category_id ?? null })
     .eq("id", id);
   if (error) return { error: error.message };
   await logActivity(db, session, "update", "portfolio", id);

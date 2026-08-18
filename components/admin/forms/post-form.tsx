@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { SlugField } from "@/components/admin/slug-field";
-import { RichTextEditor } from "@/components/admin/rich-text-editor";
+import { RichTextEditor } from "@/components/editor/RichTextEditor";
 import { CustomHtmlField } from "@/components/admin/custom-html-field";
 import { SeoFields } from "@/components/admin/seo-fields";
 import { ImageField } from "@/components/admin/image-field";
@@ -45,6 +45,7 @@ export function PostForm({
     slug: initial?.slug ?? "",
     excerpt: initial?.excerpt ?? "",
     content: initial?.content ?? "",
+    content_json: initial?.content_json ?? "",
     custom_html: initial?.custom_html ?? "",
     cover_image: initial?.cover_image ?? "",
     author_id: initial?.author_id ?? "",
@@ -60,6 +61,13 @@ export function PostForm({
 
   const set = <K extends keyof typeof form>(key: K, value: (typeof form)[K]) =>
     setForm((f) => ({ ...f, [key]: value }));
+
+  // Stable editor value — only changes when a different record loads, so the
+  // editor never re-applies its own output while typing.
+  const editorValue = useMemo(
+    () => (initial?.content_json as string | undefined) || initial?.content || "",
+    [initial]
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -120,7 +128,13 @@ export function PostForm({
           <Card>
             <CardContent className="space-y-4 p-6">
               <h2 className="font-display text-lg font-bold">Content</h2>
-              <RichTextEditor value={form.content ?? ""} onChange={(v) => set("content", v)} />
+              <RichTextEditor
+                value={editorValue}
+                onChange={(json) => set("content_json", json)}
+                onHtmlChange={(html) => set("content", html)}
+                placeholder="Start writing your article…"
+                mode="blog"
+              />
             </CardContent>
           </Card>
 

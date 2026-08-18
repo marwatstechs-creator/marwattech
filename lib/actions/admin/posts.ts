@@ -7,6 +7,7 @@ import {
   revalidateContent,
 } from "@/lib/actions/admin/helpers";
 import { readingTime } from "@/lib/utils";
+import { jsonbFromString } from "@/lib/actions/admin/helpers";
 
 const postSchema = z.object({
   title: z.string().min(2, "Title is required").max(250),
@@ -17,6 +18,7 @@ const postSchema = z.object({
     .regex(/^[a-z0-9-]+$/, "Use lowercase letters, numbers and hyphens"),
   excerpt: z.string().max(500).optional().or(z.literal("")),
   content: z.string().min(1, "Content is required"),
+  content_json: z.string().optional().or(z.literal("")),
   custom_html: z.string().optional().or(z.literal("")),
   cover_image: z.string().max(600).optional().or(z.literal("")),
   author_id: z.string().uuid().nullable().optional(),
@@ -70,6 +72,7 @@ export async function createPost(input: PostInput) {
     .insert({
       ...rest,
       content,
+      content_json: jsonbFromString(parsed.data.content_json),
       reading_time: readingTime(content),
       published_at:
         parsed.data.status === "published"
@@ -103,6 +106,7 @@ export async function updatePost(id: string, input: PostInput) {
     .update({
       ...rest,
       content,
+      content_json: jsonbFromString(parsed.data.content_json),
       reading_time: readingTime(content),
       published_at:
         parsed.data.status === "published"

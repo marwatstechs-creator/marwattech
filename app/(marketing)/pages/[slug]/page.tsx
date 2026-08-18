@@ -3,8 +3,8 @@ import { notFound } from "next/navigation";
 
 import { PageHero } from "@/components/marketing/page-hero";
 import { CtaBanner } from "@/components/marketing/cta-banner";
+import { EditorContent } from "@/components/editor/EditorContent";
 import { createClient } from "@/lib/supabase/server";
-import { sanitizeHtml } from "@/lib/sanitize";
 import { buildMetadata } from "@/lib/seo";
 import { webPageJsonLd } from "@/lib/seo-jsonld";
 import { JsonLd } from "@/components/seo/json-ld";
@@ -43,6 +43,7 @@ export default async function PageDetailPage({ params }: Props) {
   let page: {
     title: string;
     content: string;
+    content_json: unknown;
     custom_html: string | null;
     meta_description: string | null;
   } | null = null;
@@ -51,7 +52,7 @@ export default async function PageDetailPage({ params }: Props) {
     const db = await createClient();
     const { data } = await db
       .from("pages")
-      .select("title, content, custom_html, meta_description")
+      .select("title, content, content_json, custom_html, meta_description")
       .eq("slug", slug)
       .eq("status", "published")
       .maybeSingle();
@@ -61,8 +62,6 @@ export default async function PageDetailPage({ params }: Props) {
   }
 
   if (!page) notFound();
-
-  const content = sanitizeHtml(page.content);
 
   return (
     <>
@@ -76,10 +75,9 @@ export default async function PageDetailPage({ params }: Props) {
       <PageHero title={page.title} description={page.meta_description ?? undefined} />
 
       <section className="mx-auto w-full max-w-3xl px-4 pb-16 sm:px-6">
-        <article
-          className="prose-cms"
-          dangerouslySetInnerHTML={{ __html: content }}
-        />
+        <article className="mt-8">
+          <EditorContent content={page.content} contentJson={page.content_json} />
+        </article>
         {page.custom_html ? (
           <div
             className="mt-10"

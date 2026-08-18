@@ -3,7 +3,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { createClient } from "@/lib/supabase/server";
 import { getSessionUser } from "@/lib/auth";
-import type { Database } from "@/types/database";
+import type { Database, Json } from "@/types/database";
 
 export type DB = SupabaseClient<Database>;
 
@@ -73,4 +73,14 @@ export async function revalidateContent(paths: string[]) {
   // Best-effort — never blocks the admin action.
   const { pingIndexNow } = await import("@/lib/indexnow");
   await pingIndexNow(paths);
+}
+
+/** Parse a Lexical JSON string into a jsonb value (null-safe). */
+export function jsonbFromString(s?: string | null): Json | null {
+  if (!s || !s.trim()) return null;
+  try {
+    return JSON.parse(s) as Json;
+  } catch {
+    return null;
+  }
 }

@@ -5,6 +5,7 @@ import {
   requireEditor,
   logActivity,
   revalidateContent,
+  jsonbFromString,
 } from "@/lib/actions/admin/helpers";
 
 const serviceSchema = z.object({
@@ -18,6 +19,7 @@ const serviceSchema = z.object({
   category_id: z.string().uuid().nullable().optional(),
   summary: z.string().max(600).optional().or(z.literal("")),
   content: z.string().optional().or(z.literal("")),
+  content_json: z.string().optional().or(z.literal("")),
   benefits: z.array(z.record(z.string(), z.string())).default([]),
   process: z.array(z.record(z.string(), z.string())).default([]),
   faqs: z.array(z.record(z.string(), z.string())).default([]),
@@ -41,7 +43,7 @@ export async function createService(input: ServiceInput) {
   }
   const { data, error } = await db
     .from("services")
-    .insert({ ...parsed.data, category_id: parsed.data.category_id ?? null })
+    .insert({ ...parsed.data, content_json: jsonbFromString(parsed.data.content_json), category_id: parsed.data.category_id ?? null })
     .select("id")
     .single();
   if (error) return { error: error.message };
@@ -58,7 +60,7 @@ export async function updateService(id: string, input: ServiceInput) {
   }
   const { data, error } = await db
     .from("services")
-    .update({ ...parsed.data, category_id: parsed.data.category_id ?? null })
+    .update({ ...parsed.data, content_json: jsonbFromString(parsed.data.content_json), category_id: parsed.data.category_id ?? null })
     .eq("id", id)
     .select("id, slug")
     .single();

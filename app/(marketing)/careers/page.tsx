@@ -8,8 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { createClient } from "@/lib/supabase/server";
 import { getOpenCareers } from "@/lib/db/content";
+import { EditorContent } from "@/components/editor/EditorContent";
 import { DEMO_CAREERS } from "@/lib/demo";
-import { sanitizeHtml } from "@/lib/sanitize";
 import { buildMetadata } from "@/lib/seo";
 import { jobPostingJsonLd } from "@/lib/seo-jsonld";
 import { JsonLd } from "@/components/seo/json-ld";
@@ -101,12 +101,10 @@ export default async function CareersPage() {
           ) : (
             <div className="space-y-6">
               {careers.map((job) => {
-                const description = job.description
-                  ? sanitizeHtml(job.description)
-                  : "";
-                const requirements = job.requirements
-                  ? sanitizeHtml(job.requirements)
-                  : "";
+                const jobAny = job as unknown as {
+                  description_json?: unknown;
+                  requirements_json?: unknown;
+                };
                 return (
                   <Card key={job.id}>
                     <CardContent className="p-6 sm:p-8">
@@ -136,20 +134,24 @@ export default async function CareersPage() {
                         <JobApplyButton careerId={job.id} position={job.title} />
                       </div>
 
-                      {description && (
-                        <div
-                          className="prose-cms mt-6 border-t pt-6 text-sm"
-                          dangerouslySetInnerHTML={{ __html: description }}
-                        />
+                      {job.description && (
+                        <div className="mt-6 border-t pt-6">
+                          <EditorContent
+                            content={job.description}
+                            contentJson={jobAny.description_json}
+                            className="text-sm"
+                          />
+                        </div>
                       )}
-                      {requirements && (
+                      {job.requirements && (
                         <div className="mt-6">
                           <h4 className="font-display mb-2 font-semibold">
                             Requirements
                           </h4>
-                          <div
-                            className="prose-cms text-sm"
-                            dangerouslySetInnerHTML={{ __html: requirements }}
+                          <EditorContent
+                            content={job.requirements}
+                            contentJson={jobAny.requirements_json}
+                            className="text-sm"
                           />
                         </div>
                       )}

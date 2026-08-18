@@ -5,6 +5,7 @@ import {
   requireEditor,
   logActivity,
   revalidateContent,
+  jsonbFromString,
 } from "@/lib/actions/admin/helpers";
 
 const schema = z.object({
@@ -19,7 +20,9 @@ const schema = z.object({
   job_type: z.string().max(80).optional().or(z.literal("")),
   salary_range: z.string().max(120).optional().or(z.literal("")),
   description: z.string().optional().or(z.literal("")),
+  description_json: z.string().optional().or(z.literal("")),
   requirements: z.string().optional().or(z.literal("")),
+  requirements_json: z.string().optional().or(z.literal("")),
   status: z.enum(["draft", "published", "archived"]).default("draft"),
 });
 
@@ -31,7 +34,7 @@ export async function createCareer(input: CareerInput) {
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
   const { data, error } = await db
     .from("careers")
-    .insert({ ...parsed.data, department: parsed.data.department || null, location: parsed.data.location || null, job_type: parsed.data.job_type || null, salary_range: parsed.data.salary_range || null })
+    .insert({ ...parsed.data, description_json: jsonbFromString(parsed.data.description_json), requirements_json: jsonbFromString(parsed.data.requirements_json), department: parsed.data.department || null, location: parsed.data.location || null, job_type: parsed.data.job_type || null, salary_range: parsed.data.salary_range || null })
     .select("id")
     .single();
   if (error) return { error: error.message };
@@ -46,7 +49,7 @@ export async function updateCareer(id: string, input: CareerInput) {
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
   const { error } = await db
     .from("careers")
-    .update({ ...parsed.data, department: parsed.data.department || null, location: parsed.data.location || null, job_type: parsed.data.job_type || null, salary_range: parsed.data.salary_range || null })
+    .update({ ...parsed.data, description_json: jsonbFromString(parsed.data.description_json), requirements_json: jsonbFromString(parsed.data.requirements_json), department: parsed.data.department || null, location: parsed.data.location || null, job_type: parsed.data.job_type || null, salary_range: parsed.data.salary_range || null })
     .eq("id", id);
   if (error) return { error: error.message };
   await logActivity(db, session, "update", "career", id);

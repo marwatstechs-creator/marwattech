@@ -21,8 +21,8 @@ import {
 import { AdUnit } from "@/components/adsense/ad-unit";
 import { StickyAd } from "@/components/adsense/sticky-ad";
 import { SidebarAd } from "@/components/adsense/sidebar-ad";
+import { EditorContent } from "@/components/editor/EditorContent";
 import { DEMO_POSTS } from "@/lib/demo";
-import { sanitizeHtml } from "@/lib/sanitize";
 import { buildMetadata } from "@/lib/seo";
 import { SITE } from "@/lib/constants";
 import { formatDate, initials, readingTime, absoluteUrl } from "@/lib/utils";
@@ -100,7 +100,6 @@ export default async function BlogPostPage({ params }: Props) {
 
   if (!post) notFound();
 
-  const content = sanitizeHtml(post.content);
   const category = post.blog_categories as { name: string; slug: string } | null;
   const author = post.profiles as { full_name: string | null } | null;
   const minutes = post.reading_time ?? readingTime(post.content);
@@ -232,9 +231,10 @@ export default async function BlogPostPage({ params }: Props) {
         )}
 
         {/* Content */}
-        <div
-          className="prose-cms mt-8"
-          dangerouslySetInnerHTML={{ __html: content }}
+        <EditorContent
+          content={post.content}
+          contentJson={(post as unknown as { content_json?: unknown }).content_json}
+          className="mt-8"
         />
 
         {/* Custom HTML / CSS / JS */}

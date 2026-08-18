@@ -255,92 +255,6 @@
   }
 }
 
-/* ── TipTap editor surface ────────────────────────────────────────────── */
-@layer components {
-  .tiptap {
-    @apply text-foreground/90 leading-relaxed;
-  }
-  .tiptap:focus {
-    @apply outline-none;
-  }
-  /* Placeholder */
-  .tiptap p.is-editor-empty:first-child::before,
-  .tiptap .is-empty::before {
-    content: attr(data-placeholder);
-    @apply pointer-events-none float-left h-0 text-foreground/35;
-  }
-  /* Tables */
-  .tiptap table {
-    @apply my-4 w-full border-collapse;
-  }
-  .tiptap th,
-  .tiptap td {
-    @apply relative border border-border px-3 py-2 align-top;
-  }
-  .tiptap th {
-    @apply bg-muted font-semibold;
-  }
-  .tiptap .selectedCell::after {
-    content: "";
-    @apply pointer-events-none absolute inset-0 bg-brand/15;
-  }
-  .tiptap .column-resize-handle {
-    @apply pointer-events-none absolute -right-0.5 top-0 bottom-0 w-1 bg-brand/60;
-  }
-  .tiptap .resize-cursor {
-    cursor: col-resize;
-  }
-  /* Code blocks (lowlight) */
-  .tiptap pre {
-    @apply my-4 overflow-x-auto rounded-lg bg-[#0d1117] p-4 text-sm text-slate-100;
-  }
-  .tiptap pre code {
-    @apply bg-transparent p-0 font-mono text-inherit;
-  }
-  .tiptap code {
-    @apply rounded bg-muted px-1.5 py-0.5 font-mono text-[0.85em];
-  }
-  /* Lists */
-  .tiptap ul {
-    @apply my-4 list-disc pl-6;
-  }
-  .tiptap ol {
-    @apply my-4 list-decimal pl-6;
-  }
-  .tiptap blockquote {
-    @apply my-4 border-l-4 border-gold pl-4 italic text-foreground/80;
-  }
-  .tiptap ul[data-type="taskList"] {
-    @apply list-none pl-0;
-  }
-  .tiptap ul[data-type="taskList"] li {
-    @apply flex items-start gap-2;
-  }
-  .tiptap ul[data-type="taskList"] li > label {
-    @apply mt-1 flex-none select-none;
-  }
-  .tiptap ul[data-type="taskList"] input[type="checkbox"] {
-    @apply size-4 accent-brand;
-  }
-  .tiptap ul[data-type="taskList"] li[data-checked="true"] > div {
-    @apply text-foreground/50 line-through;
-  }
-  /* Images & embeds */
-  .tiptap img {
-    @apply my-4 h-auto max-w-full rounded-lg;
-  }
-  .tiptap img.ProseMirror-selectednode,
-  .tiptap iframe.ProseMirror-selectednode {
-    @apply outline-2 outline-dashed outline-brand;
-  }
-  .tiptap iframe {
-    @apply my-4 w-full max-w-full rounded-lg;
-  }
-  .tiptap hr {
-    @apply my-6 border-border;
-  }
-}
-
 /* ── 3D buttons (Canva-inspired: snappy press, soft shadow) ─────────── */
 .btn-3d {
   @apply inline-flex items-center justify-center gap-2.5 overflow-hidden font-semibold text-white;
@@ -896,3 +810,69 @@
     transform: none;
   }
 }
+
+/* ══════════════════════════════════════════════════════════════════
+   Lexical editor (components/editor) — design-token driven
+   ══════════════════════════════════════════════════════════════════ */
+
+/* Editing surface */
+.lexical-editable {
+  position: relative;
+  caret-color: var(--primary);
+}
+
+/* Block-level custom nodes are wrapped in a span */
+.editor-block {
+  display: block;
+  max-width: 100%;
+}
+
+/* Checklist */
+.editor-checklist {
+  list-style: none;
+  margin: 0.75rem 0;
+  padding: 0;
+}
+.editor-checklist-item {
+  display: block;
+}
+
+/* Tables inside the editor */
+.editor-table-selection * {
+  outline: none;
+}
+
+/* Slash command menu */
+.editor-slash-menu {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Renderer: keep images/blocks from overflowing */
+.prose-cms {
+  overflow-wrap: break-word;
+}
+.prose-cms img {
+  height: auto;
+}
+.prose-cms table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+}
+.prose-cms pre,
+.prose-cms pre code {
+  font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+}
+.prose-cms .hljs,
+.prose-cms [class*="hljs-"],
+.prose-cms .language-js .token,
+.prose-cms .token {
+  /* token color handled by Tailwind classes in the theme; keep no default color */
+  font-style: normal;
+}
+
+/* Code block viewer (renderer) token colors follow the theme */
+.codeblock-gutter {
+  user-select: none;
+}
+

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
@@ -18,7 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { SlugField } from "@/components/admin/slug-field";
-import { RichTextEditor } from "@/components/admin/rich-text-editor";
+import { RichTextEditor } from "@/components/editor/RichTextEditor";
 import { CustomHtmlField } from "@/components/admin/custom-html-field";
 import { createPage, updatePage, type PageInput } from "@/lib/actions/admin/pages";
 
@@ -35,6 +35,7 @@ export function PageForm({
     title: initial?.title ?? "",
     slug: initial?.slug ?? "",
     content: initial?.content ?? "",
+    content_json: initial?.content_json ?? "",
     custom_html: initial?.custom_html ?? "",
     status: (initial?.status ?? "draft") as "draft" | "published" | "archived",
     meta_title: initial?.meta_title ?? "",
@@ -43,6 +44,12 @@ export function PageForm({
 
   const set = <K extends keyof typeof form>(key: K, value: (typeof form)[K]) =>
     setForm((f) => ({ ...f, [key]: value }));
+
+  // Stable editor value — only changes when a different record loads.
+  const editorValue = useMemo(
+    () => (initial?.content_json as string | undefined) || initial?.content || "",
+    [initial]
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -98,7 +105,13 @@ export function PageForm({
           <Card>
             <CardContent className="space-y-4 p-6">
               <h2 className="font-display text-lg font-bold">Full content</h2>
-              <RichTextEditor value={form.content ?? ""} onChange={(v) => set("content", v)} />
+              <RichTextEditor
+                value={editorValue}
+                onChange={(json) => set("content_json", json)}
+                onHtmlChange={(html) => set("content", html)}
+                placeholder="Write the page content…"
+                mode="page"
+              />
             </CardContent>
           </Card>
 

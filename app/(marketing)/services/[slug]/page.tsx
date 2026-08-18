@@ -14,13 +14,13 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { SectionHeader } from "@/components/marketing/section-header";
+import { EditorContent } from "@/components/editor/EditorContent";
 import { createClient } from "@/lib/supabase/server";
 import {
   getServiceBySlug,
   getRelatedServices,
 } from "@/lib/db/content";
 import { DEMO_SERVICES } from "@/lib/demo";
-import { sanitizeHtml } from "@/lib/sanitize";
 import { buildMetadata } from "@/lib/seo";
 import { serviceJsonLd, breadcrumbJsonLd, faqPageJsonLd } from "@/lib/seo-jsonld";
 import { JsonLd } from "@/components/seo/json-ld";
@@ -88,7 +88,6 @@ export default async function ServiceDetailPage({ params }: Props) {
   const benefits = (service.benefits as Benefit[] | null) ?? [];
   const process = (service.process as Step[] | null) ?? [];
   const faqs = (service.faqs as Faq[] | null) ?? [];
-  const content = service.content ? sanitizeHtml(service.content) : "";
 
   return (
     <>
@@ -119,7 +118,10 @@ export default async function ServiceDetailPage({ params }: Props) {
       {/* Content + benefits */}
       <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
         <div className="grid gap-12 lg:grid-cols-[1.6fr_1fr]">
-          <div className="prose-cms" dangerouslySetInnerHTML={{ __html: content }} />
+          <EditorContent
+            content={service.content}
+            contentJson={(service as unknown as { content_json?: unknown }).content_json}
+          />
 
           {benefits.length > 0 && (
             <aside className="space-y-4">

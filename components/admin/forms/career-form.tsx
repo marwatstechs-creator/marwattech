@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { SlugField } from "@/components/admin/slug-field";
-import { RichTextEditor } from "@/components/admin/rich-text-editor";
+import { RichTextEditor } from "@/components/editor/RichTextEditor";
 import {
   Select,
   SelectContent,
@@ -41,12 +41,24 @@ export function CareerForm({
     job_type: initial?.job_type ?? "Full-time",
     salary_range: initial?.salary_range ?? "",
     description: initial?.description ?? "",
+    description_json: initial?.description_json ?? "",
     requirements: initial?.requirements ?? "",
+    requirements_json: initial?.requirements_json ?? "",
     status: initial?.status ?? "draft",
   });
 
   const set = <K extends keyof typeof form>(key: K, value: (typeof form)[K]) =>
     setForm((f) => ({ ...f, [key]: value }));
+
+  // Stable editor values — only change when a different record loads.
+  const descriptionValue = useMemo(
+    () => (initial?.description_json as string | undefined) || initial?.description || "",
+    [initial]
+  );
+  const requirementsValue = useMemo(
+    () => (initial?.requirements_json as string | undefined) || initial?.requirements || "",
+    [initial]
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -128,14 +140,26 @@ export function CareerForm({
           <Card>
             <CardContent className="space-y-4 p-6">
               <h2 className="font-display text-lg font-bold">Description</h2>
-              <RichTextEditor value={form.description ?? ""} onChange={(v) => set("description", v)} />
+              <RichTextEditor
+                value={descriptionValue}
+                onChange={(json) => set("description_json", json)}
+                onHtmlChange={(html) => set("description", html)}
+                placeholder="Describe the role…"
+                mode="general"
+              />
             </CardContent>
           </Card>
 
           <Card>
             <CardContent className="space-y-4 p-6">
               <h2 className="font-display text-lg font-bold">Requirements</h2>
-              <RichTextEditor value={form.requirements ?? ""} onChange={(v) => set("requirements", v)} />
+              <RichTextEditor
+                value={requirementsValue}
+                onChange={(json) => set("requirements_json", json)}
+                onHtmlChange={(html) => set("requirements", html)}
+                placeholder="List the requirements…"
+                mode="general"
+              />
             </CardContent>
           </Card>
         </div>

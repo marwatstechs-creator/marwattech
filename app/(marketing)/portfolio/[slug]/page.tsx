@@ -19,7 +19,7 @@ import {
 } from "@/lib/db/content";
 import { DEMO_PROJECTS } from "@/lib/demo";
 import { PORTFOLIO_CATEGORIES } from "@/lib/constants";
-import { sanitizeHtml } from "@/lib/sanitize";
+import { EditorContent } from "@/components/editor/EditorContent";
 import { buildMetadata } from "@/lib/seo";
 import { creativeWorkJsonLd } from "@/lib/seo-jsonld";
 import { JsonLd } from "@/components/seo/json-ld";
@@ -116,7 +116,6 @@ export default async function PortfolioSlugPage({ params }: Props) {
 
   const technologies = (project.technologies as string[] | null) ?? [];
   const images = (project.images as { url: string; alt?: string }[] | null) ?? [];
-  const content = project.content ? sanitizeHtml(project.content) : "";
 
   return (
     <>
@@ -204,10 +203,10 @@ export default async function PortfolioSlugPage({ params }: Props) {
       {/* Detail */}
       <section className="mx-auto max-w-7xl px-4 pb-16 sm:px-6 lg:px-8">
         <div className="grid gap-12 lg:grid-cols-[1.6fr_1fr]">
-          {content && (
-            <div
-              className="prose-cms"
-              dangerouslySetInnerHTML={{ __html: content }}
+          {!!(project.content || (project as unknown as { content_json?: unknown }).content_json) && (
+            <EditorContent
+              content={project.content}
+              contentJson={(project as unknown as { content_json?: unknown }).content_json}
             />
           )}
           <aside className="space-y-6">
