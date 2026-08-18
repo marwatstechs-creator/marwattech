@@ -77,8 +77,6 @@ export function AdManager({ ads }: { ads: AdminAdRow[] }) {
     router.refresh();
   };
 
-  const unassigned = ads.filter((a) => !a.area);
-
   return (
     <div className="space-y-6">
       <p className="text-sm text-muted-foreground">
@@ -151,23 +149,6 @@ export function AdManager({ ads }: { ads: AdminAdRow[] }) {
           );
         })}
       </div>
-
-      {unassigned.length > 0 && (
-        <div className="rounded-xl border bg-card p-4">
-          <p className="text-sm font-semibold">Other configured ads (no fixed location)</p>
-          <p className="mb-3 text-xs text-muted-foreground">
-            Created before area slots — edit them on their own page.
-          </p>
-          <div className="flex flex-wrap gap-2">
-            {unassigned.map((a) => (
-              <Badge key={a.id} variant="outline" className="gap-1">
-                {a.name}
-                <a href={`/admin/ads/${a.id}`} className="text-primary hover:underline">edit</a>
-              </Badge>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   );
 }
