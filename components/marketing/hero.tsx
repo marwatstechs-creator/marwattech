@@ -5,6 +5,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { AppIcon } from "@/components/app-icon";
 import { GuaranteeSeal } from "@/components/marketing/guarantee-seal";
+import { RotatingWord } from "@/components/marketing/rotating-word";
 import { trackEvent } from "@/lib/analytics";
 
 /* ── Dot Grid Canvas ────────────────────────────────────────────────── */
@@ -180,38 +181,21 @@ export function Hero() {
               </span>
             </motion.div>
 
-            {/* Heading — masked line reveal (slide-up) */}
+            {/* Heading — fixed sentence + rotating final word */}
             <h1 className="font-display text-center text-5xl font-extrabold tracking-tight sm:text-[56px] sm:leading-[1.05] lg:text-[72px] lg:leading-[1.07]">
-              <span className="block overflow-hidden pb-1">
-                <motion.span
-                  initial={{ y: "112%" }}
-                  animate={{ y: "0%" }}
-                  transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] as const, delay: 0.1 }}
-                  className="block"
-                >
-                  We Build
-                </motion.span>
-              </span>
-              <span className="block overflow-hidden pb-1">
-                <motion.span
-                  initial={{ y: "112%" }}
-                  animate={{ y: "0%" }}
-                  transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] as const, delay: 0.2 }}
-                  className="block bg-gradient-to-r from-primary via-gold to-primary bg-clip-text text-transparent sm:mt-1"
-                >
-                  Digital Products
-                </motion.span>
-              </span>
-              <span className="block overflow-hidden pb-2">
-                <motion.span
-                  initial={{ y: "112%" }}
-                  animate={{ y: "0%" }}
-                  transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] as const, delay: 0.3 }}
-                  className="block sm:mt-1"
-                >
-                  That Drive Impact
-                </motion.span>
-              </span>
+              <motion.span
+                initial={{ opacity: 0, y: 24 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] as const, delay: 0.1 }}
+                className="block"
+              >
+                We Turn Ideas Into Digital Products{" "}
+                <span className="text-primary">That </span>
+                <RotatingWord
+                  words={["Perform", "Convert", "Scale", "Grow", "Engage", "Transform"]}
+                  className="bg-gradient-to-r from-primary via-gold to-primary bg-clip-text text-transparent"
+                />
+              </motion.span>
             </h1>
 
             {/* Subtext */}
