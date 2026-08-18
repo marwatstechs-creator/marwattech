@@ -136,7 +136,17 @@ const MEGA_MENU = {
     {
       label: "Company",
       items: [
-        { icon: <AppIcon name="grid" size={17} />, title: "Portfolio", desc: "Our recent work", href: "/portfolio" },
+        {
+          icon: (
+            <span className="grid place-items-center">
+              <img src="/assets/logo-light-square.svg" alt="" className="h-5 w-5 dark:hidden" />
+              <img src="/assets/logo-dark-square.svg" alt="" className="hidden h-5 w-5 dark:block" />
+            </span>
+          ),
+          title: "Portfolio",
+          desc: "Our recent work",
+          href: "/portfolio",
+        },
         { icon: <AppIcon name="chat" size={17} />, title: "Testimonials", desc: "What clients say", href: "/testimonials" },
         { icon: <AppIcon name="file" size={17} />, title: "Blog", desc: "Insights & guides", href: "/blog" },
       ],
@@ -332,23 +342,13 @@ export function Navbar() {
               {/* Regular nav links */}
               {(
                 [
-                  { label: "Portfolio", href: "/portfolio", icon: "grid", hideBelowXl: false },
-                  { label: "Testimonials", href: "/testimonials", icon: "chat", hideBelowXl: true },
-                  { label: "Blog", href: "/blog", icon: "file", hideBelowXl: false },
                   { label: "Free Courses", href: "/free-courses", icon: "star", hideBelowXl: true },
                   { label: "Contact", href: "/contact", icon: "mail", hideBelowXl: false },
                 ] as const
               ).map((item) => (
                 <Link key={item.href} href={item.href}
                   className={cn("nav-link-3d inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-2 text-sm font-medium transition-colors", isActive(item.href) ? "text-foreground" : "text-foreground/60 hover:text-foreground", item.hideBelowXl && "hidden xl:inline-flex")}>
-                  {item.href === "/portfolio" ? (
-                    <span className="inline-flex shrink-0">
-                      <img src="/assets/logo-light-square.svg" alt="" className="h-4 w-4 dark:hidden" />
-                      <img src="/assets/logo-dark-square.svg" alt="" className="hidden h-4 w-4 dark:block" />
-                    </span>
-                  ) : (
-                    <AppIcon name={item.icon} size={15} />
-                  )}
+                  <AppIcon name={item.icon} size={15} />
                   {item.label}
                 </Link>
               ))}
@@ -493,25 +493,15 @@ export function Navbar() {
 
                   {/* Nav items with icons */}
                   {[
-                    { label: "Portfolio", href: "/portfolio", icon: <path d="M4 18V7l5 7 3-4 3 4 5-7v11"/> },
-                    { label: "Testimonials", href: "/testimonials", icon: <><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 12a2 2 0 0 0 2-2V8H8"/><path d="M14 12a2 2 0 0 0 2-2V8h-2"/></> },
-                    { label: "Blog", href: "/blog", icon: <path d="M12 7v14M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/> },
                     { label: "Free Courses", href: "/free-courses", icon: <path d="M11.5 3.6 14 8.6l5.6.8-4 3.9.9 5.6-5-2.6-5 2.6.9-5.6-4-3.9 5.6-.8 2.5-5z"/> },
                     { label: "Contact", href: "/contact", icon: <><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></> },
                   ].map((item) => (
                     <li key={item.href}>
                       <Link href={item.href} onClick={() => setMobileOpen(false)}
                         className="dropdown-item-3d group flex min-h-[44px] w-full items-center gap-3 rounded-2xl px-3 text-start text-base font-semibold text-foreground/70 transition-colors hover:bg-accent-hover hover:text-foreground">
-                        {item.href === "/portfolio" ? (
-                          <span className="grid size-[18px] shrink-0 place-items-center">
-                            <img src="/assets/logo-light-square.svg" alt="" className="h-[18px] w-[18px] dark:hidden" />
-                            <img src="/assets/logo-dark-square.svg" alt="" className="hidden h-[18px] w-[18px] dark:block" />
-                          </span>
-                        ) : (
-                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-muted-foreground group-hover:text-primary transition-colors">
-                            {item.icon}
-                          </svg>
-                        )}
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-muted-foreground group-hover:text-primary transition-colors">
+                          {item.icon}
+                        </svg>
                         <span className="flex-1 text-start transition-transform duration-200 group-hover:translate-x-[3px]">{item.label}</span>
                       </Link>
                     </li>
