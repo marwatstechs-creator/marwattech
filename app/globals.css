@@ -150,6 +150,15 @@
   * {
     @apply border-border outline-ring/50;
   }
+  /* Prevent third-party injected elements (e.g. Google Ads annotations) from
+     causing horizontal page scroll. `clip` avoids creating a scroll container
+     so sticky positioning keeps working; `hidden` is the older fallback. */
+  html,
+  body {
+    overflow-x: hidden;
+    overflow-x: clip;
+    max-width: 100%;
+  }
   body {
     @apply bg-background text-foreground antialiased;
     font-feature-settings: "rlig" 1, "calt" 1;

@@ -1,0 +1,567 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]: Try risk-free — Money-back guaranteed.
+      - link "Start free trial" [ref=e5] [cursor=pointer]:
+        - /url: /contact
+    - banner [ref=e8]:
+      - generic [ref=e10]:
+        - link "Marwat Tech — Home" [ref=e11] [cursor=pointer]:
+          - /url: /
+          - img "Marwat Tech" [ref=e13]
+        - navigation [ref=e14]:
+          - button "Explore" [ref=e16]
+          - button "Code Scripts" [ref=e20]
+          - link "Portfolio" [ref=e23] [cursor=pointer]:
+            - /url: /portfolio
+          - link "Testimonials" [ref=e25] [cursor=pointer]:
+            - /url: /testimonials
+          - link "Blog" [ref=e29] [cursor=pointer]:
+            - /url: /blog
+          - link "Free Courses" [ref=e32] [cursor=pointer]:
+            - /url: /free-courses
+          - link "Contact" [ref=e35] [cursor=pointer]:
+            - /url: /contact
+        - generic [ref=e40]:
+          - button "Toggle theme" [ref=e41]
+          - link "Sign Up" [ref=e44] [cursor=pointer]:
+            - /url: /client/register
+          - link "Login" [ref=e50] [cursor=pointer]:
+            - /url: /client/login
+          - link "Get Started" [ref=e55] [cursor=pointer]:
+            - /url: /contact
+    - main [ref=e62]:
+      - insertion [ref=e64]:
+        - generic [ref=e67]:
+          - heading "These are topics related to the article that might interest you" [level=2] [ref=e69]: Discover more
+          - link "web development" [ref=e70] [cursor=pointer]
+          - link "Dictionaries & Encyclopedias" [ref=e75] [cursor=pointer]
+          - link "Business Services" [ref=e80] [cursor=pointer]
+      - generic [ref=e87]:
+        - generic:
+          - generic:
+            - article [ref=e88]:
+              - paragraph [ref=e90]: “Marwat Tech delivered our website on time, within budget. Professional team, great communication.”
+              - paragraph [ref=e94]: – Abdullah Khan
+            - article [ref=e95]:
+              - paragraph [ref=e97]: “Excellent service! They built our e-commerce site exactly how we wanted. Highly recommended.”
+              - paragraph [ref=e101]: – Muhammad Ali
+            - article [ref=e102]:
+              - paragraph [ref=e104]: “They helped us with SEO and website redesign. Traffic increased significantly within weeks.”
+              - paragraph [ref=e108]: – Bilal Hussain
+        - generic:
+          - generic:
+            - article [ref=e109]:
+              - paragraph [ref=e111]: “Professional, responsive and technically excellent. The app was approved on first submission.”
+              - paragraph [ref=e115]: – Usman Farooq
+            - article [ref=e116]:
+              - paragraph [ref=e118]: “From mockup to launch in three weeks. A smooth process that brings us real leads.”
+              - paragraph [ref=e122]: – Hassan Raza
+            - article [ref=e123]:
+              - paragraph [ref=e125]: “The free mockup impressed us immediately — we knew we were in good hands.”
+              - paragraph [ref=e129]: – Ayesha Malik
+        - generic [ref=e130]:
+          - generic [ref=e131]: TOP RATED · TRUSTED BY 100+ CLIENTS
+          - heading "We Build Digital Products That Drive Growth · Results · Impact · Success · Innovation" [level=1] [ref=e134]:
+            - generic [ref=e135]: We Build
+            - generic [ref=e136]: Digital Products
+            - generic [ref=e137]:
+              - text: That Drive
+              - generic [ref=e138]: Growt
+              - generic [ref=e141]: Growth · Results · Impact · Success · Innovation
+          - paragraph [ref=e142]:
+            - text: Every project is built by vetted experts. From websites and mobile apps to SEO and AI — we deliver quality, on time, at competitive rates.
+            - link "Internet & Telecom" [ref=e143] [cursor=pointer]
+          - generic [ref=e147]:
+            - link "Get Started" [ref=e148] [cursor=pointer]:
+              - /url: /contact
+            - link "View Portfolio" [ref=e156] [cursor=pointer]:
+              - /url: /portfolio
+          - generic [ref=e163]:
+            - generic [ref=e164]: Are you a client?
+            - link "Login to your dashboard" [ref=e165] [cursor=pointer]:
+              - /url: /client/login
+          - generic [ref=e166]: 4.7 from 6 reviews
+      - generic [ref=e186]:
+        - generic [ref=e187]:
+          - generic [ref=e188]: What we do
+          - heading "Services built around your goals" [level=2] [ref=e189]
+          - paragraph [ref=e190]:
+            - text: From a simple brochure site to a full
+            - link "ecommerce" [ref=e191] [cursor=pointer]:
+              - /url: "#"
+            - text: or AI product — we cover the entire digital journey.
+            - link "Search Engine Optimization & Marketing" [ref=e194] [cursor=pointer]
+        - generic [ref=e198]:
+          - link [ref=e199] [cursor=pointer]:
+            - /url: /services/web-development
+            - generic [ref=e201]:
+              - heading "Web Development" [level=3] [ref=e206]
+              - paragraph [ref=e207]: Custom websites and web applications built with modern frameworks for speed, security and scale.
+              - generic [ref=e208]: Learn more
+          - link [ref=e211] [cursor=pointer]:
+            - /url: /services/nextjs-development
+            - generic [ref=e213]:
+              - heading "Next.js Development" [level=3] [ref=e217]
+              - paragraph [ref=e218]: High-performance React applications with SEO, edge deployment and the best developer experience.
+              - generic [ref=e219]: Learn more
+          - link [ref=e222] [cursor=pointer]:
+            - /url: /services/wordpress-website-design
+            - generic [ref=e224]:
+              - heading "WordPress Website Design" [level=3] [ref=e229]
+              - paragraph [ref=e230]: Beautiful, easy-to-manage WordPress sites for blogs, business and media.
+              - generic [ref=e231]: Learn more
+          - link [ref=e234] [cursor=pointer]:
+            - /url: /services/ecommerce-website-design
+            - generic [ref=e236]:
+              - heading "Ecommerce Website Design" [level=3] [ref=e243]
+              - paragraph [ref=e244]: Online stores that convert — from product pages to checkout, payments and shipping.
+              - generic [ref=e245]: Learn more
+          - link [ref=e248] [cursor=pointer]:
+            - /url: /services/ai-solutions
+            - generic [ref=e250]:
+              - heading "AI Solutions" [level=3] [ref=e256]
+              - paragraph [ref=e257]: Chatbots, automation and AI features that save time and unlock new capabilities.
+              - generic [ref=e258]: Learn more
+          - link [ref=e261] [cursor=pointer]:
+            - /url: /services/ui-ux-design
+            - generic [ref=e263]:
+              - heading "UI/UX Design" [level=3] [ref=e269]
+              - paragraph [ref=e270]: User-centred interface design, wireframes and prototypes that feel effortless.
+              - generic [ref=e271]: Learn more
+        - link [ref=e275] [cursor=pointer]:
+          - /url: /services
+          - button "View all services" [ref=e276]
+      - generic [ref=e278]:
+        - generic [ref=e279]:
+          - generic [ref=e280]: Why Marwat Tech
+          - heading "A partner, not just a vendor" [level=2] [ref=e281]
+          - paragraph [ref=e282]:
+            - text: We combine senior engineering talent with a genuine focus on your business outcomes.
+            - link "Law & Government" [ref=e283] [cursor=pointer]
+        - generic [ref=e287]:
+          - generic [ref=e288]:
+            - heading "Fast & Modern" [level=3] [ref=e296]
+            - paragraph [ref=e297]: Built with Next.js and edge deployment for instant load times and green Core Web Vitals.
+          - generic [ref=e298]:
+            - heading "Secure by Design" [level=3] [ref=e302]
+            - paragraph [ref=e303]: HTTPS, input validation, role-based access and rigorous security practices on every project.
+          - generic [ref=e304]:
+            - heading "SEO Optimised" [level=3] [ref=e309]
+            - paragraph [ref=e310]: Structured data, sitemaps and clean markup so customers actually find you on Google.
+          - generic [ref=e311]:
+            - heading "24/7 Support" [level=3] [ref=e316]
+            - paragraph [ref=e317]: Real humans, fast replies. We stay with you long after launch with affordable maintenance.
+          - generic [ref=e318]:
+            - heading "Transparent Pricing" [level=3] [ref=e323]
+            - paragraph [ref=e324]: Clear quotes and no hidden fees. Free mockups so you know exactly what you’re getting.
+          - generic [ref=e325]:
+            - heading "Result Driven" [level=3] [ref=e331]
+            - paragraph [ref=e332]: We measure what matters — traffic, leads and revenue — and design for conversion.
+      - generic [ref=e333]:
+        - generic [ref=e334]:
+          - generic [ref=e335]: Our work
+          - heading "Projects we’re proud of" [level=2] [ref=e336]
+          - paragraph [ref=e337]:
+            - text: A selection of recent websites, apps and brands we’ve designed and built.
+            - link "Internet & Telecom" [ref=e338] [cursor=pointer]
+        - generic [ref=e342]:
+          - link "View case study Web Development Bloom & Co Ecommerce Retail" [ref=e343] [cursor=pointer]:
+            - /url: /portfolio/bloom-co-ecommerce
+            - generic [ref=e344]:
+              - generic [ref=e351]: View case study
+              - generic [ref=e355]: Web Development
+            - generic [ref=e356]:
+              - heading "Bloom & Co Ecommerce" [level=3] [ref=e357]
+              - paragraph [ref=e358]: Retail
+          - link "View case study Web Design UrbanEats Restaurant Site Hospitality" [ref=e359] [cursor=pointer]:
+            - /url: /portfolio/urbaneats-restaurant
+            - generic [ref=e360]:
+              - generic [ref=e367]: View case study
+              - generic [ref=e371]: Web Design
+            - generic [ref=e372]:
+              - heading "UrbanEats Restaurant Site" [level=3] [ref=e373]
+              - paragraph [ref=e374]: Hospitality
+          - link "License.com.pk View case study Web Development License.com.pk DevOps" [ref=e375] [cursor=pointer]:
+            - /url: /portfolio/license-com-pk
+            - generic [ref=e376]:
+              - img "License.com.pk" [ref=e377]
+              - generic [ref=e379]: View case study
+              - generic [ref=e383]: Web Development
+            - generic [ref=e384]:
+              - heading "License.com.pk" [level=3] [ref=e385]
+              - paragraph [ref=e386]: DevOps
+          - link "View case study Web Development FitTrack Mobile App Health & Fitness" [ref=e387] [cursor=pointer]:
+            - /url: /portfolio/fittrack-mobile-app
+            - generic [ref=e388]:
+              - generic [ref=e395]: View case study
+              - generic [ref=e399]: Web Development
+            - generic [ref=e400]:
+              - heading "FitTrack Mobile App" [level=3] [ref=e401]
+              - paragraph [ref=e402]: Health & Fitness
+          - link "View case study Web Design LawBridge Firm Website Legal" [ref=e403] [cursor=pointer]:
+            - /url: /portfolio/lawbridge-firm
+            - generic [ref=e404]:
+              - generic [ref=e411]: View case study
+              - generic [ref=e415]: Web Design
+            - generic [ref=e416]:
+              - heading "LawBridge Firm Website" [level=3] [ref=e417]
+              - paragraph [ref=e418]: Legal
+          - link "View case study Graphic Design BrandKit Rebrand Branding" [ref=e419] [cursor=pointer]:
+            - /url: /portfolio/brandkit-rebrand
+            - generic [ref=e420]:
+              - generic [ref=e427]: View case study
+              - generic [ref=e431]: Graphic Design
+            - generic [ref=e432]:
+              - heading "BrandKit Rebrand" [level=3] [ref=e433]
+              - paragraph [ref=e434]: Branding
+        - link [ref=e436] [cursor=pointer]:
+          - /url: /portfolio
+          - button "View full portfolio" [ref=e437]
+      - generic [ref=e439]:
+        - generic [ref=e440]:
+          - generic [ref=e441]: Simple process
+          - heading "From idea to launch in 3 steps" [level=2] [ref=e442]
+          - paragraph [ref=e443]:
+            - text: A transparent, proven workflow — no surprises, no jargon.
+            - link "E-Commerce Services" [ref=e444] [cursor=pointer]
+        - generic [ref=e449]:
+          - article [ref=e450]:
+            - generic: "01"
+            - generic [ref=e451]:
+              - heading "Tell us your idea" [level=3] [ref=e457]
+              - paragraph [ref=e458]: Share your goals through the free mockup form or a quick call.
+            - paragraph [ref=e460]: Free 30-minute consultation
+          - article [ref=e461]:
+            - generic: "02"
+            - generic [ref=e462]:
+              - heading "Get your free mockup" [level=3] [ref=e468]
+              - paragraph [ref=e469]: We design a homepage concept so you can see your vision first.
+            - paragraph [ref=e471]: No obligation, no cost
+          - article [ref=e472]:
+            - generic: "03"
+            - generic [ref=e473]:
+              - heading "We build & launch" [level=3] [ref=e482]
+              - paragraph [ref=e483]: Agile development with demos, then launch with training and support.
+            - paragraph [ref=e485]: Launch in as little as 2 weeks
+      - generic [ref=e488]:
+        - generic [ref=e489]:
+          - generic [ref=e497]:
+            - generic [ref=e498]: Google Reviews
+            - generic [ref=e501]:
+              - generic [ref=e502]: "4.7"
+              - generic [ref=e503]: / 5
+          - generic [ref=e516]:
+            - paragraph [ref=e517]:
+              - text: Rated
+              - strong [ref=e518]: "4.7"
+              - text: by
+              - strong [ref=e519]: 6+ clients
+              - text: on Google Maps
+              - link "Web Hosting & Domain Registration" [ref=e520] [cursor=pointer]
+            - generic [ref=e524]: Verified on Google Maps
+        - generic [ref=e528]:
+          - generic [ref=e529]:
+            - text: “Marwat Tech provided exceptional service for my AdSense approval! I am extremely impressed with their professi...”
+            - generic [ref=e535]: — Home Plantings
+          - generic [ref=e539]:
+            - link "Read All Reviews" [ref=e540] [cursor=pointer]:
+              - /url: /testimonials
+            - link "Write a Review" [ref=e549] [cursor=pointer]:
+              - /url: https://maps.google.com/?cid=15403920924729213100&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA
+      - generic [ref=e561]:
+        - generic [ref=e562]:
+          - generic [ref=e563]: Google Reviews
+          - heading "What our clients say" [level=2] [ref=e564]
+          - paragraph [ref=e565]: Real feedback straight from our Google Business Profile.
+        - generic [ref=e567]:
+          - generic [ref=e570]:
+            - generic "5 out of 5 stars" [ref=e578]
+            - blockquote [ref=e589]: “Marwat Tech provided exceptional service for my AdSense approval! I am extremely impressed with their professionalism, technical knowledge, and dedication.…”
+            - generic [ref=e590]:
+              - img "Home Plantings" [ref=e592]
+              - generic [ref=e593]:
+                - paragraph [ref=e594]: Home Plantings
+                - paragraph [ref=e595]: Google Review · a year ago
+          - generic [ref=e598]:
+            - generic "5 out of 5 stars" [ref=e606]
+            - blockquote [ref=e617]: “Marwat Tech provides excellent service! There hosting and domain are top notch reliable and affordable the Team is very professional and always ready to help I highly recommend for anyone looking for web development and IT solutions Keep u the great work!”
+            - generic [ref=e618]:
+              - img "J K" [ref=e620]
+              - generic [ref=e621]:
+                - paragraph [ref=e622]: J K
+                - paragraph [ref=e623]: Google Review · a year ago
+          - generic [ref=e626]:
+            - generic "4 out of 5 stars" [ref=e634]
+            - blockquote [ref=e645]: “good shop. lots of tech. loved it”
+            - generic [ref=e646]:
+              - img "Mujtaba Mujtaba" [ref=e648]
+              - generic [ref=e649]:
+                - paragraph [ref=e650]: Mujtaba Mujtaba
+                - paragraph [ref=e651]: Google Review · a year ago
+          - generic [ref=e654]:
+            - generic "5 out of 5 stars" [ref=e662]
+            - blockquote [ref=e673]: “Electrical engineer”
+            - generic [ref=e674]:
+              - img "Shah Alishah" [ref=e676]
+              - generic [ref=e677]:
+                - paragraph [ref=e678]: Shah Alishah
+                - paragraph [ref=e679]: Google Review · a year ago
+          - generic [ref=e682]:
+            - generic "5 out of 5 stars" [ref=e690]
+            - blockquote [ref=e701]: “No written review.”
+            - generic [ref=e702]:
+              - img "HomeGrown" [ref=e704]
+              - generic [ref=e705]:
+                - paragraph [ref=e706]: HomeGrown
+                - paragraph [ref=e707]: Google Review · 2 years ago
+          - generic [ref=e710]:
+            - generic "5 out of 5 stars" [ref=e718]
+            - blockquote [ref=e729]: “Marwat Tech provided exceptional service for my AdSense approval! I am extremely impressed with their professionalism, technical knowledge, and dedication.…”
+            - generic [ref=e730]:
+              - img "Home Plantings" [ref=e732]
+              - generic [ref=e733]:
+                - paragraph [ref=e734]: Home Plantings
+                - paragraph [ref=e735]: Google Review · a year ago
+          - generic [ref=e738]:
+            - generic "5 out of 5 stars" [ref=e746]
+            - blockquote [ref=e757]: “Marwat Tech provides excellent service! There hosting and domain are top notch reliable and affordable the Team is very professional and always ready to help I highly recommend for anyone looking for web development and IT solutions Keep u the great work!”
+            - generic [ref=e758]:
+              - img "J K" [ref=e760]
+              - generic [ref=e761]:
+                - paragraph [ref=e762]: J K
+                - paragraph [ref=e763]: Google Review · a year ago
+          - generic [ref=e766]:
+            - generic "4 out of 5 stars" [ref=e774]
+            - blockquote [ref=e785]: “good shop. lots of tech. loved it”
+            - generic [ref=e786]:
+              - img "Mujtaba Mujtaba" [ref=e788]
+              - generic [ref=e789]:
+                - paragraph [ref=e790]: Mujtaba Mujtaba
+                - paragraph [ref=e791]: Google Review · a year ago
+          - generic [ref=e794]:
+            - generic "5 out of 5 stars" [ref=e802]
+            - blockquote [ref=e813]: “Electrical engineer”
+            - generic [ref=e814]:
+              - img "Shah Alishah" [ref=e816]
+              - generic [ref=e817]:
+                - paragraph [ref=e818]: Shah Alishah
+                - paragraph [ref=e819]: Google Review · a year ago
+          - generic [ref=e822]:
+            - generic "5 out of 5 stars" [ref=e830]
+            - blockquote [ref=e841]: “No written review.”
+            - generic [ref=e842]:
+              - img "HomeGrown" [ref=e844]
+              - generic [ref=e845]:
+                - paragraph [ref=e846]: HomeGrown
+                - paragraph [ref=e847]: Google Review · 2 years ago
+        - link [ref=e849] [cursor=pointer]:
+          - /url: https://maps.google.com/?cid=15403920924729213100&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA
+          - button "Leave a review on Google" [ref=e850]
+      - generic [ref=e852]:
+        - generic [ref=e853]:
+          - generic [ref=e854]:
+            - generic [ref=e855]: Blog
+            - heading "Insights & guides" [level=2] [ref=e856]
+            - paragraph [ref=e857]:
+              - text: Practical advice on
+              - link "web development" [ref=e858] [cursor=pointer]:
+                - /url: "#"
+              - text: ", SEO and growing online."
+              - link "Search Engine Optimization & Marketing" [ref=e861] [cursor=pointer]
+          - link [ref=e865] [cursor=pointer]:
+            - /url: /blog
+            - button "View all posts" [ref=e866]
+        - generic [ref=e867]:
+          - link [ref=e868] [cursor=pointer]:
+            - /url: /blog/why-nextjs-best-framework-seo-2026
+            - article [ref=e869]:
+              - generic [ref=e870]: Web Design & Development
+              - generic [ref=e876]:
+                - generic [ref=e877]:
+                  - time [ref=e878]: Aug 11, 2026
+                  - generic [ref=e879]: ·
+                  - generic [ref=e880]: 1 min read
+                - heading "Why Next.js is the Best Framework for SEO in 2026" [level=3] [ref=e884]
+                - paragraph [ref=e885]: Server-side rendering, structured data and edge deployment make Next.js a powerhouse for search rankings. Here’s how we use it.
+          - link [ref=e886] [cursor=pointer]:
+            - /url: /blog/10-on-page-seo-mistakes-kill-rankings
+            - article [ref=e887]:
+              - generic [ref=e888]: SEO & Marketing
+              - generic [ref=e894]:
+                - generic [ref=e895]:
+                  - time [ref=e896]: Aug 11, 2026
+                  - generic [ref=e897]: ·
+                  - generic [ref=e898]: 1 min read
+                - heading "10 On-Page SEO Mistakes That Kill Your Rankings" [level=3] [ref=e902]
+                - paragraph [ref=e903]: Avoid these common on-page SEO mistakes and give your pages the best chance of ranking in 2026.
+          - link [ref=e904] [cursor=pointer]:
+            - /url: /blog/choosing-right-domain-hosting-business
+            - article [ref=e905]:
+              - generic [ref=e906]: Domain & Hosting
+              - generic [ref=e912]:
+                - generic [ref=e913]:
+                  - time [ref=e914]: Aug 11, 2026
+                  - generic [ref=e915]: ·
+                  - generic [ref=e916]: 1 min read
+                - heading "Choosing the Right Domain & Hosting for Your Business" [level=3] [ref=e920]
+                - paragraph [ref=e921]: Your domain and hosting set the foundation for performance, security and trust. A practical guide.
+      - generic [ref=e924]:
+        - heading "Ready to bring your project to life?" [level=2] [ref=e925]
+        - paragraph [ref=e926]:
+          - text: Tell us about your idea and get a free quote, or a free homepage mockup — no obligation. Our team typically replies within 24 hours.
+          - link "Web Hosting & Domain Registration" [ref=e927] [cursor=pointer]
+        - generic [ref=e931]:
+          - link "Get a Free Mockup" [ref=e932] [cursor=pointer]:
+            - /url: /free-mockup
+          - link "Contact Us" [ref=e940] [cursor=pointer]:
+            - /url: /contact
+        - paragraph [ref=e948]:
+          - text: Prefer email?
+          - link "contact@marwattech.com" [ref=e949] [cursor=pointer]:
+            - /url: mailto:contact@marwattech.com
+    - contentinfo [ref=e950]:
+      - generic [ref=e951]:
+        - generic [ref=e952]:
+          - generic [ref=e953]:
+            - link "Marwat Tech — Home" [ref=e954] [cursor=pointer]:
+              - /url: /
+              - img "Marwat Tech" [ref=e956]
+            - paragraph [ref=e957]: Marwat Tech is a full-service software & web development company offering website design, ecommerce, mobile apps, UI/UX, SEO and AI solutions for businesses of every size.
+            - generic [ref=e958]:
+              - link "Facebook" [ref=e959] [cursor=pointer]:
+                - /url: https://www.facebook.com/marwat.teck
+              - link "Twitter / X" [ref=e963] [cursor=pointer]:
+                - /url: https://twitter.com/MarwatsTech
+              - link "LinkedIn" [ref=e966] [cursor=pointer]:
+                - /url: https://linkedin.com/company/marwattech
+              - link "Instagram" [ref=e971] [cursor=pointer]:
+                - /url: https://www.instagram.com/irfanshahmarwat/
+              - link "Pinterest" [ref=e976] [cursor=pointer]:
+                - /url: https://www.pinterest.com/irfanullahshahmarwat/
+              - link "YouTube" [ref=e981] [cursor=pointer]:
+                - /url: https://www.youtube.com/@MARWATTECHS?sub_confirmation=1
+              - link "WhatsApp" [ref=e985] [cursor=pointer]:
+                - /url: https://wa.me/923104580297
+            - generic [ref=e989]:
+              - paragraph [ref=e990]: Get tips & updates
+              - generic [ref=e992]:
+                - textbox "Email address" [ref=e997]
+                - button "Subscribe" [ref=e998]
+          - generic [ref=e999]:
+            - link "Services" [ref=e1000] [cursor=pointer]:
+              - /url: /services
+            - list [ref=e1001]:
+              - listitem [ref=e1002]:
+                - link "Web Development" [ref=e1003] [cursor=pointer]:
+                  - /url: /services/web-development
+              - listitem [ref=e1004]:
+                - link "Next.js Development" [ref=e1005] [cursor=pointer]:
+                  - /url: /services/nextjs-development
+              - listitem [ref=e1006]:
+                - link "WordPress Website Design" [ref=e1007] [cursor=pointer]:
+                  - /url: /services/wordpress-website-design
+              - listitem [ref=e1008]:
+                - link "Ecommerce Website Design" [ref=e1009] [cursor=pointer]:
+                  - /url: /services/ecommerce-website-design
+              - listitem [ref=e1010]:
+                - link "Mobile App Development" [ref=e1011] [cursor=pointer]:
+                  - /url: /services/mobile-app-development
+              - listitem [ref=e1012]:
+                - link "UI/UX Design" [ref=e1013] [cursor=pointer]:
+                  - /url: /services/ui-ux-design
+              - listitem [ref=e1014]:
+                - link "SEO Services" [ref=e1015] [cursor=pointer]:
+                  - /url: /services/seo-services
+              - listitem [ref=e1016]:
+                - link "Website Maintenance" [ref=e1017] [cursor=pointer]:
+                  - /url: /services/website-maintenance
+              - listitem [ref=e1018]:
+                - link "AI Solutions" [ref=e1019] [cursor=pointer]:
+                  - /url: /services/ai-solutions
+          - generic [ref=e1020]:
+            - heading "Company" [level=3] [ref=e1021]
+            - list [ref=e1022]:
+              - listitem [ref=e1023]:
+                - link "About Us" [ref=e1024] [cursor=pointer]:
+                  - /url: /about
+              - listitem [ref=e1025]:
+                - link "Portfolio" [ref=e1026] [cursor=pointer]:
+                  - /url: /portfolio
+              - listitem [ref=e1027]:
+                - link "Pricing" [ref=e1028] [cursor=pointer]:
+                  - /url: /pricing
+              - listitem [ref=e1029]:
+                - link "Testimonials" [ref=e1030] [cursor=pointer]:
+                  - /url: /testimonials
+              - listitem [ref=e1031]:
+                - link "Careers" [ref=e1032] [cursor=pointer]:
+                  - /url: /careers
+              - listitem [ref=e1033]:
+                - link "Blog" [ref=e1034] [cursor=pointer]:
+                  - /url: /blog
+              - listitem [ref=e1035]:
+                - link "Contact" [ref=e1036] [cursor=pointer]:
+                  - /url: /contact
+          - generic [ref=e1037]:
+            - heading "Support & Legal" [level=3] [ref=e1038]
+            - list [ref=e1039]:
+              - listitem [ref=e1040]:
+                - link "Technical Support" [ref=e1041] [cursor=pointer]:
+                  - /url: /technical-support
+              - listitem [ref=e1042]:
+                - link "Free Courses" [ref=e1043] [cursor=pointer]:
+                  - /url: /free-courses
+              - listitem [ref=e1044]:
+                - link "Study Materials" [ref=e1045] [cursor=pointer]:
+                  - /url: /study-materials
+              - listitem [ref=e1046]:
+                - link "Free Mockup" [ref=e1047] [cursor=pointer]:
+                  - /url: /free-mockup
+              - listitem [ref=e1048]:
+                - link "Pay Online" [ref=e1049] [cursor=pointer]:
+                  - /url: /payment
+              - listitem [ref=e1050]:
+                - link "Privacy Policy" [ref=e1051] [cursor=pointer]:
+                  - /url: /privacy-policy
+              - listitem [ref=e1052]:
+                - link "Terms of Service" [ref=e1053] [cursor=pointer]:
+                  - /url: /terms-of-service
+              - listitem [ref=e1054]:
+                - link "Refund Policy" [ref=e1055] [cursor=pointer]:
+                  - /url: /refund-policy
+              - listitem [ref=e1056]:
+                - link "Domain & Hosting Terms" [ref=e1057] [cursor=pointer]:
+                  - /url: /domain-and-hosting-terms
+        - generic [ref=e1058]:
+          - generic [ref=e1063]:
+            - paragraph [ref=e1064]: Call us
+            - link "+92 310 4580297" [ref=e1065] [cursor=pointer]:
+              - /url: tel:+923104580297
+          - generic [ref=e1071]:
+            - paragraph [ref=e1072]: Email us
+            - link "contact@marwattech.com" [ref=e1073] [cursor=pointer]:
+              - /url: mailto:contact@marwattech.com
+          - generic [ref=e1079]:
+            - paragraph [ref=e1080]: Visit us
+            - paragraph [ref=e1081]: Karachi, Pakistan
+          - generic [ref=e1087]:
+            - paragraph [ref=e1088]: Working hours
+            - paragraph [ref=e1089]: Mon – Sat, 9:00 AM – 6:00 PM
+        - generic [ref=e1090]:
+          - paragraph [ref=e1091]: © 2026 Marwat Tech (Pvt) Ltd.. All rights reserved.
+          - generic [ref=e1092]: SSL secured · Built by Marwat Tech
+    - link "Chat with Marwat Tech on WhatsApp" [ref=e1096] [cursor=pointer]:
+      - /url: https://wa.me/923104580297
+      - generic: Chat with us
+  - region "Notifications alt+T"
+  - alert [ref=e1102]
+  - generic [ref=e1104]:
+    - paragraph [ref=e1109]:
+      - text: We use cookies to improve your experience and analyze traffic. By continuing you agree to our
+      - link "privacy policy" [ref=e1110] [cursor=pointer]:
+        - /url: /privacy-policy
+      - text: .
+    - generic [ref=e1111]:
+      - button "Decline" [ref=e1112]
+      - button "Accept" [ref=e1113]

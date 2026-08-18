@@ -2,11 +2,13 @@ import { Suspense } from "react";
 
 import { createClient } from "@/lib/supabase/server";
 import { getSiteSettings } from "@/lib/db/content";
+import { AdSenseHeadClient } from "./adsense-head-client";
 
 /**
- * Injects the AdSense loader <script> into <head> when the AdSense client ID
- * is configured in Admin → Settings. Rendered as a dynamic island so the rest
- * of the page stays static.
+ * Reads the configured AdSense client ID and renders a client component that
+ * injects the AdSense loader (which enables Auto ads) ONLY on pages that have
+ * ad placements. Rendered as a dynamic island so the rest of the page stays
+ * static.
  */
 async function AdSenseLoader() {
   let client = "";
@@ -19,13 +21,7 @@ async function AdSenseLoader() {
   }
   if (!client) return null;
 
-  return (
-    <script
-      async
-      src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${encodeURIComponent(client)}`}
-      crossOrigin="anonymous"
-    />
-  );
+  return <AdSenseHeadClient client={client} />;
 }
 
 export function AdSenseHead() {
@@ -35,3 +31,4 @@ export function AdSenseHead() {
     </Suspense>
   );
 }
+

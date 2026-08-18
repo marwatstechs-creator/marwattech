@@ -332,15 +332,15 @@ export function Navbar() {
               {/* Regular nav links */}
               {(
                 [
-                  { label: "Portfolio", href: "/portfolio", icon: "grid" },
-                  { label: "Testimonials", href: "/testimonials", icon: "chat" },
-                  { label: "Blog", href: "/blog", icon: "file" },
-                  { label: "Free Courses", href: "/free-courses", icon: "star" },
-                  { label: "Contact", href: "/contact", icon: "mail" },
+                  { label: "Portfolio", href: "/portfolio", icon: "grid", hideBelowXl: false },
+                  { label: "Testimonials", href: "/testimonials", icon: "chat", hideBelowXl: true },
+                  { label: "Blog", href: "/blog", icon: "file", hideBelowXl: false },
+                  { label: "Free Courses", href: "/free-courses", icon: "star", hideBelowXl: true },
+                  { label: "Contact", href: "/contact", icon: "mail", hideBelowXl: false },
                 ] as const
               ).map((item) => (
                 <Link key={item.href} href={item.href}
-                  className={cn("nav-link-3d inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-2 text-sm font-medium transition-colors", isActive(item.href) ? "text-foreground" : "text-foreground/60 hover:text-foreground")}>
+                  className={cn("nav-link-3d inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-2 text-sm font-medium transition-colors", isActive(item.href) ? "text-foreground" : "text-foreground/60 hover:text-foreground", item.hideBelowXl && "hidden xl:inline-flex")}>
                   {item.href === "/portfolio" ? (
                     <span className="inline-flex shrink-0">
                       <img src="/assets/logo-light-square.svg" alt="" className="h-4 w-4 dark:hidden" />
@@ -366,7 +366,9 @@ export function Navbar() {
                     <ArrowBtn href="/client/login" variant="outline" showArrow={false}><AppIcon name="login" size={14} /> Login</ArrowBtn>
                   </>
                 )}
-                <ArrowBtn href="/contact" variant="gold">Get Started</ArrowBtn>
+                <span className="hidden xl:inline-flex">
+                  <ArrowBtn href="/contact" variant="gold">Get Started</ArrowBtn>
+                </span>
               </div>
               <button type="button" className="grid size-9 place-items-center rounded-full border bg-background lg:hidden" onClick={() => setMobileOpen(true)} aria-label="Open navigation">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">

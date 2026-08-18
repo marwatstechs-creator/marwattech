@@ -169,6 +169,26 @@ export function getAdArea(key: string): AdArea | undefined {
 }
 
 /**
+ * Path prefixes that actually render ad placements. The AdSense loader
+ * (which also enables Google Auto ads) is only injected on these pages, so
+ * auto ads never appear on pages where we have not placed ad formats.
+ */
+export const AD_ENABLED_PREFIXES = [
+  "/blog",
+  "/code-scripts",
+  "/free-courses",
+  "/study-materials",
+  "/study",
+] as const;
+
+/** True when a pathname belongs to a page that contains ad placements. */
+export function isAdEnabledPath(pathname: string): boolean {
+  return AD_ENABLED_PREFIXES.some(
+    (p) => pathname === p || pathname.startsWith(`${p}/`)
+  );
+}
+
+/**
  * Extract the AdSense client id / slot id / format from a pasted AdSense
  * <ins> snippet so an admin can paste their code without fiddling with
  * individual fields. Returns nulls when it can't be parsed.

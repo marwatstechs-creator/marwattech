@@ -26,7 +26,7 @@ const FIELDS: { key: string; label: string; textarea?: boolean; rows?: number; h
   { key: "google_site_verification", label: "Google Search Console verification code", hint: "Search Console → Settings → Verification → HTML tag. Paste the content value (e.g. abc123…)." },
   { key: "bing_site_verification", label: "Bing Webmaster verification code", hint: "Bing Webmaster Tools → Site settings → Verification → HTML meta tag." },
   { key: "custom_head_code", label: "Custom head code (Google tag / analytics / scripts)", textarea: true, rows: 10, hint: "Paste any full <script> / <meta> / <link> snippet here and it will be injected into the <head> of every page. E.g. the Google tag (gtag.js) snippet from your GA4 property." },
-  { key: "google_adsense_client", label: "Google AdSense Client ID", hint: "e.g. ca-pub-1234567890123456. Adds the AdSense loader to every page." },
+  { key: "google_adsense_client", label: "Google AdSense Client ID", hint: "e.g. ca-pub-1234567890123456. Loads AdSense (incl. Auto ads) only on pages that have ad placements (Blog, Code Scripts, Free Courses, Study)." },
   { key: "ad_txt", label: "ads.txt content", textarea: true, hint: "Paste your ads.txt content or upload the file. Served at /ads.txt (and /ad.txt redirects to it) for AdSense verification." },
   { key: "promo_udemy_feed", label: "Auto Udemy promo feed", hint: "Type 1 to show the auto Udemy deals tab on /free-courses, or leave empty to hide it." },
 ];
