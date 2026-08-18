@@ -36,6 +36,24 @@ const SUPPORT_LINKS = [
   ...LEGAL_LINKS.map((l) => ({ label: l.label, href: l.href })),
 ];
 
+const SITES_LINKS = [
+  {
+    label: "license.com.pk",
+    desc: "Hosting software licenses — WHM, Plesk, cPanel & DirectAdmin",
+    href: "https://license.com.pk",
+  },
+  {
+    label: "marwat-tech.com",
+    desc: "Web hosting & domain registration",
+    href: "https://www.marwat-tech.com",
+  },
+  {
+    label: "ieltsonlinetest.pk",
+    desc: "IELTS reading, speaking & writing",
+    href: "https://ieltsonlinetest.pk",
+  },
+];
+
 function FooterColumn({
   title,
   links,
@@ -76,7 +94,7 @@ export function Footer() {
   return (
     <footer className="border-t bg-muted/40">
       <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-        <div className="grid gap-12 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
+        <div className="grid gap-12 lg:grid-cols-[1.3fr_1fr_1fr_1fr_1fr]">
           {/* Brand */}
           <div className="space-y-5">
             <Logo />
@@ -117,6 +135,32 @@ export function Footer() {
 
           {/* Support & Legal */}
           <FooterColumn title="Support & Legal" links={SUPPORT_LINKS} />
+
+          {/* Our Sites */}
+          <div>
+            <h3 className="font-display mb-4 text-sm font-semibold uppercase tracking-wider text-foreground">
+              Our Sites
+            </h3>
+            <ul className="space-y-2.5">
+              {SITES_LINKS.map((site) => (
+                <li key={site.href}>
+                  <a
+                    href={site.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group flex flex-col gap-0.5"
+                  >
+                    <span className="text-sm font-medium text-foreground/70 transition-colors group-hover:text-primary">
+                      {site.label}
+                    </span>
+                    <span className="text-xs leading-snug text-muted-foreground">
+                      {site.desc}
+                    </span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
 
         {/* Contact strip */}
