@@ -11,6 +11,7 @@ export type CodeScriptCard = Pick<
 /** Fetch one page of published scripts for the infinite-scroll listing. */
 export async function getMoreCodeScripts(input: {
   category?: string;
+  q?: string;
   offset: number;
   limit: number;
 }): Promise<CodeScriptCard[]> {
@@ -20,6 +21,7 @@ export async function getMoreCodeScripts(input: {
     .select("id, title, slug, category, version, cover_image, content, created_at")
     .eq("status", "published");
   if (input.category) q = q.eq("category", input.category);
+  if (input.q?.trim()) q = q.ilike("title", `%${input.q.trim()}%`);
   const { data } = await q
     .order("created_at", { ascending: false })
     .range(input.offset, input.offset + input.limit - 1);

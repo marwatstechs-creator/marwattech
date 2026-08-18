@@ -72,15 +72,24 @@ function Card({ s }: { s: CodeScriptCard }) {
 export function CodeScriptsGrid({
   initial,
   category,
+  q,
 }: {
   initial: CodeScriptCard[];
   category?: string;
+  q?: string;
 }) {
   const [items, setItems] = useState(initial);
   const [hasMore, setHasMore] = useState(initial.length >= CODE_SCRIPTS_PAGE_SIZE);
   const [loading, setLoading] = useState(false);
   const busy = useRef(false);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
+
+  // Reset whenever the filter/search changes (e.g. client-side nav).
+  useEffect(() => {
+    setItems(initial);
+    setHasMore(initial.length >= CODE_SCRIPTS_PAGE_SIZE);
+    busy.current = false;
+  }, [initial, category, q]);
 
   const loadMore = useCallback(async () => {
     if (busy.current || !hasMore) return;
@@ -89,6 +98,7 @@ export function CodeScriptsGrid({
     try {
       const more = await getMoreCodeScripts({
         category,
+        q,
         offset: items.length,
         limit: CODE_SCRIPTS_PAGE_SIZE,
       });
@@ -100,7 +110,7 @@ export function CodeScriptsGrid({
       busy.current = false;
       setLoading(false);
     }
-  }, [category, hasMore, items.length]);
+  }, [category, q, hasMore, items.length]);
 
   useEffect(() => {
     const el = sentinelRef.current;
