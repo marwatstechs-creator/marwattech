@@ -1,9 +1,11 @@
+import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { AppIcon } from "@/components/app-icon";
 import { CopyCode } from "@/components/marketing/copy-code";
 import { ShareDeal } from "@/components/marketing/share-deal";
+import { promoCodeSlug } from "@/lib/promo/slug";
 
 export type PromoCodeCardData = {
   id: string;
@@ -41,7 +43,12 @@ export function PromoCodeCard({ code }: { code: PromoCodeCardData }) {
           )}
         </div>
         <h3 className="font-display mt-3 line-clamp-2 text-base font-bold leading-snug">
-          {code.title}
+          <Link
+            href={`/free-courses/${promoCodeSlug(code.title, code.id)}`}
+            className="transition-colors hover:text-primary"
+          >
+            {code.title}
+          </Link>
         </h3>
         {code.category && (
           <p className="mt-1 text-xs text-muted-foreground">{code.category}</p>

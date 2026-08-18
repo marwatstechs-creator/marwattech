@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { toast } from "sonner";
 
 import { AppIcon } from "@/components/app-icon";
@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { regenerateSitemapAction } from "@/lib/actions/admin/seo";
 
 /**
  * SEO & Search Engines card for Admin → Settings.
@@ -18,6 +19,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
  */
 export function SeoSettings({ sitemapUrl, robotsUrl }: { sitemapUrl: string; robotsUrl: string }) {
   const [urls, setUrls] = useState<string[] | null>(null);
+  const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
     fetch("/sitemap.xml")
@@ -28,6 +30,18 @@ export function SeoSettings({ sitemapUrl, robotsUrl }: { sitemapUrl: string; rob
       })
       .catch(() => setUrls([]));
   }, []);
+
+  const generate = () => {
+    startTransition(async () => {
+      const res = await regenerateSitemapAction();
+      if (res.ok) {
+        toast.success(`Sitemap generated — ${res.count} public URLs`);
+        setUrls(res.urls);
+      } else {
+        toast.error(res.error || "Could not generate the sitemap.");
+      }
+    });
+  };
 
   const copy = async (text: string, label: string) => {
     try {
@@ -59,6 +73,32 @@ export function SeoSettings({ sitemapUrl, robotsUrl }: { sitemapUrl: string; rob
         </div>
       </CardHeader>
       <CardContent className="space-y-5">
+        {/* Auto-generate sitemap */}
+        <div className="rounded-xl border border-primary/20 bg-primary/5 p-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-start gap-3">
+              <span className="icon-3d-tile grid size-10 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
+                <AppIcon name="globe" size={20} />
+              </span>
+              <div>
+                <p className="font-display text-sm font-bold">Generate sitemap</p>
+                <p className="text-xs text-muted-foreground">
+                  Scans every public page — services, portfolio, blog, code scripts, study
+                  courses and Udemy promo codes — and rebuilds the live sitemap.
+                </p>
+              </div>
+            </div>
+            <Button type="button" onClick={generate} disabled={isPending} className="shrink-0">
+              <AppIcon
+                name={isPending ? "refresh" : "rocket"}
+                size={15}
+                className={isPending ? "animate-spin" : ""}
+              />
+              {isPending ? "Generating…" : "Generate Sitemap"}
+            </Button>
+          </div>
+        </div>
+
         {/* Sitemap */}
         <div className="space-y-2">
           <Label htmlFor="seo-sitemap">Sitemap URL</Label>
