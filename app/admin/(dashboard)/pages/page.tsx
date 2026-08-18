@@ -84,7 +84,7 @@ export default async function AdminPagesPage() {
                       viewHref={`/pages/${p.slug}`}
                       status={p.status}
                       statusOptions={["draft", "published", "archived"]}
-                      onStatusChange={togglePageStatus}
+                      onStatusChange={(id, status) => togglePageStatus(id, status as "draft" | "published" | "archived")}
                       onDelete={deletePage}
                       label="page"
                     />

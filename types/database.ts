@@ -311,7 +311,7 @@ export interface Database {
           icon: string | null;
           summary: string | null;
           content: string | null;
-          content_json: Json | null;
+          content_json?: Json | null;
           benefits: Json | null;
           process: Json | null;
           faqs: Json | null;
@@ -381,7 +381,7 @@ export interface Database {
           title: string;
           slug: string;
           content: string;
-          content_json: Json | null;
+          content_json?: Json | null;
           custom_html: string | null;
           status: ContentStatus;
           meta_title: string | null;
@@ -450,7 +450,7 @@ export interface Database {
           industry: string | null;
           summary: string | null;
           content: string | null;
-          content_json: Json | null;
+          content_json?: Json | null;
           technologies: Json | null;
           images: Json | null;
           cover_image: string | null;
@@ -571,8 +571,8 @@ export interface Database {
           slug: string;
           excerpt: string | null;
           content: string;
-          content_json: Json | null;
-          custom_html: string | null;
+          content_json?: Json | null;
+          custom_html?: string | null;
           cover_image: string | null;
           author_id: string | null;
           category_id: string | null;
@@ -703,9 +703,9 @@ export interface Database {
           job_type: string | null;
           salary_range: string | null;
           description: string | null;
-          description_json: Json | null;
+          description_json?: Json | null;
           requirements: string | null;
-          requirements_json: Json | null;
+          requirements_json?: Json | null;
           status: ContentStatus;
           created_at: string;
           updated_at: string;

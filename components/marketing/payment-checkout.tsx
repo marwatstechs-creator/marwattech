@@ -310,6 +310,13 @@ export function PaymentCheckout({ configured, clientId, env, initial }: Checkout
     let cancelled = false;
     const mounted: HTMLElement[] = [];
 
+    // Remove the ghost loading skeleton when we're done rendering buttons.
+    const hideSkeleton = () => {
+      const c = buttonContainerRef.current;
+      const s = c?.querySelector("#mt-loading");
+      if (s) s.remove();
+    };
+
     (async () => {
       try {
         const paypal = await loadPaypalV6(env);
@@ -351,10 +358,6 @@ export function PaymentCheckout({ configured, clientId, env, initial }: Checkout
           '<div class="h-3 w-full rounded-md bg-foreground/10 skeleton-shimmer"></div>',
         ].join("");
         container.appendChild(skeleton);
-        const hideSkeleton = () => {
-          const s = container.querySelector("#mt-loading");
-          if (s) s.remove();
-        };
 
         // Grouped, labelled payment sections (PayPal / Card / More ways to pay).
         type SectionKey = "paypal" | "card" | "wallet";

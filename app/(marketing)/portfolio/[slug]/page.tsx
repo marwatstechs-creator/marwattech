@@ -125,7 +125,7 @@ export default async function PortfolioSlugPage({ params }: Props) {
           description: project.summary,
           path: `/portfolio/${project.slug}`,
           image: project.cover_image ?? images[0]?.url ?? null,
-          datePublished: project.published_at,
+          datePublished: (project as { published_at?: string | null }).published_at,
           dateModified: project.updated_at,
         })}
       />

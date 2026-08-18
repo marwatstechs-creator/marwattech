@@ -149,7 +149,8 @@ export function MediaLibrary({ items }: { items: Media[] }) {
                     Copy
                   </Button>
                   <DeleteButton
-                    onDelete={() => deleteMedia(m.id)}
+                    itemId={m.id}
+                    onDelete={deleteMedia}
                     label="file"
                   />
                 </div>

@@ -82,7 +82,7 @@ export function PromoCodeForm({ initial, isEdit = false }: PromoCodeFormProps) {
       url: form.url,
       image_url: form.image_url,
       category: form.category,
-      tag: form.tag,
+      tag: form.tag as "other" | "full_paid" | "latest",
       expires_at: form.expires_at,
       enabled: form.enabled,
       sort_order: Number(form.sort_order) || 0,

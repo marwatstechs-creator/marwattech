@@ -86,7 +86,7 @@ export default async function AdminCareersPage() {
                       editHref={`/admin/careers/${j.id}`}
                       status={j.status}
                       statusOptions={["draft", "published", "archived"]}
-                      onStatusChange={toggleCareerStatus}
+                      onStatusChange={(id, status) => toggleCareerStatus(id, status as "draft" | "published" | "archived")}
                       onDelete={deleteCareer}
                       label="position"
                     />

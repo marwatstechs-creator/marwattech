@@ -21,5 +21,6 @@ export async function GET(request: Request) {
   }
 
   const result = await sendCourseDigest();
-  return Response.json({ ok: result.ok, ...result });
+  const { ok, ...rest } = result;
+  return Response.json({ ok, ...rest });
 }

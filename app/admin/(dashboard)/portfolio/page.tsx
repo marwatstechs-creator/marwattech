@@ -97,7 +97,7 @@ export default async function AdminPortfolioPage() {
                       viewHref={`/portfolio/${p.slug}`}
                       status={p.status}
                       statusOptions={["draft", "published", "archived"]}
-                      onStatusChange={togglePortfolioStatus}
+                      onStatusChange={(id, status) => togglePortfolioStatus(id, status as "draft" | "published" | "archived")}
                       onDelete={deletePortfolioItem}
                       label="project"
                     />
