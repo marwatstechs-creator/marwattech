@@ -316,6 +316,35 @@ Keep the version number if present.`;
   }
 }
 
+/* ── Fetch all existing source_urls / slugs (paginated, >1000 rows) ── */
+async function fetchAllSourceUrls() {
+  const urls = new Set();
+  const PAGE = 1000;
+  let offset = 0;
+  for (;;) {
+    const { data } = await db.from("code_scripts").select("source_url").range(offset, offset + PAGE - 1);
+    const rows = data ?? [];
+    for (const r of rows) if (r.source_url) urls.add(r.source_url);
+    if (rows.length < PAGE) break;
+    offset += PAGE;
+  }
+  return urls;
+}
+
+async function fetchAllSlugs() {
+  const slugs = new Set();
+  const PAGE = 1000;
+  let offset = 0;
+  for (;;) {
+    const { data } = await db.from("code_scripts").select("slug").range(offset, offset + PAGE - 1);
+    const rows = data ?? [];
+    for (const r of rows) if (r.slug) slugs.add(r.slug);
+    if (rows.length < PAGE) break;
+    offset += PAGE;
+  }
+  return slugs;
+}
+
 /* ── Refresh existing rows' download links (REFRESH=1) ──────────────── */
 async function refreshExistingDownloadLinks() {
   const { data: rows } = await db
@@ -386,8 +415,7 @@ async function main() {
     return;
   }
 
-  const { data: existing } = await db.from("code_scripts").select("source_url").limit(20000);
-  const seen = new Set((existing ?? []).map((r) => r.source_url));
+  const seen = await fetchAllSourceUrls();
   const fresh = postUrls.filter((u) => !seen.has(u)).slice(0, MAX_PER_RUN);
 
   if (!fresh.length) {
@@ -397,8 +425,7 @@ async function main() {
     process.exit(2);
   }
 
-  const { data: existingSlugs } = await db.from("code_scripts").select("slug").limit(20000);
-  const slugSet = new Set((existingSlugs ?? []).map((r) => r.slug));
+  const slugSet = await fetchAllSlugs();
 
   let imported = 0;
   let failed = 0;
