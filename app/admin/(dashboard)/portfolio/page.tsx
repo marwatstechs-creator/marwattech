@@ -3,35 +3,26 @@ import Link from "next/link";
 import { AdminPageHeader } from "@/components/admin/page-header";
 import { AppIcon } from "@/components/app-icon";
 import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { RowActions } from "@/components/admin/row-actions";
+import { AdminTable } from "@/components/admin/data-table";
 import { createClient } from "@/lib/supabase/server";
 import { guardEditor } from "@/lib/auth";
 import {
   deletePortfolioItem,
   togglePortfolioStatus,
 } from "@/lib/actions/admin/portfolio";
-import { formatDate } from "@/lib/utils";
 
 export const revalidate = 0;
 
 export default async function AdminPortfolioPage() {
   await guardEditor();
-  let items: {
+  let rows: {
     id: string;
     title: string;
     slug: string;
     status: string;
     featured: boolean;
+    category: string;
     updated_at: string;
-    portfolio_categories?: { name: string } | null;
   }[] = [];
 
   try {
@@ -40,7 +31,24 @@ export default async function AdminPortfolioPage() {
       .from("portfolio_items")
       .select("id, title, slug, status, featured, updated_at, portfolio_categories(name)")
       .order("updated_at", { ascending: false });
-    items = data ?? [];
+    const raw = (data ?? []) as unknown as {
+      id: string;
+      title: string;
+      slug: string;
+      status: string;
+      featured: boolean;
+      updated_at: string;
+      portfolio_categories?: { name: string } | null;
+    }[];
+    rows = raw.map((p) => ({
+      id: p.id,
+      title: p.title,
+      slug: p.slug,
+      status: p.status,
+      featured: p.featured,
+      category: p.portfolio_categories?.name ?? "—",
+      updated_at: p.updated_at,
+    }));
   } catch {
     // fallback
   }
@@ -60,54 +68,32 @@ export default async function AdminPortfolioPage() {
         }
       />
 
-      <div className="rounded-xl border bg-card">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Title</TableHead>
-              <TableHead>Category</TableHead>
-              <TableHead>Featured</TableHead>
-              <TableHead>Updated</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {items.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={5} className="py-16 text-center text-muted-foreground">
-                  No projects yet — add your first one.
-                </TableCell>
-              </TableRow>
-            ) : (
-              items.map((p) => (
-                <TableRow key={p.id}>
-                  <TableCell>
-                    <p className="font-medium">{p.title}</p>
-                    <p className="text-xs text-muted-foreground">/{p.slug}</p>
-                  </TableCell>
-                  <TableCell>{p.portfolio_categories?.name ?? "—"}</TableCell>
-                  <TableCell>{p.featured ? "★" : "—"}</TableCell>
-                  <TableCell className="text-muted-foreground">
-                    {formatDate(p.updated_at)}
-                  </TableCell>
-                  <TableCell>
-                    <RowActions
-                      itemId={p.id}
-                      editHref={`/admin/portfolio/${p.id}`}
-                      viewHref={`/portfolio/${p.slug}`}
-                      status={p.status}
-                      statusOptions={["draft", "published", "archived"]}
-                      onStatusChange={togglePortfolioStatus}
-                      onDelete={deletePortfolioItem}
-                      label="project"
-                    />
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </div>
+      <AdminTable
+        rows={rows}
+        columns={[
+          { key: "title", header: "Title", type: "title", subKey: "slug", sortable: true },
+          { key: "category", header: "Category" },
+          { key: "featured", header: "Featured", type: "boolean" },
+          { key: "updated_at", header: "Updated", type: "date", sortable: true },
+        ]}
+        searchKeys={["title", "slug"]}
+        searchPlaceholder="Search projects…"
+        statusOptions={["draft", "published", "archived"]}
+        statusKey="status"
+        emptyTitle="No projects yet"
+        emptyDescription="Add your first case study to get started."
+        emptyAction={{ label: "New Project", href: "/admin/portfolio/new" }}
+        actions={{
+          editBase: "/admin/portfolio/",
+          viewBase: "/portfolio/",
+          slugKey: "slug",
+          statusKey: "status",
+          statusOptions: ["draft", "published", "archived"],
+          onStatusChange: togglePortfolioStatus as never,
+          onDelete: deletePortfolioItem as never,
+          label: "project",
+        }}
+      />
     </>
   );
 }

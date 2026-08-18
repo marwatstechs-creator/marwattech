@@ -3,15 +3,7 @@ import Link from "next/link";
 import { AdminPageHeader } from "@/components/admin/page-header";
 import { AppIcon } from "@/components/app-icon";
 import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { RowActions } from "@/components/admin/row-actions";
+import { AdminTable } from "@/components/admin/data-table";
 import { createClient } from "@/lib/supabase/server";
 import { guardEditor } from "@/lib/auth";
 import { deleteTestimonial, toggleTestimonialStatus } from "@/lib/actions/admin/testimonials";
@@ -20,13 +12,14 @@ export const revalidate = 0;
 
 export default async function AdminTestimonialsPage() {
   await guardEditor();
-  let items: {
+  let rows: {
     id: string;
     client_name: string;
     company: string | null;
     rating: number;
     featured: boolean;
     status: string;
+    stars: string;
   }[] = [];
 
   try {
@@ -35,7 +28,15 @@ export default async function AdminTestimonialsPage() {
       .from("testimonials")
       .select("id, client_name, company, rating, featured, status")
       .order("sort_order");
-    items = data ?? [];
+    rows = (data ?? []).map((t) => ({
+      id: t.id,
+      client_name: t.client_name,
+      company: t.company,
+      rating: t.rating,
+      featured: t.featured,
+      status: t.status,
+      stars: "★".repeat(t.rating),
+    }));
   } catch {
     // fallback
   }
@@ -55,48 +56,31 @@ export default async function AdminTestimonialsPage() {
         }
       />
 
-      <div className="rounded-xl border bg-card">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Client</TableHead>
-              <TableHead>Company</TableHead>
-              <TableHead>Rating</TableHead>
-              <TableHead>Featured</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {items.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={5} className="py-16 text-center text-muted-foreground">
-                  No testimonials yet.
-                </TableCell>
-              </TableRow>
-            ) : (
-              items.map((t) => (
-                <TableRow key={t.id}>
-                  <TableCell className="font-medium">{t.client_name}</TableCell>
-                  <TableCell>{t.company ?? "—"}</TableCell>
-                  <TableCell className="text-gold">{"★".repeat(t.rating)}</TableCell>
-                  <TableCell>{t.featured ? "★" : "—"}</TableCell>
-                  <TableCell>
-                    <RowActions
-                      itemId={t.id}
-                      editHref={`/admin/testimonials/${t.id}`}
-                      status={t.status}
-                      statusOptions={["published", "draft", "archived"]}
-                      onStatusChange={toggleTestimonialStatus}
-                      onDelete={deleteTestimonial}
-                      label="testimonial"
-                    />
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </div>
+      <AdminTable
+        rows={rows}
+        columns={[
+          { key: "client_name", header: "Client", type: "title", sortable: true },
+          { key: "company", header: "Company" },
+          { key: "stars", header: "Rating" },
+          { key: "featured", header: "Featured", type: "boolean" },
+          { key: "status", header: "Status", type: "status" },
+        ]}
+        searchKeys={["client_name", "company"]}
+        searchPlaceholder="Search testimonials…"
+        statusOptions={["published", "draft", "archived"]}
+        statusKey="status"
+        emptyTitle="No testimonials yet"
+        emptyDescription="Add client feedback to build trust on your site."
+        emptyAction={{ label: "New Testimonial", href: "/admin/testimonials/new" }}
+        actions={{
+          editBase: "/admin/testimonials/",
+          statusKey: "status",
+          statusOptions: ["published", "draft", "archived"],
+          onStatusChange: toggleTestimonialStatus as never,
+          onDelete: deleteTestimonial as never,
+          label: "testimonial",
+        }}
+      />
     </>
   );
 }

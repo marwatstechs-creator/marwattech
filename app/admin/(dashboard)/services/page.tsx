@@ -3,32 +3,23 @@ import Link from "next/link";
 import { AdminPageHeader } from "@/components/admin/page-header";
 import { AppIcon } from "@/components/app-icon";
 import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { RowActions } from "@/components/admin/row-actions";
+import { AdminTable } from "@/components/admin/data-table";
 import { createClient } from "@/lib/supabase/server";
 import { guardEditor } from "@/lib/auth";
 import { deleteService, toggleServiceStatus } from "@/lib/actions/admin/services";
-import { formatDate } from "@/lib/utils";
 
 export const revalidate = 0;
 
 export default async function AdminServicesPage() {
   await guardEditor();
-  let services: {
+  let rows: {
     id: string;
     title: string;
     slug: string;
     status: string;
     featured: boolean;
+    category: string;
     updated_at: string;
-    service_categories?: { name: string } | null;
   }[] = [];
 
   try {
@@ -37,7 +28,24 @@ export default async function AdminServicesPage() {
       .from("services")
       .select("id, title, slug, status, featured, updated_at, service_categories(name)")
       .order("updated_at", { ascending: false });
-    services = data ?? [];
+    const raw = (data ?? []) as unknown as {
+      id: string;
+      title: string;
+      slug: string;
+      status: string;
+      featured: boolean;
+      updated_at: string;
+      service_categories?: { name: string } | null;
+    }[];
+    rows = raw.map((s) => ({
+      id: s.id,
+      title: s.title,
+      slug: s.slug,
+      status: s.status,
+      featured: s.featured,
+      category: s.service_categories?.name ?? "—",
+      updated_at: s.updated_at,
+    }));
   } catch {
     // Supabase not configured
   }
@@ -57,54 +65,32 @@ export default async function AdminServicesPage() {
         }
       />
 
-      <div className="rounded-xl border bg-card">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Title</TableHead>
-              <TableHead>Category</TableHead>
-              <TableHead>Featured</TableHead>
-              <TableHead>Updated</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {services.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={5} className="py-16 text-center text-muted-foreground">
-                  No services yet — create your first one.
-                </TableCell>
-              </TableRow>
-            ) : (
-              services.map((s) => (
-                <TableRow key={s.id}>
-                  <TableCell>
-                    <p className="font-medium">{s.title}</p>
-                    <p className="text-xs text-muted-foreground">/{s.slug}</p>
-                  </TableCell>
-                  <TableCell>{s.service_categories?.name ?? "—"}</TableCell>
-                  <TableCell>{s.featured ? "★" : "—"}</TableCell>
-                  <TableCell className="text-muted-foreground">
-                    {formatDate(s.updated_at)}
-                  </TableCell>
-                  <TableCell>
-                    <RowActions
-                      itemId={s.id}
-                      editHref={`/admin/services/${s.id}`}
-                      viewHref={`/services/${s.slug}`}
-                      status={s.status}
-                      statusOptions={["draft", "published", "archived"]}
-                      onStatusChange={toggleServiceStatus}
-                      onDelete={deleteService}
-                      label="service"
-                    />
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </div>
+      <AdminTable
+        rows={rows}
+        columns={[
+          { key: "title", header: "Title", type: "title", subKey: "slug", sortable: true },
+          { key: "category", header: "Category" },
+          { key: "featured", header: "Featured", type: "boolean" },
+          { key: "updated_at", header: "Updated", type: "date", sortable: true },
+        ]}
+        searchKeys={["title", "slug"]}
+        searchPlaceholder="Search services…"
+        statusOptions={["draft", "published", "archived"]}
+        statusKey="status"
+        emptyTitle="No services yet"
+        emptyDescription="Create your first service to get started."
+        emptyAction={{ label: "New Service", href: "/admin/services/new" }}
+        actions={{
+          editBase: "/admin/services/",
+          viewBase: "/services/",
+          slugKey: "slug",
+          statusKey: "status",
+          statusOptions: ["draft", "published", "archived"],
+          onStatusChange: toggleServiceStatus as never,
+          onDelete: deleteService as never,
+          label: "service",
+        }}
+      />
     </>
   );
 }
