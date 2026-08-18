@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { AppIcon } from "@/components/app-icon";
 import { AdSlot } from "@/components/adsense/ad-slot";
-import { StudySubjectCard, type StudySubjectCardData } from "@/components/study/subject-card";
+import { StudyCatalog } from "@/components/marketing/study-catalog";
+import type { StudySubjectCardData } from "@/components/study/subject-card";
 import { getPublishedSubjects } from "@/lib/study";
 import { SITE } from "@/lib/constants";
 
@@ -21,7 +22,7 @@ export default async function StudyPage() {
   }
 
   return (
-    <div className="container py-10 sm:py-14">
+    <div className="container px-4 py-10 sm:px-6 sm:py-14 lg:px-8">
       <AdSlot area="study-top" className="mb-8 rounded-2xl border bg-card/60 py-4" />
 
       <div className="mb-8">
@@ -36,17 +37,7 @@ export default async function StudyPage() {
         </p>
       </div>
 
-      {subjects.length === 0 ? (
-        <div className="rounded-2xl border bg-card p-12 text-center text-sm text-muted-foreground">
-          Subjects are being prepared — check back soon.
-        </div>
-      ) : (
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {subjects.map((s) => (
-            <StudySubjectCard key={s.id} subject={s} />
-          ))}
-        </div>
-      )}
+      <StudyCatalog kind="subjects" subjects={subjects} />
 
       <div className="mt-10 rounded-2xl border bg-card p-6 text-center text-sm text-muted-foreground">
         Looking for downloadable files and templates?{" "}
