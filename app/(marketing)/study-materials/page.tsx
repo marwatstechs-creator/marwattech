@@ -6,7 +6,7 @@ import { AppIcon } from "@/components/app-icon";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { AdUnit } from "@/components/adsense/ad-unit";
+import { AdSlot } from "@/components/adsense/ad-slot";
 import { StickyAd } from "@/components/adsense/sticky-ad";
 import { SidebarAd } from "@/components/adsense/sidebar-ad";
 import { createClient } from "@/lib/supabase/server";
@@ -55,12 +55,8 @@ export default async function StudyMaterialsPage() {
     // fallback to empty
   }
 
-  const listingAds = ads.filter((x) => x.placement === "listing");
-  const inContentAds = ads.filter((x) => x.placement === "in_content");
   const stickyAds = ads.filter((x) => x.placement === "sticky");
   const sidebarAds = ads.filter((x) => x.placement === "sidebar");
-  const topAd = listingAds[0] ?? inContentAds[0];
-  const bottomAd = inContentAds[1] ?? listingAds[1];
 
   return (
     <>
@@ -75,14 +71,7 @@ export default async function StudyMaterialsPage() {
         data-sidebar-start
         className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8"
       >
-        {topAd && (
-          <AdUnit
-            adClient={topAd.ad_client}
-            slotId={topAd.slot_id}
-            format={topAd.format}
-            className="mb-10 rounded-2xl border bg-card/60 py-4"
-          />
-        )}
+        <AdSlot area="study-top" className="mb-10 rounded-2xl border bg-card/60 py-4" />
 
         {materials.length === 0 ? (
           <div className="rounded-xl border border-dashed bg-muted/40 p-16 text-center">
@@ -136,14 +125,7 @@ export default async function StudyMaterialsPage() {
           </div>
         )}
 
-        {bottomAd && (
-          <AdUnit
-            adClient={bottomAd.ad_client}
-            slotId={bottomAd.slot_id}
-            format={bottomAd.format}
-            className="mt-10 rounded-2xl border bg-card/60 py-4"
-          />
-        )}
+        <AdSlot area="study-between" className="mt-10 rounded-2xl border bg-card/60 py-4" />
       </section>
 
       <CtaBanner />

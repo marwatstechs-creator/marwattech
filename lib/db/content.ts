@@ -262,18 +262,31 @@ export type EnabledAd = {
   mobile_format: string;
   format: string;
   placement: string;
+  area: string | null;
 };
 
 /** Enabled Google AdSense units, optionally filtered by placement. */
 export async function getEnabledAds(db: DB, placement?: string): Promise<EnabledAd[]> {
   let q = db
     .from("ads")
-    .select("id, name, ad_client, slot_id, mobile_slot_id, mobile_format, format, placement")
+    .select("id, name, ad_client, slot_id, mobile_slot_id, mobile_format, format, placement, area")
     .eq("enabled", true)
     .order("sort_order", { ascending: true });
   if (placement) q = q.eq("placement", placement);
   const { data } = await q;
   return (data ?? []) as EnabledAd[];
+}
+
+/** The single enabled ad for a named area (see lib/ads.ts), or null. */
+export async function getAdForArea(db: DB, area: string): Promise<EnabledAd | null> {
+  const { data } = await db
+    .from("ads")
+    .select("id, name, ad_client, slot_id, mobile_slot_id, mobile_format, format, placement, area")
+    .eq("area", area)
+    .eq("enabled", true)
+    .limit(1)
+    .maybeSingle();
+  return (data ?? null) as EnabledAd | null;
 }
 
 export type PublicStudyMaterial = {

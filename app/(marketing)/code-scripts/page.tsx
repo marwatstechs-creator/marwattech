@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { CodeScriptsGrid } from "@/components/marketing/code-scripts-grid";
+import { AdSlot } from "@/components/adsense/ad-slot";
 import { PageHero } from "@/components/marketing/page-hero";
 import { AppIcon } from "@/components/app-icon";
 import { Badge } from "@/components/ui/badge";
@@ -70,6 +71,8 @@ export default async function CodeScriptsPage({
       />
 
       <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+        <AdSlot area="code-scripts-top" className="mb-8 rounded-2xl border bg-card/60 py-4" />
+
         {/* Category filter */}
         <div className="mb-8 flex flex-wrap items-center gap-2">
           <Link href={CODE_SCRIPTS_PATH}>
@@ -94,6 +97,8 @@ export default async function CodeScriptsPage({
         ) : (
           <CodeScriptsGrid initial={scripts} category={category} />
         )}
+
+        <AdSlot area="code-scripts-between" className="mt-10 rounded-2xl border bg-card/60 py-4" />
       </section>
     </>
   );

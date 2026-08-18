@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { Breadcrumbs } from "@/components/marketing/breadcrumbs";
+import { AdSlot } from "@/components/adsense/ad-slot";
 import { AppIcon } from "@/components/app-icon";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -146,12 +147,16 @@ export default async function CodeScriptDetailPage({ params }: Props) {
 
       {/* Content + FAQ */}
       <section className="mx-auto max-w-5xl px-4 py-12 sm:px-6 lg:px-8">
+        <AdSlot area="code-scripts-article-top" className="mb-8 rounded-2xl border bg-card/60 py-4" />
+
         {s.content && (
           <div
             className="prose-cms text-[15px] leading-relaxed"
             dangerouslySetInnerHTML={{ __html: sanitizeHtml(stripSourceLinks(s.content)) }}
           />
         )}
+
+        <AdSlot area="code-scripts-article-after-download" className="mt-8 rounded-2xl border bg-card/60 py-4" />
 
         {downloadLinks.length > 0 && (
           <div className="mt-10 rounded-2xl border bg-muted/40 p-6 sm:p-8">
@@ -172,6 +177,8 @@ export default async function CodeScriptDetailPage({ params }: Props) {
           </div>
         )}
 
+        <AdSlot area="code-scripts-article-below-download" className="mt-8 rounded-2xl border bg-card/60 py-4" />
+
         {Array.isArray(s.faqs) && s.faqs.length > 0 && (
           <div className="mt-12">
             <h2 className="font-display mb-4 text-2xl font-bold">Frequently asked questions</h2>
@@ -185,6 +192,8 @@ export default async function CodeScriptDetailPage({ params }: Props) {
             </div>
           </div>
         )}
+
+        <AdSlot area="code-scripts-article-bottom" className="mt-10 rounded-2xl border bg-card/60 py-4" />
       </section>
     </>
   );

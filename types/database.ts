@@ -971,6 +971,7 @@ export interface Database {
           mobile_format: string;
           format: string;
           placement: string;
+          area: string | null;
           enabled: boolean;
           sort_order: number;
           created_at: string;
@@ -985,6 +986,7 @@ export interface Database {
           mobile_format?: string;
           format?: string;
           placement?: string;
+          area?: string | null;
           enabled?: boolean;
           sort_order?: number;
           created_at?: string;
@@ -999,6 +1001,7 @@ export interface Database {
           mobile_format?: string;
           format?: string;
           placement?: string;
+          area?: string | null;
           enabled?: boolean;
           sort_order?: number;
           created_at?: string;
