@@ -140,10 +140,10 @@ export function Hero() {
     <section className="relative isolate w-full overflow-hidden pb-16 pt-20 sm:pb-24 sm:pt-28 lg:pb-32 lg:pt-36">
       <DotGrid />
 
-      {/* Rotating guarantee seal — background accent, top-right corner */}
+      {/* Rotating guarantee seal — background accent, behind the top badge (left) */}
       <div
         aria-hidden
-        className="pointer-events-none absolute right-0 top-10 z-0 hidden -rotate-6 opacity-80 lg:block xl:right-64 xl:top-14"
+        className="pointer-events-none absolute left-1/2 top-14 z-0 hidden -rotate-6 -translate-x-[calc(50%+230px)] opacity-80 lg:block"
       >
         <GuaranteeSeal className="h-52 w-52 text-primary sm:h-60 sm:w-60" />
       </div>

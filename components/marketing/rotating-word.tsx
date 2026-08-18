@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useReducedMotion } from "framer-motion";
 
 import { cn } from "@/lib/utils";
 
 /** Premium slide-up/roll easing (no bounce, no overshoot). */
-const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
+const EASE = "cubic-bezier(0.16, 1, 0.3, 1)";
 
 type RotatingWordProps = {
   /** Words to cycle through, e.g. ["Perform", "Convert", "Scale"]. */
@@ -15,19 +15,23 @@ type RotatingWordProps = {
   duration?: number;
   /** Slide transition length, in seconds. Default 0.6. */
   transition?: number;
-  /** Extra classes for the animated container (color/gradient etc.). */
+  /** Classes applied to each word (color/gradient etc.). */
   className?: string;
 };
 
 /**
  * Vertically rolling word that loops through `words`.
  *
- * Uses an inline-grid with a hidden "widest word" spacer so the column width
- * is stable — words of different lengths never shift the surrounding layout.
- * The incoming word slides up from `100%` while the outgoing word rolls out to
- * `-100%`, with a subtle opacity fade and a premium cubic-bezier ease.
+ * Uses a fixed-height "slot-machine" track with a single CSS transform
+ * transition — glitch-free and cheap to run:
+ *   - The track reserves the widest word's width, so there is NO layout shift.
+ *   - Incoming word slides up from below, outgoing rolls out above, with a
+ *     premium cubic-bezier ease.
+ *   - The first word is duplicated at the end so the loop rolls seamlessly.
+ *   - Respects `prefers-reduced-motion` (renders the first word statically).
  *
- * Respects `prefers-reduced-motion` (renders the first word statically).
+ * `className` is applied to EACH word so gradient/bg-clip-text styles render
+ * on the actual text (not on the clipping container).
  */
 export function RotatingWord({
   words,
@@ -36,12 +40,23 @@ export function RotatingWord({
   className,
 }: RotatingWordProps) {
   const reduce = useReducedMotion();
-  const [index, setIndex] = useState(0);
+  // Duplicate the first word so the loop can roll up seamlessly.
+  const list = useMemo(() => (words.length > 1 ? [...words, words[0]] : words), [words]);
+  const wrapping = useRef(false);
+  const [step, setStep] = useState(0);
 
   useEffect(() => {
     if (reduce || words.length <= 1) return;
     const id = window.setInterval(() => {
-      setIndex((i) => (i + 1) % words.length);
+      setStep((s) => {
+        if (s >= words.length) {
+          // Rolled onto the duplicate of the first word → jump back invisibly.
+          wrapping.current = true;
+          return 0;
+        }
+        wrapping.current = false;
+        return s + 1;
+      });
     }, duration);
     return () => window.clearInterval(id);
   }, [duration, reduce, words.length]);
@@ -50,33 +65,26 @@ export function RotatingWord({
     return <span className={className}>{words[0]}</span>;
   }
 
-  const word = words[index];
-
-  // Widest word reserves the column width so there is no layout shift.
-  const widest = words.reduce((a, b) => (b.length > a.length ? b : a));
-
   return (
-    <span className={cn("inline-grid overflow-hidden align-bottom", className)}>
-      <AnimatePresence initial={false}>
-        <motion.span
-          key={word}
-          initial={{ y: "100%", opacity: 0 }}
-          animate={{ y: "0%", opacity: 1 }}
-          exit={{ y: "-100%", opacity: 0 }}
-          transition={{ duration: transition, ease: EASE }}
-          className="whitespace-nowrap"
-          style={{ gridArea: "1 / 1" }}
-        >
-          {word}
-        </motion.span>
-      </AnimatePresence>
-      {/* Invisible spacer keeps the grid column at the widest word's width */}
+    <span className="inline-block overflow-hidden align-bottom" style={{ height: "1lh" }}>
       <span
-        aria-hidden
-        className="invisible whitespace-nowrap"
-        style={{ gridArea: "1 / 1" }}
+        className="block will-change-transform"
+        style={{
+          transform: `translateY(calc(${-step} * 1lh))`,
+          transition: wrapping.current
+            ? "none"
+            : `transform ${transition}s cubic-bezier(0.16, 1, 0.3, 1)`,
+        }}
       >
-        {widest}
+        {list.map((w, i) => (
+          <span
+            key={`${w}-${i}`}
+            className={cn("block whitespace-nowrap", className)}
+            style={{ height: "1lh" }}
+          >
+            {w}
+          </span>
+        ))}
       </span>
     </span>
   );
