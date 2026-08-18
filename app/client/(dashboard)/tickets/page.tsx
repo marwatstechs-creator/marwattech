@@ -1,67 +1,99 @@
+import Link from "next/link";
+
 import { AdminPageHeader } from "@/components/admin/page-header";
 import { AppIcon } from "@/components/app-icon";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { EmptyState } from "@/components/admin/empty-state";
+import { statusLabel, statusTone } from "@/components/admin/ticket-thread";
 import { createClient } from "@/lib/supabase/server";
 import { getSessionUser } from "@/lib/auth";
-import { formatDate } from "@/lib/utils";
+import { timeAgo } from "@/lib/utils";
 
 export const revalidate = 60;
-
-const STATUS_MAP: Record<string, "default" | "gold" | "azure" | "outline" | "destructive"> = {
-  new: "gold", read: "azure", replied: "default", archived: "outline",
-};
 
 export default async function ClientTicketsPage() {
   const session = await getSessionUser();
   const clientEmail = session?.user.email ?? "";
 
-  let tickets: { id: string; subject: string | null; issue_type: string; priority: string; status: string; message: string; created_at: string }[] = [];
+  let tickets: {
+    id: string;
+    subject: string | null;
+    issue_type: string;
+    priority: string;
+    status: string;
+    message: string;
+    created_at: string;
+    updated_at: string | null;
+  }[] = [];
 
   try {
     const db = await createClient();
-    const { data } = await db.from("support_tickets").select("*").eq("email", clientEmail).order("created_at", { ascending: false });
-    tickets = data ?? [];
-  } catch { /* fallback */ }
+    const { data } = await db
+      .from("support_tickets")
+      .select("id, subject, issue_type, priority, status, message, created_at, updated_at")
+      .eq("email", clientEmail)
+      .order("updated_at", { ascending: false });
+    tickets = (data ?? []) as typeof tickets;
+  } catch {
+    // fallback
+  }
 
   return (
     <>
-      <AdminPageHeader title="Support Tickets" description="View your submitted support tickets and their status." />
+      <AdminPageHeader
+        title="Support Tickets"
+        description="Track and reply to your support requests."
+        actions={
+          <a href="/technical-support">
+            <Button>
+              <AppIcon name="plus" size={16} />
+              New ticket
+            </Button>
+          </a>
+        }
+      />
+
       {tickets.length === 0 ? (
-        <div className="rounded-xl border border-dashed bg-muted/40 p-16 text-center">
-          <p className="text-muted-foreground mb-4">No support tickets yet.</p>
-          <a href="/technical-support"><Button variant="outline"><AppIcon name="chat" size={16} />Create a ticket</Button></a>
-        </div>
+        <EmptyState
+          icon="chat"
+          title="No support tickets yet"
+          description="Need help with an order, payment, or your website? Create a ticket and our team will reply."
+          action={{ label: "Create a ticket", href: "/technical-support" }}
+        />
       ) : (
-        <div className="space-y-3">
-          {tickets.map(t => (
-            <div key={t.id} className="rounded-xl border bg-card p-5">
-              <div className="flex items-start justify-between gap-4">
-                <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap items-center gap-2 mb-1">
-                    <h3 className="font-semibold">{t.subject ?? "Ticket"}</h3>
-                    <Badge variant={STATUS_MAP[t.status] ?? "outline"}>{t.status}</Badge>
-                  </div>
-                  <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
-                    <Badge variant="secondary">{t.issue_type}</Badge>
-                    <Badge variant={t.priority === "urgent" ? "destructive" : t.priority === "high" ? "gold" : "outline"}>{t.priority}</Badge>
-                    <span>{formatDate(t.created_at)}</span>
-                  </div>
+        <div className="space-y-2">
+          {tickets.map((t) => (
+            <Link
+              key={t.id}
+              href={`/client/tickets/${t.id}`}
+              className="group flex flex-col gap-2 rounded-xl border bg-card p-4 transition-colors hover:border-primary/40 hover:bg-accent-hover sm:flex-row sm:items-center"
+            >
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <p className="truncate font-medium group-hover:text-primary">
+                    {t.subject ?? "Support ticket"}
+                  </p>
+                  <Badge variant={statusTone(t.status)}>{statusLabel(t.status)}</Badge>
                 </div>
+                <p className="mt-1 line-clamp-1 text-xs text-muted-foreground">{t.message}</p>
               </div>
-              <p className="mt-3 line-clamp-3 text-sm text-muted-foreground bg-muted/40 rounded-lg p-3">{t.message}</p>
-            </div>
+              <div className="flex shrink-0 items-center gap-3 text-xs text-muted-foreground">
+                <Badge variant="secondary" className="hidden sm:inline-flex">
+                  {t.issue_type}
+                </Badge>
+                <span className="whitespace-nowrap">{timeAgo(t.updated_at ?? t.created_at)}</span>
+                <AppIcon
+                  name="chevronRight"
+                  size={16}
+                  className="opacity-40 transition-transform group-hover:translate-x-0.5"
+                />
+              </div>
+            </Link>
           ))}
-          <a href="/technical-support"><Button variant="outline"><AppIcon name="plus" size={16} />New Ticket</Button></a>
         </div>
       )}
     </>
   );
 }
+

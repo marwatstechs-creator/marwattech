@@ -18,7 +18,16 @@ export type ApplicationStatus =
   | "interview"
   | "rejected"
   | "hired";
-export type MessageStatus = "new" | "read" | "replied" | "archived";
+export type MessageStatus =
+  | "new"
+  | "read"
+  | "replied"
+  | "archived"
+  | "open"
+  | "in_progress"
+  | "waiting_on_customer"
+  | "resolved"
+  | "closed";
 export type TicketPriority = "low" | "normal" | "high" | "urgent";
 export type PaymentStatus =
   | "pending"
@@ -831,6 +840,10 @@ export interface Database {
           status: MessageStatus;
           internal_notes: string | null;
           created_at: string;
+          updated_at: string;
+          closed_at: string | null;
+          assigned_to: string | null;
+          last_message_at: string | null;
         };
         Insert: {
           id?: string;
@@ -843,6 +856,10 @@ export interface Database {
           status?: MessageStatus;
           internal_notes?: string | null;
           created_at?: string;
+          updated_at?: string;
+          closed_at?: string | null;
+          assigned_to?: string | null;
+          last_message_at?: string | null;
         };
         Update: {
           id?: string;
@@ -854,6 +871,49 @@ export interface Database {
           message?: string;
           status?: MessageStatus;
           internal_notes?: string | null;
+          created_at?: string;
+          updated_at?: string;
+          closed_at?: string | null;
+          assigned_to?: string | null;
+          last_message_at?: string | null;
+        };
+        Relationships: [];
+      };
+      ticket_messages: {
+        Row: {
+          id: string;
+          ticket_id: string;
+          sender_type: string;
+          sender_id: string | null;
+          sender_name: string | null;
+          sender_email: string | null;
+          body: string;
+          attachments: Json;
+          internal: boolean;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          ticket_id: string;
+          sender_type: string;
+          sender_id?: string | null;
+          sender_name?: string | null;
+          sender_email?: string | null;
+          body: string;
+          attachments?: Json;
+          internal?: boolean;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          ticket_id?: string;
+          sender_type?: string;
+          sender_id?: string | null;
+          sender_name?: string | null;
+          sender_email?: string | null;
+          body?: string;
+          attachments?: Json;
+          internal?: boolean;
           created_at?: string;
         };
         Relationships: [];

@@ -37,6 +37,23 @@ export function formatDateTime(date: string | Date | null | undefined) {
   }).format(new Date(date));
 }
 
+/** Relative time e.g. "just now", "5m ago", "2h ago", "3d ago" (deterministic-ish).
+ * Falls back to formatDate for anything older than 30 days to avoid drift. */
+export function timeAgo(date: string | Date | null | undefined) {
+  if (!date) return "";
+  const then = new Date(date).getTime();
+  const now = Date.now();
+  const diff = Math.max(0, now - then);
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  const days = Math.floor(hrs / 24);
+  if (days < 30) return `${days}d ago`;
+  return formatDate(date);
+}
+
 /**
  * Format a duration from hours / minutes / seconds parts, e.g.
  * "1h 5m 30s", "5m", or "" when nothing is set. Omits zero leading units

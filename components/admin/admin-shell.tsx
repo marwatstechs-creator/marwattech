@@ -74,10 +74,11 @@ const NAV_GROUPS: NavGroup[] = [
     ],
   },
   {
-    label: "Messages",
-    icon: "message",
+    label: "Support",
+    icon: "chat",
     roles: ["super_admin", "editor", "support"],
     items: [
+      { label: "Tickets", href: "/admin/tickets", icon: "chat", roles: ["super_admin", "editor", "support"] },
       { label: "Messages", href: "/admin/messages", icon: "message", roles: ["super_admin", "editor", "support"] },
     ],
   },
@@ -135,7 +136,7 @@ const SIDEBAR_SECTIONS: Record<string, string> = {
   Overview: "General",
   CRM: "Manage",
   Content: "Content",
-  Messages: "Inbox",
+  Support: "Inbox",
   Payments: "Sales",
   Marketing: "Sales",
   Courses: "Learning",
