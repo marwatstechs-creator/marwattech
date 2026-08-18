@@ -5,7 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import { AppIcon } from "@/components/app-icon";
 import { Badge } from "@/components/ui/badge";
-import { codeScriptUrl, buildExcerpt, CODE_SCRIPTS_PAGE_SIZE } from "@/lib/code-scripts";
+import { codeScriptUrl, buildExcerpt, codeScriptCategoryLabel, CODE_SCRIPTS_PAGE_SIZE } from "@/lib/code-scripts";
 import { getMoreCodeScripts, type CodeScriptCard } from "@/lib/actions/public/code-scripts";
 
 function Card({ s }: { s: CodeScriptCard }) {
@@ -33,8 +33,8 @@ function Card({ s }: { s: CodeScriptCard }) {
         )}
         <div className="absolute left-3 top-3 flex gap-1.5">
           {s.category && (
-            <Badge variant="gold" className="text-[11px] capitalize">
-              {s.category.replace("-", " ")}
+            <Badge variant="gold" className="text-[11px]">
+              {codeScriptCategoryLabel(s.category)}
             </Badge>
           )}
         </div>

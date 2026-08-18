@@ -35,7 +35,7 @@ import {
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DeleteButton } from "@/components/admin/delete-button";
-import { CODE_SCRIPT_CATEGORIES, codeScriptUrl } from "@/lib/code-scripts";
+import { CODE_SCRIPT_CATEGORIES, codeScriptCategoryLabel, codeScriptUrl } from "@/lib/code-scripts";
 import {
   getCodeScripts,
   getCodeScriptSyncs,
@@ -359,12 +359,20 @@ function ScriptsTable({
                     )}
                   </TableCell>
                   <TableCell>
-                    <div className="min-w-0 max-w-[260px]">
-                      <a href={codeScriptUrl(r.slug)} target="_blank" rel="noreferrer" className="line-clamp-2 font-medium hover:underline">{r.title}</a>
-                      <p className="truncate text-xs text-muted-foreground">{r.slug}</p>
+                    <div className="min-w-0 max-w-[340px]">
+                      <a href={codeScriptUrl(r.slug)} target="_blank" rel="noreferrer" title={r.title} className="line-clamp-2 font-medium hover:underline">{r.title}</a>
+                      <p className="truncate text-xs text-muted-foreground" title={r.slug}>{r.slug}</p>
                     </div>
                   </TableCell>
-                  <TableCell><span className="capitalize">{r.category?.replace("-", " ") ?? "—"}</span></TableCell>
+                  <TableCell>
+                    {r.category ? (
+                      <Badge variant="secondary" className="whitespace-nowrap font-medium">
+                        {codeScriptCategoryLabel(r.category)}
+                      </Badge>
+                    ) : (
+                      <span className="text-muted-foreground">—</span>
+                    )}
+                  </TableCell>
                   <TableCell>{r.version ? <Badge variant="outline">v{r.version}</Badge> : "—"}</TableCell>
                   <TableCell><Badge variant={STATUS_STYLE[r.status] ?? "outline"} className="capitalize">{r.status}</Badge></TableCell>
                   <TableCell className="whitespace-nowrap text-xs text-muted-foreground">{formatDateTime(r.updated_at)}</TableCell>

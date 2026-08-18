@@ -9,6 +9,7 @@ import {
   codeScriptUrl,
   stripSourceLinks,
   classifyCodeScriptCategory,
+  codeScriptCategoryLabel,
 } from "./code-scripts";
 
 describe("parseSitemapUrls", () => {
@@ -62,6 +63,16 @@ describe("stripSourceLinks", () => {
   it("leaves unrelated links untouched", () => {
     const html = `<a href="https://example.com/dl">ok</a>`;
     expect(stripSourceLinks(html)).toBe(html);
+  });
+});
+
+describe("codeScriptCategoryLabel", () => {
+  it("maps slugs to friendly labels with a pretty fallback", () => {
+    expect(codeScriptCategoryLabel("wordpress-plugins")).toBe("WordPress Plugins");
+    expect(codeScriptCategoryLabel("saas-apps")).toBe("SaaS & Web Apps");
+    expect(codeScriptCategoryLabel("android-apps")).toBe("Android & Mobile Apps");
+    expect(codeScriptCategoryLabel("custom-thing")).toBe("Custom Thing");
+    expect(codeScriptCategoryLabel(null)).toBe("—");
   });
 });
 

@@ -23,6 +23,7 @@ export default async function AdminDashboardPage() {
     projects: 0,
     unread: 0,
     clients: 0,
+    codeScripts: 0,
     payments: 0,
     paymentsCollected: 0,
   };
@@ -44,7 +45,7 @@ export default async function AdminDashboardPage() {
 
   try {
     const db = await createClient();
-    const [services, posts, projects, contact, support, mockup, msg, postRows, paymentRows, payCount] =
+    const [services, posts, projects, contact, support, mockup, codeScripts, msg, postRows, paymentRows, payCount] =
       await Promise.all([
         db.from("services").select("id", { count: "exact", head: true }),
         db.from("blog_posts").select("id", { count: "exact", head: true }),
@@ -52,6 +53,7 @@ export default async function AdminDashboardPage() {
         db.from("contact_messages").select("id", { count: "exact", head: true }).eq("status", "new"),
         db.from("support_tickets").select("id", { count: "exact", head: true }).eq("status", "new"),
         db.from("mockup_requests").select("id", { count: "exact", head: true }).eq("status", "new"),
+        db.from("code_scripts").select("id", { count: "exact", head: true }).eq("status", "published"),
         db
           .from("contact_messages")
           .select("id, name, email, subject, created_at")
@@ -75,6 +77,7 @@ export default async function AdminDashboardPage() {
     stats.clients = 0;
     stats.unread =
       (contact.count ?? 0) + (support.count ?? 0) + (mockup.count ?? 0);
+    stats.codeScripts = codeScripts.count ?? 0;
     recentMessages = msg.data ?? [];
     recentPosts = postRows.data ?? [];
     stats.payments = payCount.count ?? 0;
@@ -96,10 +99,11 @@ export default async function AdminDashboardPage() {
         description="Here’s what’s happening across your site today."
       />
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
         <StatCard icon="code" label="Services" value={stats.services} />
         <StatCard icon="file" label="Blog posts" value={stats.posts} />
         <StatCard icon="layers" label="Portfolio items" value={stats.projects} />
+        <StatCard icon="box" label="Code scripts" value={stats.codeScripts} />
         <StatCard
           icon="message"
           label="Unread messages"

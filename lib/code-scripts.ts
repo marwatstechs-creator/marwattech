@@ -119,6 +119,16 @@ export const CODE_SCRIPTS_PATH = "/code-scripts";
 export const CODE_SCRIPTS_PAGE_SIZE = 24;
 export const codeScriptUrl = (slug: string) => `${CODE_SCRIPTS_PATH}/${slug}`;
 
+/** Human-readable category label from a category slug (falls back to a pretty title). */
+export function codeScriptCategoryLabel(slug?: string | null): string {
+  if (!slug) return "—";
+  const c = CODE_SCRIPT_CATEGORIES.find((x) => x.slug === slug);
+  if (c) return c.label;
+  return slug
+    .replace(/-/g, " ")
+    .replace(/\b\w/g, (m) => m.toUpperCase());
+}
+
 /** Source site we never want to backlink to (kept out of links/content). */
 export const CODE_SCRIPTS_SOURCE_HOST = "nullphpscript.com";
 

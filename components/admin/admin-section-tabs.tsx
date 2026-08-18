@@ -42,8 +42,8 @@ export function AdminSectionTabs({ groupLabel, groupIcon, items }: SectionTabsPr
           <h2 className="font-display text-lg font-bold tracking-tight">{groupLabel}</h2>
         </div>
 
-        {/* Tab pills */}
-        <div className="no-scrollbar flex items-center gap-1.5 overflow-x-auto pb-3">
+        {/* Tab pills — wrap so every tab stays visible (no hidden overflow) */}
+        <div className="flex flex-wrap items-center gap-1.5 pb-3">
           {items.map((item) => {
             const active =
               item.href === "/admin"
