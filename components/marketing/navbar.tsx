@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "next-themes";
 import { Logo } from "@/components/marketing/logo";
 import { AppIcon } from "@/components/app-icon";
+import { ConstellationBackground } from "@/components/marketing/constellation-background";
 import { cn } from "@/lib/utils";
 import { trackEvent } from "@/lib/analytics";
 import { createClient } from "@/lib/supabase/client";
@@ -233,24 +234,27 @@ export function Navbar() {
                   className={cn("pointer-events-none absolute left-0 top-full z-50 pt-2 transition-all duration-200", megaOpen ? "pointer-events-auto visible translate-y-0 opacity-100" : "invisible translate-y-1 opacity-0")}>
                   <div className="card-3d glass-strong flex w-[560px] lg:w-[900px] max-w-[calc(100vw-2rem)] items-stretch gap-2.5 rounded-4xl border p-3 shadow-lg">
                     {/* Featured card - hidden on small screens */}
-                    <div className="card-3d hidden lg:flex flex-col rounded-2xl bg-accent/30 w-[250px] shrink-0 p-5">
-                      <span className="self-start rounded-full bg-primary px-3 py-1 text-[11px] font-semibold uppercase text-primary-foreground">{MEGA_MENU.featured.badge}</span>
-                      <span className="mt-3 flex items-center gap-2 text-lg font-bold tracking-tight text-foreground">
-                        <span className="text-primary">{MEGA_MENU.featured.icon}</span>
-                        {MEGA_MENU.featured.title}
-                      </span>
-                      <p className="mt-1.5 text-sm text-muted-foreground mb-6">{MEGA_MENU.featured.desc}</p>
-                      <Link href={MEGA_MENU.featured.href} onClick={() => setMegaOpen(false)} className="group mt-auto inline-flex items-center justify-between whitespace-nowrap rounded-full btn-3d pb-1.5 pl-5 pr-1.5 pt-1.5 text-sm font-medium">
-                        {MEGA_MENU.featured.cta}
-                        <span className="relative flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary-foreground/15">
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="transition-transform duration-300 ease-out group-hover:translate-x-[220%]">
-                            <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
-                          </svg>
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="absolute inset-0 m-auto -translate-x-[220%] transition-transform duration-300 ease-out group-hover:translate-x-0">
-                            <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
-                          </svg>
+                    <div className="card-3d relative hidden overflow-hidden lg:flex flex-col rounded-2xl bg-accent/30 w-[250px] shrink-0 p-5">
+                      <ConstellationBackground className="text-primary" />
+                      <div className="relative z-10 flex flex-1 flex-col">
+                        <span className="self-start rounded-full bg-primary px-3 py-1 text-[11px] font-semibold uppercase text-primary-foreground">{MEGA_MENU.featured.badge}</span>
+                        <span className="mt-3 flex items-center gap-2 text-lg font-bold tracking-tight text-foreground">
+                          <span className="text-primary">{MEGA_MENU.featured.icon}</span>
+                          {MEGA_MENU.featured.title}
                         </span>
-                      </Link>
+                        <p className="mt-1.5 text-sm text-muted-foreground mb-6">{MEGA_MENU.featured.desc}</p>
+                        <Link href={MEGA_MENU.featured.href} onClick={() => setMegaOpen(false)} className="group mt-auto inline-flex items-center justify-between whitespace-nowrap rounded-full btn-3d pb-1.5 pl-5 pr-1.5 pt-1.5 text-sm font-medium">
+                          {MEGA_MENU.featured.cta}
+                          <span className="relative flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary-foreground/15">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="transition-transform duration-300 ease-out group-hover:translate-x-[220%]">
+                              <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
+                            </svg>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="absolute inset-0 m-auto -translate-x-[220%] transition-transform duration-300 ease-out group-hover:translate-x-0">
+                              <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
+                            </svg>
+                          </span>
+                        </Link>
+                      </div>
                     </div>
 
                     {/* Menu columns */}
@@ -301,24 +305,27 @@ export function Navbar() {
                   onMouseLeave={() => { codeCloseTimer.current = setTimeout(() => setCodeOpen(false), 200); }}
                   className={cn("pointer-events-none absolute left-0 top-full z-50 pt-2 transition-all duration-200", codeOpen ? "pointer-events-auto visible translate-y-0 opacity-100" : "invisible translate-y-1 opacity-0")}>
                   <div className="card-3d glass-strong flex w-[720px] max-w-[calc(100vw-2rem)] items-stretch gap-2.5 rounded-4xl border p-3 shadow-lg">
-                    <div className="card-3d hidden lg:flex flex-col rounded-2xl bg-accent/30 w-[240px] shrink-0 p-5">
-                      <span className="self-start rounded-full bg-[#f8c640] px-3 py-1 text-[11px] font-semibold uppercase text-black">Free downloads</span>
-                      <span className="mt-3 flex items-center gap-2 text-lg font-bold tracking-tight text-foreground">
-                        <span className="text-primary"><AppIcon name="code" size={20} /></span>
-                        Browse Code Scripts
-                      </span>
-                      <p className="mt-1.5 text-sm text-muted-foreground mb-6">Ready-made PHP scripts, WP plugins &amp; themes, SaaS code — with free downloads.</p>
-                      <Link href="/code-scripts" onClick={() => setCodeOpen(false)} className="group mt-auto inline-flex items-center justify-between whitespace-nowrap rounded-full btn-3d pb-1.5 pl-5 pr-1.5 pt-1.5 text-sm font-medium">
-                        All scripts
-                        <span className="relative flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary-foreground/15">
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="transition-transform duration-300 ease-out group-hover:translate-x-[220%]">
-                            <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
-                          </svg>
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="absolute inset-0 m-auto -translate-x-[220%] transition-transform duration-300 ease-out group-hover:translate-x-0">
-                            <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
-                          </svg>
+                    <div className="card-3d relative hidden overflow-hidden lg:flex flex-col rounded-2xl bg-accent/30 w-[240px] shrink-0 p-5">
+                      <ConstellationBackground className="text-primary" />
+                      <div className="relative z-10 flex flex-1 flex-col">
+                        <span className="self-start rounded-full bg-[#f8c640] px-3 py-1 text-[11px] font-semibold uppercase text-black">Free downloads</span>
+                        <span className="mt-3 flex items-center gap-2 text-lg font-bold tracking-tight text-foreground">
+                          <span className="text-primary"><AppIcon name="code" size={20} /></span>
+                          Browse Code Scripts
                         </span>
-                      </Link>
+                        <p className="mt-1.5 text-sm text-muted-foreground mb-6">Ready-made PHP scripts, WP plugins &amp; themes, SaaS code — with free downloads.</p>
+                        <Link href="/code-scripts" onClick={() => setCodeOpen(false)} className="group mt-auto inline-flex items-center justify-between whitespace-nowrap rounded-full btn-3d pb-1.5 pl-5 pr-1.5 pt-1.5 text-sm font-medium">
+                          All scripts
+                          <span className="relative flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary-foreground/15">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="transition-transform duration-300 ease-out group-hover:translate-x-[220%]">
+                              <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
+                            </svg>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="absolute inset-0 m-auto -translate-x-[220%] transition-transform duration-300 ease-out group-hover:translate-x-0">
+                              <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
+                            </svg>
+                          </span>
+                        </Link>
+                      </div>
                     </div>
 
                     <div className="grid flex-1 grid-cols-2">
