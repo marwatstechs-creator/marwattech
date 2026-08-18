@@ -81,6 +81,33 @@ function mapCategory(raw) {
   return slugify(t) || "tools";
 }
 
+/* Robust category classifier — mirrors lib/code-scripts.ts classifyCodeScriptCategory.
+ * Title-first: the title is authoritative; body content only breaks ties when
+ * the title gives no signal (so SEO body text repeating "Laravel" etc. can't skew it). */
+function classifyFromText(t) {
+  if (/wordpress theme|wp theme|woocommerce theme|elementor theme|divi theme|generatepress/i.test(t)) return "wordpress-themes";
+  if (/wordpress plugin|wp plugin|woocommerce plugin|elementor plugin|page builder|forms builder|seo plugin|security plugin|backup plugin|cache plugin|membership plugin|automation plugin|slider plugin|booking plugin|affiliate plugin/i.test(t)) return "wordpress-plugins";
+  if (/\bplugin\b/i.test(t) && /wordpress|woocommerce|elementor|\bwp\b|yoast|rank math|divi|woo/i.test(t)) return "wordpress-plugins";
+  if (/\blaravel\b/i.test(t)) return "laravel";
+  if (/android app|flutter app|react native|kotlin app|ios app source|mobile app source|\bapk\b|android (game|source|app)/i.test(t)) return "android-apps";
+  if (/shopify|prestashop|magento|opencart|multivendor|multi-vendor|marketplace|ecommerce|e-commerce|shopping cart|online store|digital downloads|b2b|wholesale marketplace/i.test(t)) return "ecommerce";
+  if (/\bwoocommerce\b/i.test(t)) return "ecommerce";
+  if (/\bsaas\b|web app|webapp|platform|crm\b|erp\b|management system|project management|task management|hospital|clinic|booking|reservation|point of sale|\bpos\b|pos system|help desk|ticketing|chatbot|live chat|video call|conference|webinar|meeting|delivery|fitness|gym|restaurant|school|hotel|real estate|taxi|ride.?sharing|logistics|accounting|invoicing|inventory/i.test(t)) return "saas-apps";
+  if (/javascript|react\b|next\.?js|node\.?js|vue\b|angular|typescript|socket\.?io/i.test(t)) return "javascript";
+  if (/html|bootstrap|themeforest|landing page|coming soon|template|admin dashboard|portfolio template|web template/i.test(t)) return "html-templates";
+  if (/php|codeigniter|symfony|\byii\b|\bcms\b|nulled script/i.test(t)) return "php-scripts";
+  if (/wordpress|elementor|woo|yoast|rank math|divi/i.test(t)) return "wordpress-plugins";
+  if (/\btheme\b/i.test(t)) return "html-templates";
+  return "tools";
+}
+
+function classifyCategory({ title, category, content }) {
+  const titleOnly = classifyFromText((title || "").toLowerCase());
+  if (titleOnly !== "tools") return titleOnly;
+  const combined = [title, category, content].filter(Boolean).join(" ").toLowerCase();
+  return classifyFromText(combined);
+}
+
 /* No backlinks to the source site: nullphpscript.com links are never kept. */
 const SOURCE_HOST = "nullphpscript.com";
 
@@ -379,8 +406,51 @@ async function refreshExistingDownloadLinks() {
   console.log(`Refresh done: updated=${updated} failed=${failed}`);
 }
 
+/* ── Re-classify every existing row (RECATEGORIZE=1) ────────────────── */
+async function reCategorizeAll() {
+  const PAGE = 500;
+  let offset = 0;
+  let updated = 0;
+  let failed = 0;
+  for (;;) {
+    const { data, error } = await db
+      .from("code_scripts")
+      .select("id, title, category, content")
+      .range(offset, offset + PAGE - 1);
+    const rows = data ?? [];
+    if (error) {
+      console.error("query error:", error.message);
+      break;
+    }
+    for (const row of rows) {
+      try {
+        const cat = classifyCategory({
+          title: row.title,
+          category: row.category,
+          content: row.content,
+        });
+        if (cat && cat !== row.category) {
+          const { error: ue } = await db
+            .from("code_scripts")
+            .update({ category: cat, updated_at: new Date().toISOString() })
+            .eq("id", row.id);
+          if (ue) throw new Error(ue.message);
+          updated++;
+        }
+      } catch (e) {
+        failed++;
+        console.error(`✗ ${row.id}: ${e.message}`);
+      }
+    }
+    if (rows.length < PAGE) break;
+    offset += PAGE;
+  }
+  console.log(`Re-categorize done: updated=${updated} failed=${failed}`);
+}
+
 /* ── Main ────────────────────────────────────────────────────────────── */
 async function main() {
+  if (env.RECATEGORIZE === "1") return reCategorizeAll();
   if (env.REFRESH === "1") return refreshExistingDownloadLinks();
 
   const { data: pending } = await db
@@ -450,7 +520,7 @@ async function main() {
         source_url: url,
         title: ai.title || item.title,
         slug,
-        category: item.categorySlug,
+        category: classifyCategory({ title: ai.title || item.title, category: item.category, content }),
         version: item.version,
         content,
         excerpt: ai.excerpt || buildExcerpt(content),

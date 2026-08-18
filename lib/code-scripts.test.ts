@@ -8,6 +8,7 @@ import {
   buildFaqJsonLd,
   codeScriptUrl,
   stripSourceLinks,
+  classifyCodeScriptCategory,
 } from "./code-scripts";
 
 describe("parseSitemapUrls", () => {
@@ -61,6 +62,47 @@ describe("stripSourceLinks", () => {
   it("leaves unrelated links untouched", () => {
     const html = `<a href="https://example.com/dl">ok</a>`;
     expect(stripSourceLinks(html)).toBe(html);
+  });
+});
+
+describe("classifyCodeScriptCategory", () => {
+  const cases: [string, string][] = [
+    ["WP Cerber Security Pro - WordPress Plugin", "wordpress-plugins"],
+    ["WP Rocket Cache Plugin", "wordpress-plugins"],
+    ["Whols Pro - WooCommerce Wholesale Plugin", "wordpress-plugins"],
+    ["Automatic.css - CSS Framework for WordPress Page Builders Plugin", "wordpress-plugins"],
+    ["Forstron - Legal Business WordPress Theme", "wordpress-themes"],
+    ["Infinia - Business Consulting Startup Laravel Script", "laravel"],
+    ["Chat Manager - Codeigniter Node.js Live Chat Script", "saas-apps"],
+    ["Hospital AutoManager - Hospital Management System", "saas-apps"],
+    ["Taskify - Project Management Software", "saas-apps"],
+    ["OvoRide - Ride Sharing Solution App", "saas-apps"],
+    ["Multivendor Marketplace PHP Script", "ecommerce"],
+    ["Shopify App Development", "ecommerce"],
+    ["Pharmez - Online Pharmacy HTML Template", "html-templates"],
+    ["MOON - Coming Soon Template", "html-templates"],
+    ["Avers - Corporate Business HTML Template", "html-templates"],
+    ["Android App Source - Flutter E-commerce", "android-apps"],
+    ["DataLife Engine (DLE) Nulled PHP Script", "php-scripts"],
+    ["Node.js REST API Boilerplate", "javascript"],
+    ["Generic utility snippet", "tools"],
+  ];
+  it("ignores body-content keyword noise when the title has a signal", () => {
+    expect(
+      classifyCodeScriptCategory({
+        title: "Invoice Management System",
+        content: "Built with Laravel, powered by PHP, a full SaaS platform...",
+      })
+    ).toBe("saas-apps");
+    expect(
+      classifyCodeScriptCategory({
+        title: "Responsive Landing Page",
+        content: "Uses Bootstrap 5, HTML5, PHP backend, Laravel...",
+      })
+    ).toBe("html-templates");
+  });
+  it.each(cases)("classifies %s → %s", (title, expected) => {
+    expect(classifyCodeScriptCategory({ title })).toBe(expected);
   });
 });
 

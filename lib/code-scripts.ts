@@ -39,8 +39,79 @@ export const CODE_SCRIPT_CATEGORIES: {
   { slug: "laravel", label: "Laravel", icon: "database", desc: "Laravel packages & boilerplates" },
   { slug: "javascript", label: "JavaScript & React", icon: "ai", desc: "JS, React & Next.js code" },
   { slug: "ecommerce", label: "E-Commerce", icon: "ecommerce", desc: "Stores, carts & marketplaces" },
+  { slug: "html-templates", label: "HTML Templates", icon: "grid", desc: "HTML/CSS/Bootstrap themes & landing pages" },
+  { slug: "android-apps", label: "Android & Mobile Apps", icon: "mobile", desc: "Android, Flutter & mobile app source code" },
   { slug: "tools", label: "Tools & Utilities", icon: "settings", desc: "Dev tools & snippets" },
 ];
+
+/**
+ * Classify a scraped script into one of the site's category slugs using
+ * keywords from its title, source category and body content.
+ * Priority order matters — most specific signals win first.
+ */
+function classifyFromText(t: string): string {
+  // WordPress themes (before generic "theme")
+  if (/wordpress theme|wp theme|woocommerce theme|elementor theme|divi theme|generatepress/i.test(t))
+    return "wordpress-themes";
+  // WordPress plugins — most specific first
+  if (
+    /wordpress plugin|wp plugin|woocommerce plugin|elementor plugin|page builder|forms builder|seo plugin|security plugin|backup plugin|cache plugin|membership plugin|automation plugin|slider plugin|booking plugin|affiliate plugin|woocommerce (addon|extension)/i.test(t)
+  )
+    return "wordpress-plugins";
+  // Any plugin in a WP/woo context
+  if (/\bplugin\b/i.test(t) && /wordpress|woocommerce|elementor|\bwp\b|yoast|rank math|divi|woo/i.test(t))
+    return "wordpress-plugins";
+  // Laravel
+  if (/\blaravel\b/i.test(t)) return "laravel";
+  // Android / mobile app source code
+  if (/android app|flutter app|react native|kotlin app|ios app source|mobile app source|\bapk\b|android (game|source|app)/i.test(t))
+    return "android-apps";
+  // E-commerce platforms & stores
+  if (/shopify|prestashop|magento|opencart|multivendor|multi-vendor|marketplace|ecommerce|e-commerce|shopping cart|online store|digital downloads|b2b|wholesale marketplace/i.test(t))
+    return "ecommerce";
+  // WooCommerce standalone
+  if (/\bwoocommerce\b/i.test(t)) return "ecommerce";
+  // SaaS / web apps / platforms / management systems
+  if (
+    /\bsaas\b|web app|webapp|platform|crm\b|erp\b|management system|project management|task management|hospital|clinic|booking|reservation|point of sale|\bpos\b|pos system|help desk|ticketing|chatbot|live chat|video call|conference|webinar|meeting|delivery|fitness|gym|restaurant|school|hotel|real estate|taxi|ride.?sharing|logistics|accounting|invoicing|inventory/i.test(t)
+  )
+    return "saas-apps";
+  // JavaScript ecosystem
+  if (/javascript|react\b|next\.?js|node\.?js|vue\b|angular|typescript|socket\.?io/i.test(t))
+    return "javascript";
+  // HTML / CSS / design templates
+  if (/html|bootstrap|themeforest|landing page|coming soon|template|admin dashboard|portfolio template|web template/i.test(t))
+    return "html-templates";
+  // PHP / CMS / scripts
+  if (/php|codeigniter|symfony|\byii\b|\bcms\b|nulled script/i.test(t)) return "php-scripts";
+  // WordPress general (unclassified)
+  if (/wordpress|elementor|woo|yoast|rank math|divi/i.test(t)) return "wordpress-plugins";
+  // Generic theme → HTML templates
+  if (/\btheme\b/i.test(t)) return "html-templates";
+  // Fallback
+  return "tools";
+}
+
+/**
+ * Classify a scraped script into one of the site's category slugs.
+ * The title is the authoritative signal (least noise); category + body
+ * content are only consulted when the title gives no signal, so SEO-rewritten
+ * body text (which repeats generic keywords like "Laravel") can't skew it.
+ */
+export function classifyCodeScriptCategory(input: {
+  title?: string | null;
+  category?: string | null;
+  content?: string | null;
+}): string {
+  const title = (input.title ?? "").toLowerCase();
+  const t = classifyFromText(title);
+  if (t !== "tools") return t;
+  const combined = [title, input.category, input.content]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+  return classifyFromText(combined);
+}
 
 export const CODE_SCRIPTS_PATH = "/code-scripts";
 export const CODE_SCRIPTS_PAGE_SIZE = 24;
