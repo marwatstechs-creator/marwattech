@@ -61,7 +61,7 @@ export function CodeScriptsFilter({
   };
 
   return (
-    <div className="sticky top-[60px] z-30 -mx-4 border-y bg-background/90 px-4 py-3 backdrop-blur-md sm:top-[70px] sm:mx-0 sm:px-0">
+    <div className="sticky top-[60px] z-30 -mx-4 mb-8 border-y bg-background/90 px-4 py-3 backdrop-blur-md sm:top-[70px] sm:mx-0 sm:px-0">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div className="flex flex-nowrap gap-2 overflow-x-auto pb-1 md:flex-wrap md:overflow-visible md:pb-0 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           <Pill href={withQuery({ q })} active={!activeCategory}>

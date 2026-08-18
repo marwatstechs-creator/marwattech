@@ -75,20 +75,21 @@ export default async function CodeScriptsPage({
       <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <AdSlot area="code-scripts-top" className="mb-8 rounded-2xl border bg-card/60 py-4" />
 
-        {/* Sticky category filter + search (blog-style) */}
-        <div className="mb-8 -mx-4 sm:mx-0">
-          <CodeScriptsFilter activeCategory={category} q={q} />
-        </div>
+        {/* Sticky category filter + search (blog-style) — direct child of the
+            tall section so it can stick while the grid scrolls below it. */}
+        <CodeScriptsFilter activeCategory={category} q={q} />
 
         {scripts.length === 0 ? (
-          <div className="rounded-xl border border-dashed bg-muted/40 p-16 text-center">
+          <div className="mt-8 rounded-xl border border-dashed bg-muted/40 p-16 text-center">
             <AppIcon name="box" size={32} className="mx-auto mb-3 text-muted-foreground" />
             <p className="text-muted-foreground">
               {q ? "No scripts match your search — try another keyword." : "No scripts here yet — check back soon."}
             </p>
           </div>
         ) : (
-          <CodeScriptsGrid initial={scripts} category={category} q={q} />
+          <div className="mt-8">
+            <CodeScriptsGrid initial={scripts} category={category} q={q} />
+          </div>
         )}
 
         <AdSlot area="code-scripts-between" className="mt-10 rounded-2xl border bg-card/60 py-4" />
