@@ -1,7 +1,10 @@
 "use client";
 
+import { motion } from "framer-motion";
+
 import { AppIcon } from "@/components/app-icon";
 import { cn } from "@/lib/utils";
+import { fadeUp, rise, staggerContainer } from "./pricing-anim";
 
 const ROWS: {
   label: string;
@@ -59,7 +62,7 @@ function Check({ good }: { good: boolean }) {
   return (
     <span
       className={cn(
-        "grid size-5 shrink-0 place-items-center rounded-full",
+        "grid size-5 shrink-0 place-items-center rounded-full transition-all duration-300",
         good ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400" : "bg-muted text-muted-foreground"
       )}
     >
@@ -71,18 +74,33 @@ function Check({ good }: { good: boolean }) {
 export function PricingComparison() {
   return (
     <section className="mx-auto max-w-7xl px-4 pb-16 sm:px-6 lg:px-8">
-      <div className="mb-10 flex flex-col items-center gap-4 text-center">
-        <span className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.12em] text-primary">
+      <motion.div
+        variants={staggerContainer(0.12)}
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, margin: "-60px" }}
+        className="mb-10 flex flex-col items-center gap-4 text-center"
+      >
+        <motion.span
+          variants={fadeUp()}
+          className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.12em] text-primary"
+        >
           <span className="size-2 rounded-[2px] bg-primary" />
           The Comparison
-        </span>
-        <h2 className="font-display max-w-xl text-3xl font-bold sm:text-4xl">
+        </motion.span>
+        <motion.h2 variants={fadeUp(0.05)} className="font-display max-w-xl text-3xl font-bold sm:text-4xl">
           The true cost. <span className="text-primary">Compared.</span>
-        </h2>
-      </div>
+        </motion.h2>
+      </motion.div>
 
       {/* Desktop table */}
-      <div className="hidden overflow-hidden rounded-2xl border bg-card lg:block">
+      <motion.div
+        initial={{ opacity: 0, y: 28 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-60px" }}
+        transition={{ duration: 0.7 }}
+        className="hidden overflow-hidden rounded-2xl border bg-card lg:block"
+      >
         <table className="w-full border-collapse text-sm">
           <thead>
             <tr className="border-b">
@@ -97,7 +115,7 @@ export function PricingComparison() {
           </thead>
           <tbody>
             {ROWS.map((row) => (
-              <tr key={row.label} className="border-b last:border-0">
+              <tr key={row.label} className="group border-b last:border-0 transition-colors hover:bg-accent-hover">
                 <th className="p-5 text-left font-semibold">{row.label}</th>
                 <td className="bg-primary/5 p-5 font-medium text-foreground">
                   <span className="flex items-center gap-2">
@@ -117,15 +135,24 @@ export function PricingComparison() {
             ))}
           </tbody>
         </table>
-      </div>
+      </motion.div>
 
       {/* Mobile stacked comparison */}
-      <div className="space-y-3 lg:hidden">
-        <div className="flex items-center gap-2 rounded-xl border border-primary/40 bg-primary/5 px-4 py-3 text-sm font-semibold text-primary">
+      <motion.div
+        variants={staggerContainer(0.08)}
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, margin: "-40px" }}
+        className="space-y-3 lg:hidden"
+      >
+        <motion.div
+          variants={rise()}
+          className="flex items-center gap-2 rounded-xl border border-primary/40 bg-primary/5 px-4 py-3 text-sm font-semibold text-primary"
+        >
           <AppIcon name="check" size={16} /> Marwat Tech
-        </div>
+        </motion.div>
         {ROWS.map((row) => (
-          <div key={row.label} className="overflow-hidden rounded-xl border bg-card">
+          <motion.div key={row.label} variants={rise()} className="overflow-hidden rounded-xl border bg-card">
             <div className="border-b px-4 py-2.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               {row.label}
             </div>
@@ -142,9 +169,9 @@ export function PricingComparison() {
                 </span>
               </div>
             ))}
-          </div>
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
     </section>
   );
 }

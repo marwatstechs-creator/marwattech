@@ -1,7 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { animate, motion } from "framer-motion";
 
+import { AppIcon } from "@/components/app-icon";
 import { cn } from "@/lib/utils";
 import {
   COMPETITORS,
@@ -14,6 +16,7 @@ import {
   type CompetitorId,
   type DevTierId,
 } from "@/lib/pricing";
+import { EASE, fadeUp, rise, staggerContainer } from "./pricing-anim";
 
 function Slider({
   label,
@@ -35,7 +38,15 @@ function Slider({
       <div className="flex items-end justify-between">
         <span className="text-sm font-medium text-foreground/80">{label}</span>
         <span className="flex items-baseline gap-1">
-          <span className="font-display text-3xl font-bold">{value}</span>
+          <motion.span
+            key={value}
+            initial={{ y: 8, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.3, ease: EASE }}
+            className="font-display text-3xl font-bold"
+          >
+            {value}
+          </motion.span>
           <span className="text-sm text-muted-foreground">{unit}</span>
         </span>
       </div>
@@ -52,6 +63,24 @@ function Slider({
   );
 }
 
+/** Re-animates from the previous value whenever the target changes. */
+function AnimatedNumber({ value, format }: { value: number; format: (n: number) => string }) {
+  const [display, setDisplay] = useState(value);
+  const prev = useRef(value);
+
+  useEffect(() => {
+    const controls = animate(prev.current, value, {
+      duration: 0.6,
+      ease: "easeOut",
+      onUpdate: (v) => setDisplay(v),
+    });
+    prev.current = value;
+    return () => controls.stop();
+  }, [value]);
+
+  return <span className="tabular-nums">{format(display)}</span>;
+}
+
 export function PricingCalculator() {
   const [hours, setHours] = useState(40);
   const [months, setMonths] = useState(6);
@@ -61,7 +90,7 @@ export function PricingCalculator() {
   const tier = DEV_TIERS.find((t) => t.id === tierId)!;
   const competitor = COMPETITORS[compId];
 
-  const { marwatMonthly, marwatTotal, compTotal, savings, pct } = useMemo(() => {
+  const { marwatMonthly, marwatTotal, compTotal, savings, pct, devs } = useMemo(() => {
     const mm = monthlyCost(tier, hours);
     const mt = mm * months;
     const ct = competitor.monthly * months;
@@ -72,6 +101,7 @@ export function PricingCalculator() {
       compTotal: ct,
       savings: save,
       pct: ct > 0 ? Math.round((save / ct) * 100) : 0,
+      devs: mm > 0 ? competitor.monthly / mm : 0,
     };
   }, [tier, competitor, hours, months]);
 
@@ -79,20 +109,35 @@ export function PricingCalculator() {
 
   return (
     <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-      <div className="mb-10 flex flex-col items-center gap-4 text-center">
-        <span className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.12em] text-primary">
+      <motion.div
+        variants={staggerContainer(0.12)}
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, margin: "-60px" }}
+        className="mb-10 flex flex-col items-center gap-4 text-center"
+      >
+        <motion.span
+          variants={fadeUp()}
+          className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.12em] text-primary"
+        >
           <span className="size-2 rounded-[2px] bg-primary" />
           Calculate Your Savings
-        </span>
-        <h2 className="font-display text-3xl font-bold sm:text-4xl">
+        </motion.span>
+        <motion.h2 variants={fadeUp(0.05)} className="font-display text-3xl font-bold sm:text-4xl">
           Don&apos;t overpay <span className="text-muted-foreground">for the logo.</span>
-        </h2>
-        <p className="max-w-xl text-sm text-muted-foreground sm:text-base">
+        </motion.h2>
+        <motion.p variants={fadeUp(0.1)} className="max-w-xl text-sm text-muted-foreground sm:text-base">
           Pay for the talent, not the brand tax. Move the sliders and see the difference.
-        </p>
-      </div>
+        </motion.p>
+      </motion.div>
 
-      <div className="overflow-hidden rounded-3xl border bg-card lg:flex">
+      <motion.div
+        initial={{ opacity: 0, y: 28 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-60px" }}
+        transition={{ duration: 0.7, ease: EASE }}
+        className="overflow-hidden rounded-3xl border bg-card lg:flex"
+      >
         {/* Controls */}
         <div className="flex flex-1 flex-col gap-8 p-8 sm:p-10">
           <h3 className="font-display text-xl font-bold">Configure your engagement</h3>
@@ -109,9 +154,9 @@ export function PricingCalculator() {
                   aria-pressed={tierId === t.id}
                   onClick={() => setTierId(t.id)}
                   className={cn(
-                    "flex flex-col items-center gap-1 rounded-xl px-2 py-3 text-sm transition-colors",
+                    "flex flex-col items-center gap-1 rounded-xl px-2 py-3 text-sm transition-all duration-300",
                     tierId === t.id
-                      ? "bg-primary text-primary-foreground"
+                      ? "scale-[1.03] bg-primary text-primary-foreground shadow-lg shadow-primary/25"
                       : "border bg-background text-foreground hover:bg-accent-hover"
                   )}
                 >
@@ -134,9 +179,9 @@ export function PricingCalculator() {
                   aria-pressed={compId === id}
                   onClick={() => setCompId(id)}
                   className={cn(
-                    "rounded-lg px-4 py-2 text-sm font-medium transition-colors",
+                    "rounded-lg px-4 py-2 text-sm font-medium transition-all duration-300",
                     compId === id
-                      ? "bg-primary text-primary-foreground"
+                      ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
                       : "border bg-background text-muted-foreground hover:bg-accent-hover"
                   )}
                 >
@@ -148,7 +193,7 @@ export function PricingCalculator() {
         </div>
 
         {/* Result panel */}
-        <div className="relative flex flex-1 flex-col gap-6 overflow-hidden bg-foreground p-8 text-background sm:p-10 lg:flex-[1.2]">
+        <div className="relative flex flex-1 flex-col gap-6 overflow-hidden bg-foreground p-8 text-background sm:p-10 lg:flex-[1.25]">
           <div
             aria-hidden
             className="pointer-events-none absolute -right-10 top-0 h-72 w-full opacity-25"
@@ -156,11 +201,13 @@ export function PricingCalculator() {
           />
           <div className="relative z-10 flex flex-col gap-5">
             <span className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-              Your total cost
+              Your total savings
             </span>
             <div className="flex flex-col gap-2">
               <p className="font-display text-6xl font-bold">
-                <span className="text-emerald-400">{money(marwatTotal)}</span>
+                <span className="text-emerald-400">
+                  <AnimatedNumber value={savings} format={(n) => money(n)} />
+                </span>
               </p>
               <p className="text-sm text-foreground/70">
                 <span className="font-semibold text-emerald-400">{pct}% less</span> than{" "}
@@ -169,26 +216,35 @@ export function PricingCalculator() {
               </p>
             </div>
 
-            {/* Bars */}
-            <div className="mt-2 flex flex-col gap-4">
-              <BarRow label="Marwat Tech" value={marwatMonthly} amount={money(marwatMonthly)} max={maxCompMonthly} color="var(--color-primary)" active />
-              <BarRow
-                label={competitor.name}
-                value={competitor.monthly}
-                amount={money(competitor.monthly)}
-                max={maxCompMonthly}
-                color="var(--color-primary)"
-                dim
-                sub={`save ${money(savings)}`}
-              />
+            {/* Per-month bars */}
+            <div className="mt-2 flex flex-col gap-3">
+              <BarRow label="Marwat Tech" value={marwatMonthly} amount={money(marwatMonthly)} max={maxCompMonthly} highlight />
+              {COMPETITOR_IDS.map((id) => (
+                <BarRow
+                  key={id}
+                  label={COMPETITORS[id].name}
+                  value={COMPETITORS[id].monthly}
+                  amount={money(COMPETITORS[id].monthly)}
+                  max={maxCompMonthly}
+                  dim={id !== compId}
+                  active={id === compId}
+                  sub={id === compId ? `save ${money(savings)}` : undefined}
+                />
+              ))}
             </div>
+
+            {/* Same-spend leverage */}
+            <p className="flex items-center gap-1.5 rounded-xl border border-emerald-400/25 bg-emerald-400/10 px-4 py-3 text-sm font-semibold text-emerald-300">
+              <AppIcon name="userAdd" size={16} />
+              {devs >= 1 ? `+${devs.toFixed(1)}` : "+0"} {tier.short.toLowerCase()} developer{devs >= 2 ? "s" : ""} for the same spend
+            </p>
 
             <p className="border-t pt-4 text-xs text-foreground/60">
               Rates as of 2026 · {monthlyHours(hours)} hours/month · includes all costs, no hidden fees.
             </p>
           </div>
         </div>
-      </div>
+      </motion.div>
     </section>
   );
 }
@@ -198,31 +254,42 @@ function BarRow({
   value,
   amount,
   max,
-  color,
-  active,
+  highlight,
   dim,
+  active,
   sub,
 }: {
   label: string;
   value: number;
   amount: string;
   max: number;
-  color: string;
-  active?: boolean;
+  highlight?: boolean;
   dim?: boolean;
+  active?: boolean;
   sub?: string;
 }) {
   const width = Math.max(2, Math.round((value / max) * 100));
   return (
-    <div className={cn("flex items-center gap-3", dim && "opacity-80")}>
+    <div className={cn("flex items-center gap-3 transition-opacity duration-300", dim && "opacity-55")}>
       <span className="w-24 shrink-0 text-sm font-semibold">{label}</span>
       <div className="h-3 flex-1 overflow-hidden rounded-full bg-foreground/15">
-        <div
-          className={cn("h-full rounded-full", active && "relative overflow-hidden")}
-          style={{ width: `${width}%`, background: active ? color : "color-mix(in srgb, currentColor 60%, transparent)" }}
+        <motion.div
+          initial={{ width: 0 }}
+          whileInView={{ width: `${width}%` }}
+          viewport={{ once: true }}
+          animate={{ width: `${width}%` }}
+          transition={{ duration: 0.7, ease: EASE }}
+          className={cn("h-full rounded-full", (highlight || active) && "relative overflow-hidden")}
+          style={{
+            background: highlight
+              ? "var(--color-primary)"
+              : active
+                ? "var(--color-gold)"
+                : "color-mix(in srgb, currentColor 55%, transparent)",
+          }}
         >
-          {active && <div className="absolute inset-0 animate-pulse bg-white/10" />}
-        </div>
+          {(highlight || active) && <div className="absolute inset-0 animate-pulse bg-white/10" />}
+        </motion.div>
       </div>
       <span className="w-24 shrink-0 text-right text-sm font-medium">
         {amount}

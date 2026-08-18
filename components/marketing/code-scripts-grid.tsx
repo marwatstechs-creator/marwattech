@@ -40,7 +40,9 @@ function Card({ s }: { s: CodeScriptCard }) {
         </div>
         {s.version && (
           <div className="absolute right-3 top-3">
-            <Badge className="bg-background/80 text-[11px] backdrop-blur">v{s.version}</Badge>
+            <Badge variant="gold" className="text-[11px] shadow-sm">
+              v{s.version}
+            </Badge>
           </div>
         )}
       </div>

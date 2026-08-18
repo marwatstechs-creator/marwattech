@@ -47,3 +47,6 @@ mobile-*.png
 # Student email data (PII) — never commit
 scripts/students-emails.txt
 scripts/_import-report.json
+
+# Playwright MCP artifacts
+.playwright-mcp/

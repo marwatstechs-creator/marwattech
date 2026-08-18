@@ -4,7 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { AppIcon } from "@/components/app-icon";
-import { Typewriter } from "@/components/marketing/typewriter";
+import { GuaranteeSeal } from "@/components/marketing/guarantee-seal";
 import { trackEvent } from "@/lib/analytics";
 
 /* ── Dot Grid Canvas ────────────────────────────────────────────────── */
@@ -139,6 +139,14 @@ export function Hero() {
     <section className="relative isolate w-full overflow-hidden pb-16 pt-20 sm:pb-24 sm:pt-28 lg:pb-32 lg:pt-36">
       <DotGrid />
 
+      {/* Rotating guarantee seal — background accent, top-right corner */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute right-0 top-10 z-0 hidden -rotate-6 opacity-80 lg:block xl:right-64 xl:top-14"
+      >
+        <GuaranteeSeal className="h-52 w-52 text-primary sm:h-60 sm:w-60" />
+      </div>
+
       <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="relative">
           {/* Left floating cards - xl only */}
@@ -164,37 +172,62 @@ export function Hero() {
 
           {/* Center content */}
           <div className="relative z-10 mx-auto flex max-w-[760px] flex-col items-center gap-8 lg:gap-12">
-            {/* Badge with pulsing dot */}
+            {/* Eyebrow badge */}
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-              <span className="inline-flex items-center justify-center gap-2 rounded-full bg-card px-5 py-2 text-xs font-semibold tracking-widest uppercase text-foreground/60 ring-1 ring-primary/30 shadow-[0_0_18px_0] shadow-primary/15">
+              <span className="inline-flex items-center justify-center gap-2 rounded-full bg-card px-5 py-2 text-xs font-semibold tracking-widest uppercase text-foreground/70 ring-1 ring-primary/30 shadow-[0_0_18px_0] shadow-primary/15">
                 <span className="size-[7px] shrink-0 rounded-full bg-primary animate-pulse" />
-                TOP RATED · TRUSTED BY 100+ CLIENTS
+                Top Rated · From $4.99/hr · 14-Day Risk-Free
               </span>
             </motion.div>
 
-            {/* Heading */}
-            <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.1 }}
-              className="font-display text-center text-5xl font-extrabold tracking-tight sm:text-[56px] sm:leading-[1.05] lg:text-[72px] lg:leading-[1.07]">
-              <span className="block">We Build</span>
-              <span className="block bg-gradient-to-r from-[#7464c6] via-[#f8c640] to-[#9b8dd4] bg-clip-text text-transparent sm:mt-2">Digital Products</span>
-              <span className="block sm:mt-2">
-                That Drive <Typewriter />
+            {/* Heading — masked line reveal (slide-up) */}
+            <h1 className="font-display text-center text-5xl font-extrabold tracking-tight sm:text-[56px] sm:leading-[1.05] lg:text-[72px] lg:leading-[1.07]">
+              <span className="block overflow-hidden pb-1">
+                <motion.span
+                  initial={{ y: "112%" }}
+                  animate={{ y: "0%" }}
+                  transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] as const, delay: 0.1 }}
+                  className="block"
+                >
+                  We Build
+                </motion.span>
               </span>
-            </motion.h1>
+              <span className="block overflow-hidden pb-1">
+                <motion.span
+                  initial={{ y: "112%" }}
+                  animate={{ y: "0%" }}
+                  transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] as const, delay: 0.2 }}
+                  className="block bg-gradient-to-r from-primary via-gold to-primary bg-clip-text text-transparent sm:mt-1"
+                >
+                  Digital Products
+                </motion.span>
+              </span>
+              <span className="block overflow-hidden pb-2">
+                <motion.span
+                  initial={{ y: "112%" }}
+                  animate={{ y: "0%" }}
+                  transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] as const, delay: 0.3 }}
+                  className="block sm:mt-1"
+                >
+                  That Drive Impact
+                </motion.span>
+              </span>
+            </h1>
 
-            {/* Subtitle */}
-            <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }}
+            {/* Subtext */}
+            <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.3 }}
               className="hidden max-w-[640px] text-center text-lg leading-relaxed text-foreground/60 md:block">
-              Every project is built by vetted experts. From websites and mobile apps to SEO and AI — we deliver quality, on time, at competitive rates.
+              Every hire is vetted for your stack and comes with a 14-day risk-free trial. If they&apos;re
+              not right, you don&apos;t pay. Building done the right way.
             </motion.p>
 
             {/* CTAs */}
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.3 }}
               className="flex w-full max-w-[280px] flex-col items-center gap-3 md:max-w-none md:flex-row md:justify-center">
-              <ArrowButton href="/contact">Get Started</ArrowButton>
+              <ArrowButton href="/contact">Get Matched</ArrowButton>
               <Link href="/portfolio">
                 <span className="btn-3d-outline group min-h-[64px] rounded-full pl-6 pr-2.5">
-                  View Portfolio
+                  See Our Work
                   <span className="relative inline-flex h-9 w-[52px] shrink-0 items-center justify-center overflow-hidden rounded-full bg-foreground/5">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
                       className="transition-transform duration-300 ease-out group-hover:translate-x-[220%]">
