@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/admin/empty-state";
 import { BarChart, DonutChart } from "@/components/admin/charts";
-import { statusLabel, statusTone } from "@/components/admin/ticket-thread";
+import { statusLabel, statusTone } from "@/lib/tickets";
 import { createClient } from "@/lib/supabase/server";
 import { canManageContent, isSuperAdmin } from "@/lib/auth";
 import { getSessionUser } from "@/lib/auth";

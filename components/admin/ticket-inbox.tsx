@@ -7,7 +7,8 @@ import { AppIcon } from "@/components/app-icon";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { cn, timeAgo } from "@/lib/utils";
-import { statusLabel, statusTone, type TicketRow } from "@/components/admin/ticket-thread";
+import { statusLabel, statusTone } from "@/lib/tickets";
+import { type TicketRow } from "@/components/admin/ticket-thread";
 import { EmptyState } from "@/components/admin/empty-state";
 
 const FILTERS = [

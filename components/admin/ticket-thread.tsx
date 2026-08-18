@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn, formatDate, initials, timeAgo } from "@/lib/utils";
+import { TICKET_STATUSES, statusLabel, statusTone } from "@/lib/tickets";
 import { uploadTicketAttachments } from "@/lib/actions/client/tickets";
 import { replyToTicket, closeOwnTicket } from "@/lib/actions/client/tickets";
 import {
@@ -46,31 +47,6 @@ export type TicketRow = {
   updated_at: string | null;
   closed_at: string | null;
 };
-
-const TICKET_STATUSES = [
-  { value: "new", label: "New", tone: "gold" as const },
-  { value: "open", label: "Open", tone: "azure" as const },
-  { value: "in_progress", label: "In progress", tone: "default" as const },
-  { value: "waiting_on_customer", label: "Waiting on customer", tone: "outline" as const },
-  { value: "resolved", label: "Resolved", tone: "default" as const },
-  { value: "closed", label: "Closed", tone: "destructive" as const },
-];
-
-const STATUS_TONE: Record<string, "default" | "gold" | "azure" | "outline" | "destructive" | "secondary"> = {
-  new: "gold",
-  open: "azure",
-  in_progress: "default",
-  waiting_on_customer: "outline",
-  resolved: "secondary",
-  closed: "destructive",
-};
-
-export function statusTone(status: string) {
-  return STATUS_TONE[status] ?? "outline";
-}
-export function statusLabel(status: string) {
-  return TICKET_STATUSES.find((s) => s.value === status)?.label ?? status;
-}
 
 function MessageBubble({
   msg,

@@ -5,7 +5,7 @@ import { AppIcon } from "@/components/app-icon";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/admin/empty-state";
-import { statusLabel, statusTone } from "@/components/admin/ticket-thread";
+import { statusLabel, statusTone } from "@/lib/tickets";
 import { createClient } from "@/lib/supabase/server";
 import { getSessionUser } from "@/lib/auth";
 import { timeAgo } from "@/lib/utils";
