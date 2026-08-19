@@ -22,13 +22,14 @@ describe("roles", () => {
     expect(isRole(123)).toBe(false);
   });
 
-  it("distinguishes staff roles from client", () => {
+  it("distinguishes staff roles from client/student", () => {
     for (const r of STAFF_ROLES) expect(isStaffRole(r)).toBe(true);
     expect(isStaffRole("client")).toBe(false);
+    expect(isStaffRole("student")).toBe(false);
   });
 
-  it("defines all four roles", () => {
-    expect(ROLES).toEqual(["super_admin", "editor", "support", "client"]);
+  it("defines all five roles", () => {
+    expect(ROLES).toEqual(["super_admin", "editor", "support", "client", "student"]);
   });
 });
 
