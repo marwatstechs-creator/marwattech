@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { AppIcon } from "@/components/app-icon";
 import type { IconName } from "@/lib/icons";
@@ -58,45 +58,45 @@ const BG_ICONS: {
   dur: number;
   delay: number;
 }[] = [
-  { icon: "code", left: "4%", top: "14%", size: 22, opacity: 0.1, dur: 7, delay: -1 },
-  { icon: "wordpress", left: "7%", top: "50%", size: 20, opacity: 0.08, dur: 9, delay: -3 },
-  { icon: "ecommerce", left: "9%", top: "84%", size: 24, opacity: 0.09, dur: 8, delay: -5 },
-  { icon: "seo", left: "13%", top: "22%", size: 20, opacity: 0.11, dur: 6, delay: -2 },
-  { icon: "mobile", left: "17%", top: "91%", size: 22, opacity: 0.08, dur: 10, delay: -6 },
-  { icon: "ai", left: "22%", top: "10%", size: 18, opacity: 0.1, dur: 8, delay: -4 },
-  { icon: "design", left: "26%", top: "78%", size: 20, opacity: 0.09, dur: 7, delay: -1 },
-  { icon: "rocket", left: "31%", top: "20%", size: 22, opacity: 0.11, dur: 6, delay: -3 },
-  { icon: "target", left: "35%", top: "93%", size: 18, opacity: 0.08, dur: 9, delay: -5 },
-  { icon: "chart", left: "40%", top: "12%", size: 22, opacity: 0.1, dur: 8, delay: -2 },
-  { icon: "nextjs", left: "44%", top: "40%", size: 18, opacity: 0.07, dur: 11, delay: -7 },
-  { icon: "globe", left: "47%", top: "74%", size: 20, opacity: 0.1, dur: 7, delay: -1 },
-  { icon: "shield", left: "52%", top: "16%", size: 22, opacity: 0.11, dur: 6, delay: -4 },
-  { icon: "database", left: "55%", top: "89%", size: 18, opacity: 0.08, dur: 9, delay: -3 },
-  { icon: "sparkles", left: "60%", top: "24%", size: 22, opacity: 0.11, dur: 7, delay: -5 },
-  { icon: "layers", left: "64%", top: "78%", size: 18, opacity: 0.09, dur: 10, delay: -2 },
-  { icon: "terminal", left: "69%", top: "11%", size: 24, opacity: 0.09, dur: 8, delay: -6 },
-  { icon: "box", left: "73%", top: "87%", size: 20, opacity: 0.1, dur: 6, delay: -1 },
-  { icon: "dashboard", left: "78%", top: "20%", size: 22, opacity: 0.09, dur: 9, delay: -4 },
-  { icon: "award", left: "83%", top: "72%", size: 20, opacity: 0.1, dur: 7, delay: -3 },
-  { icon: "medal", left: "87%", top: "13%", size: 22, opacity: 0.11, dur: 8, delay: -5 },
-  { icon: "building", left: "91%", top: "62%", size: 22, opacity: 0.09, dur: 6, delay: -2 },
-  { icon: "briefcase", left: "96%", top: "33%", size: 18, opacity: 0.08, dur: 10, delay: -7 },
-  { icon: "search", left: "2%", top: "34%", size: 18, opacity: 0.07, dur: 9, delay: -2 },
-  { icon: "star", left: "11%", top: "7%", size: 20, opacity: 0.09, dur: 7, delay: -5 },
-  { icon: "heart", left: "19%", top: "64%", size: 18, opacity: 0.07, dur: 8, delay: -1 },
-  { icon: "mail", left: "28%", top: "44%", size: 18, opacity: 0.06, dur: 11, delay: -6 },
-  { icon: "phone", left: "37%", top: "58%", size: 16, opacity: 0.06, dur: 9, delay: -3 },
-  { icon: "calendar", left: "46%", top: "6%", size: 18, opacity: 0.08, dur: 8, delay: -4 },
-  { icon: "clock", left: "50%", top: "52%", size: 16, opacity: 0.06, dur: 10, delay: -2 },
-  { icon: "check", left: "58%", top: "58%", size: 18, opacity: 0.07, dur: 7, delay: -5 },
-  { icon: "wallet", left: "67%", top: "44%", size: 18, opacity: 0.06, dur: 9, delay: -1 },
-  { icon: "bank", left: "75%", top: "54%", size: 20, opacity: 0.07, dur: 8, delay: -6 },
-  { icon: "team", left: "83%", top: "40%", size: 18, opacity: 0.06, dur: 11, delay: -3 },
-  { icon: "megaphone", left: "90%", top: "86%", size: 20, opacity: 0.08, dur: 7, delay: -4 },
-  { icon: "analytics", left: "5%", top: "68%", size: 20, opacity: 0.08, dur: 10, delay: -6 },
-  { icon: "activity", left: "33%", top: "32%", size: 16, opacity: 0.06, dur: 8, delay: -2 },
-  { icon: "lock", left: "62%", top: "32%", size: 16, opacity: 0.06, dur: 9, delay: -5 },
-  { icon: "message", left: "94%", top: "5%", size: 18, opacity: 0.07, dur: 8, delay: -1 },
+  { icon: "code", left: "4%", top: "14%", size: 22, opacity: 0.16, dur: 7, delay: -1 },
+  { icon: "wordpress", left: "7%", top: "50%", size: 20, opacity: 0.13, dur: 9, delay: -3 },
+  { icon: "ecommerce", left: "9%", top: "84%", size: 24, opacity: 0.15, dur: 8, delay: -5 },
+  { icon: "seo", left: "13%", top: "22%", size: 20, opacity: 0.18, dur: 6, delay: -2 },
+  { icon: "mobile", left: "17%", top: "91%", size: 22, opacity: 0.13, dur: 10, delay: -6 },
+  { icon: "ai", left: "22%", top: "10%", size: 18, opacity: 0.16, dur: 8, delay: -4 },
+  { icon: "design", left: "26%", top: "78%", size: 20, opacity: 0.15, dur: 7, delay: -1 },
+  { icon: "rocket", left: "31%", top: "20%", size: 22, opacity: 0.18, dur: 6, delay: -3 },
+  { icon: "target", left: "35%", top: "93%", size: 18, opacity: 0.13, dur: 9, delay: -5 },
+  { icon: "chart", left: "40%", top: "12%", size: 22, opacity: 0.16, dur: 8, delay: -2 },
+  { icon: "nextjs", left: "44%", top: "40%", size: 18, opacity: 0.12, dur: 11, delay: -7 },
+  { icon: "globe", left: "47%", top: "74%", size: 20, opacity: 0.16, dur: 7, delay: -1 },
+  { icon: "shield", left: "52%", top: "16%", size: 22, opacity: 0.18, dur: 6, delay: -4 },
+  { icon: "database", left: "55%", top: "89%", size: 18, opacity: 0.13, dur: 9, delay: -3 },
+  { icon: "sparkles", left: "60%", top: "24%", size: 22, opacity: 0.18, dur: 7, delay: -5 },
+  { icon: "layers", left: "64%", top: "78%", size: 18, opacity: 0.15, dur: 10, delay: -2 },
+  { icon: "terminal", left: "69%", top: "11%", size: 24, opacity: 0.15, dur: 8, delay: -6 },
+  { icon: "box", left: "73%", top: "87%", size: 20, opacity: 0.16, dur: 6, delay: -1 },
+  { icon: "dashboard", left: "78%", top: "20%", size: 22, opacity: 0.15, dur: 9, delay: -4 },
+  { icon: "award", left: "83%", top: "72%", size: 20, opacity: 0.16, dur: 7, delay: -3 },
+  { icon: "medal", left: "87%", top: "13%", size: 22, opacity: 0.18, dur: 8, delay: -5 },
+  { icon: "building", left: "91%", top: "62%", size: 22, opacity: 0.15, dur: 6, delay: -2 },
+  { icon: "briefcase", left: "96%", top: "33%", size: 18, opacity: 0.13, dur: 10, delay: -7 },
+  { icon: "search", left: "2%", top: "34%", size: 18, opacity: 0.12, dur: 9, delay: -2 },
+  { icon: "star", left: "11%", top: "7%", size: 20, opacity: 0.15, dur: 7, delay: -5 },
+  { icon: "heart", left: "19%", top: "64%", size: 18, opacity: 0.12, dur: 8, delay: -1 },
+  { icon: "mail", left: "28%", top: "44%", size: 18, opacity: 0.11, dur: 11, delay: -6 },
+  { icon: "phone", left: "37%", top: "58%", size: 16, opacity: 0.11, dur: 9, delay: -3 },
+  { icon: "calendar", left: "46%", top: "6%", size: 18, opacity: 0.14, dur: 8, delay: -4 },
+  { icon: "clock", left: "50%", top: "52%", size: 16, opacity: 0.11, dur: 10, delay: -2 },
+  { icon: "check", left: "58%", top: "58%", size: 18, opacity: 0.12, dur: 7, delay: -5 },
+  { icon: "wallet", left: "67%", top: "44%", size: 18, opacity: 0.11, dur: 9, delay: -1 },
+  { icon: "bank", left: "75%", top: "54%", size: 20, opacity: 0.12, dur: 8, delay: -6 },
+  { icon: "team", left: "83%", top: "40%", size: 18, opacity: 0.11, dur: 11, delay: -3 },
+  { icon: "megaphone", left: "90%", top: "86%", size: 20, opacity: 0.14, dur: 7, delay: -4 },
+  { icon: "analytics", left: "5%", top: "68%", size: 20, opacity: 0.14, dur: 10, delay: -6 },
+  { icon: "activity", left: "33%", top: "32%", size: 16, opacity: 0.11, dur: 8, delay: -2 },
+  { icon: "lock", left: "62%", top: "32%", size: 16, opacity: 0.11, dur: 9, delay: -5 },
+  { icon: "message", left: "94%", top: "5%", size: 18, opacity: 0.12, dur: 8, delay: -1 },
 ];
 
 function IconScatter() {
@@ -118,38 +118,6 @@ function IconScatter() {
         </span>
       ))}
     </div>
-  );
-}
-
-/* ── Ornate gold corner ornament (elegant certificate filigree) ────────── */
-function CornerOrnament({ style }: { style?: CSSProperties }) {
-  return (
-    <svg
-      viewBox="0 0 240 240"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      aria-hidden
-      className="pointer-events-none absolute"
-      style={{ color: GOLD, ...style }}
-    >
-      {/* corner frame lines */}
-      <path d="M18 240 C18 130 70 40 240 18" stroke="currentColor" strokeWidth="2.5" />
-      <path d="M18 240 C18 150 80 55 240 38" stroke="currentColor" strokeWidth="1.5" opacity="0.7" />
-      {/* spiral flourish */}
-      <path
-        d="M18 240 c46 0 86 -14 112 -44 c24 -28 24 -62 -2 -84 c-24 -21 -60 -18 -80 6 c-18 21 -14 52 10 66"
-        stroke="currentColor"
-        strokeWidth="2.2"
-      />
-      {/* laurel leaves */}
-      <path d="M120 120 c10 -26 34 -42 62 -46" stroke="currentColor" strokeWidth="2" />
-      <path d="M120 120 c-2 28 16 52 42 62" stroke="currentColor" strokeWidth="2" />
-      {/* corner dots */}
-      <circle cx="18" cy="198" r="4.5" fill="currentColor" />
-      <circle cx="198" cy="18" r="4.5" fill="currentColor" />
-      <circle cx="18" cy="224" r="3" fill="currentColor" />
-      <circle cx="224" cy="18" r="3" fill="currentColor" />
-    </svg>
   );
 }
 
@@ -190,7 +158,7 @@ function VerificationSeal() {
           lengthAdjust="spacing"
         >
           <textPath href="#marwat-cert-seal-arc">
-            Digitally verifiable · 100% original · marwattech.com
+            Digitally verifiable · 100% original · marwattech.com.
           </textPath>
         </text>
       </g>
@@ -329,14 +297,6 @@ export function CertificateView({ data }: { data: CertificateViewData }) {
             style={{ left: p.x - 4, top: p.y - 4, background: GOLD }}
           />
         ))}
-
-        {/* ornate gold corner ornaments — top-left + bottom-right, low-opacity bg decoration */}
-        <CornerOrnament
-          style={{ left: 24, top: 24, width: 300, height: 300, opacity: 0.38 }}
-        />
-        <CornerOrnament
-          style={{ right: 24, bottom: 24, width: 300, height: 300, opacity: 0.38, transform: "rotate(180deg)" }}
-        />
 
         {/* award badge (top-left) + golden laurel (top-right) fill the header gap */}
         <img

@@ -32,6 +32,7 @@ export async function generateMetadata({
       title: `${data.student_name} — ${data.course_title} | Certificate`,
       description: `Certificate of completion awarded to ${data.student_name} for successfully completing ${data.course_title}.`,
       path: `/certificate/${id}`,
+      image: `${SITE.url}/api/og/certificate/${id}`,
     });
   } catch {
     return {};
