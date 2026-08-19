@@ -12,7 +12,11 @@ export default async function ClientDashboardLayout({
 }) {
   const session = await getSessionUser();
   if (!session) redirect("/client/login");
-  if (session.profile.role !== "client") redirect("/admin/login");
+  if (
+    session.profile.role !== "client" &&
+    session.profile.role !== "student"
+  )
+    redirect("/admin/login");
 
   return (
     <ClientShell
@@ -21,6 +25,7 @@ export default async function ClientDashboardLayout({
         full_name: session.profile.full_name,
         avatar_url: session.profile.avatar_url,
       }}
+      role={session.profile.role}
     >
       {children}
     </ClientShell>

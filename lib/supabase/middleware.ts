@@ -73,7 +73,9 @@ export async function updateSession(request: NextRequest) {
         .select("role")
         .eq("id", user.id)
         .single();
-      url.pathname = profile?.role === "client" ? "/client" : "/admin";
+      const portal =
+        profile?.role === "client" || profile?.role === "student";
+      url.pathname = portal ? "/client" : "/admin";
     } catch {
       url.pathname = isAdminRoute ? "/admin" : "/client";
     }

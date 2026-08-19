@@ -5,7 +5,7 @@
  * isolation (Node test runner / Vitest) without mocking framework internals.
  */
 
-export const ROLES = ["super_admin", "editor", "support", "client"] as const;
+export const ROLES = ["super_admin", "editor", "support", "client", "student"] as const;
 export type Role = (typeof ROLES)[number];
 
 /** Roles that may access the staff admin console. */

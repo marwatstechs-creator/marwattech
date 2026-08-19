@@ -42,7 +42,7 @@ export function GitHubSignIn({ mode = "admin" }: { mode?: "admin" | "client" }) 
     <div className="space-y-2">
       <Button
         type="button"
-        className="w-full bg-[#111827] text-white hover:bg-[#1f2937]"
+        className="w-full bg-[#111827] text-white shadow-sm hover:bg-[#1f2937] dark:bg-[#111827] dark:text-white dark:shadow-md dark:hover:bg-[#1f2937]"
         onClick={handleGitHub}
         disabled={pending}
       >

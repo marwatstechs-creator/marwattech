@@ -73,7 +73,7 @@ export async function GET(
     .single();
   if (!lesson?.video_url) return new Response("Not found", { status: 404 });
 
-  // Authorize: staff / free preview / enrolled
+  // Authorize: staff / approved student (free preview or enrolled).
   const { data: profile } = await admin
     .from("profiles")
     .select("role")
@@ -82,6 +82,8 @@ export async function GET(
   const staff = ["super_admin", "editor", "support"].includes(
     String(profile?.role)
   );
+  const isStudent = String(profile?.role) === "student";
+  if (!staff && !isStudent) return new Response("Forbidden", { status: 403 });
   let allowed = staff || !!lesson.is_free_preview;
   if (!allowed) {
     const { data: enrollment } = await admin

@@ -21,6 +21,9 @@ export async function enrollInCourse(
 ): Promise<ClientCourseActionResult> {
   const session = await getSessionUser();
   if (!session) return { ok: false, error: "You're not signed in." };
+  if (session.profile.role !== "student") {
+    return { ok: false, error: "Only approved students can enroll in courses." };
+  }
   if (!courseId || courseId.length < 8) {
     return { ok: false, error: "Invalid course." };
   }
@@ -70,6 +73,11 @@ export async function getLessonPlayback(lessonId: string): Promise<
     const staff = ["super_admin", "editor", "support"].includes(
       session.profile.role
     );
+    const isStudent = session.profile.role === "student";
+    // Only staff and approved students may watch lessons.
+    if (!staff && !isStudent) {
+      return { ok: false, error: "Only students can access course content." };
+    }
 
     // Authorize: staff, free preview, or enrolled in the course.
     let allowed = staff || lesson.is_free_preview;

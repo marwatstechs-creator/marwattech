@@ -28,9 +28,11 @@ const NAV = [
 export function ClientShell({
   children,
   user,
+  role,
 }: {
   children: React.ReactNode;
   user: { email?: string; full_name: string | null; avatar_url?: string | null };
+  role: string;
 }) {
   const pathname = usePathname();
   const [pinned, setPinned] = useState(false);
@@ -57,7 +59,16 @@ export function ClientShell({
     });
   };
 
-  const items: CollapsibleSidebarItem[] = NAV.map(({ label, href, icon }) => ({
+  // Courses + Study Materials are visible to approved students only.
+  const showLearning = role === "student";
+  const navItems = NAV.filter(
+    (i) =>
+      i.href === "/client/courses" || i.href === "/client/materials"
+        ? showLearning
+        : true
+  );
+
+  const items: CollapsibleSidebarItem[] = navItems.map(({ label, href, icon }) => ({
     label,
     href,
     icon,
@@ -132,7 +143,7 @@ export function ClientShell({
 
       {/* Mobile bottom nav */}
       <nav className="glass-strong fixed inset-x-0 bottom-0 z-40 flex items-center justify-around border-t px-2 py-1.5 lg:hidden">
-        {NAV.map((item) => {
+        {navItems.map((item) => {
           const active = item.href === "/client" ? pathname === "/client" : pathname.startsWith(item.href);
           return (
             <Link

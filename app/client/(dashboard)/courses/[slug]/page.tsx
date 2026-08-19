@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { AdminPageHeader } from "@/components/admin/page-header";
 import { CoursePlayer, type PlayerLesson } from "@/components/client/course-player";
 import { CourseCertificateCard } from "@/components/certificates/course-certificate-card";
+import { StudentGate } from "@/components/client/student-gate";
 import { createClient } from "@/lib/supabase/server";
 import { getSessionUser } from "@/lib/auth";
 import { sanitizeHtml } from "@/lib/sanitize";
@@ -15,6 +16,16 @@ export default async function ClientCourseDetailPage({ params }: Props) {
   const { slug } = await params;
   const session = await getSessionUser();
   const cid = session?.user.id ?? "";
+
+  // Courses are available to approved students only.
+  if (!session || session.profile.role !== "student") {
+    return (
+      <>
+        <AdminPageHeader title="Course" description="Course lessons" />
+        <StudentGate />
+      </>
+    );
+  }
 
   let course: {
     id: string;

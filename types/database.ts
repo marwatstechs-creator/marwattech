@@ -10,7 +10,7 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[];
 
-export type UserRole = "super_admin" | "editor" | "support" | "client";
+export type UserRole = "super_admin" | "editor" | "support" | "client" | "student";
 export type ContentStatus = "draft" | "published" | "archived";
 export type ApplicationStatus =
   | "new"
@@ -282,6 +282,42 @@ export interface Database {
           role?: UserRole;
           created_at?: string;
           updated_at?: string;
+        };
+        Relationships: [];
+      };
+      student_applications: {
+        Row: {
+          id: string;
+          user_id: string;
+          full_name: string | null;
+          email: string | null;
+          message: string | null;
+          status: "pending" | "approved" | "rejected";
+          created_at: string;
+          reviewed_at: string | null;
+          reviewed_by: string | null;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          full_name?: string | null;
+          email?: string | null;
+          message?: string | null;
+          status?: "pending" | "approved" | "rejected";
+          created_at?: string;
+          reviewed_at?: string | null;
+          reviewed_by?: string | null;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          full_name?: string | null;
+          email?: string | null;
+          message?: string | null;
+          status?: "pending" | "approved" | "rejected";
+          created_at?: string;
+          reviewed_at?: string | null;
+          reviewed_by?: string | null;
         };
         Relationships: [];
       };

@@ -23,7 +23,7 @@ import {
   RATE_LIMIT_WINDOW_MS,
 } from "@/lib/admin/user-validation";
 
-const roleSchema = z.enum(["super_admin", "editor", "support", "client"]);
+const roleSchema = z.enum(["super_admin", "editor", "support", "client", "student"]);
 const staffRoleSchema = z.enum(["super_admin", "editor", "support"]);
 
 const detailSchema = z.object({

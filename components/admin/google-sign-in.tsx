@@ -44,7 +44,7 @@ export function GoogleSignIn({ mode = "admin" }: { mode?: "admin" | "client" }) 
       <Button
         type="button"
         variant="outline"
-        className="w-full"
+        className="w-full border-gray-200 bg-white text-gray-700 shadow-sm hover:bg-gray-50 hover:text-gray-800 dark:border-gray-300 dark:bg-white dark:text-gray-700 dark:shadow-md dark:hover:bg-gray-50"
         onClick={handleGoogle}
         disabled={pending}
       >

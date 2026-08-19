@@ -4,6 +4,7 @@ import { AdminPageHeader } from "@/components/admin/page-header";
 import { AppIcon } from "@/components/app-icon";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { StudentGate } from "@/components/client/student-gate";
 import { createClient } from "@/lib/supabase/server";
 import { getSessionUser } from "@/lib/auth";
 
@@ -15,6 +16,7 @@ const DIFF_MAP: Record<string, "default" | "gold" | "destructive"> = {
 
 export default async function ClientCoursesPage() {
   const session = await getSessionUser();
+  const isStudent = session?.profile.role === "student";
   let courses: { id: string; title: string; slug: string; description: string | null; cover_image: string | null; category: string | null; difficulty: string; duration_hours: number | null; is_free: boolean }[] = [];
   let enrolled: Set<string> = new Set();
 
@@ -31,7 +33,9 @@ export default async function ClientCoursesPage() {
   return (
     <>
       <AdminPageHeader title="Courses" description="Browse and access your enrolled courses." />
-      {courses.length === 0 ? (
+      {!isStudent ? (
+        <StudentGate />
+      ) : courses.length === 0 ? (
         <div className="rounded-xl border border-dashed bg-muted/40 p-16 text-center"><p className="text-muted-foreground">No courses available yet. Check back soon!</p></div>
       ) : (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">

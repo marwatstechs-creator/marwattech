@@ -3,11 +3,15 @@ import { AppIcon } from "@/components/app-icon";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { StudentGate } from "@/components/client/student-gate";
 import { createClient } from "@/lib/supabase/server";
+import { getSessionUser } from "@/lib/auth";
 
 export const revalidate = 300;
 
 export default async function ClientMaterialsPage() {
+  const session = await getSessionUser();
+  const isStudent = session?.profile.role === "student";
   let materials: { id: string; title: string; description: string | null; file_url: string; file_type: string | null; file_size: number | null; category: string | null }[] = [];
   try {
     const db = await createClient();
@@ -25,7 +29,9 @@ export default async function ClientMaterialsPage() {
   return (
     <>
       <AdminPageHeader title="Study Materials" description="Download resources, guides and documents." />
-      {materials.length === 0 ? (
+      {!isStudent ? (
+        <StudentGate />
+      ) : materials.length === 0 ? (
         <div className="rounded-xl border border-dashed bg-muted/40 p-16 text-center"><p className="text-muted-foreground">No study materials available yet.</p></div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

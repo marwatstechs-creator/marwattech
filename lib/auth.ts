@@ -102,6 +102,15 @@ export function isClient(role: UserRole) {
   return role === "client";
 }
 
+export function isStudent(role: UserRole) {
+  return role === "student";
+}
+
+/** True for client-dashboard users (clients + approved students). */
+export function isPortalUser(role: UserRole) {
+  return role === "client" || role === "student";
+}
+
 /** Server-side guard: redirect non-editors away from content pages. */
 export async function guardEditor() {
   const session = await getSessionUser();
@@ -118,11 +127,11 @@ export async function guardSuperAdmin() {
   return session;
 }
 
-/** Server-side guard: only clients may access client dashboard. */
+/** Server-side guard: only client-dashboard users (clients + students). */
 export async function guardClient() {
   const session = await getSessionUser();
   if (!session) redirect("/client/login");
-  if (session.profile.role !== "client") redirect("/admin/login");
+  if (!isPortalUser(session.profile.role)) redirect("/admin/login");
   return session;
 }
 

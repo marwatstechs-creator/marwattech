@@ -19,29 +19,16 @@ export type CollapsibleSidebarItem = {
 const PURPLE = "#7464c6";
 const PURPLE_DARK = "#5f4fa8";
 
-/** Renders the section label only when it differs from the previous item's. */
+/** Renders the nav items (no section label text). */
 function renderItems(
   items: CollapsibleSidebarItem[],
   isActive: (href: string) => boolean,
   open: boolean
 ) {
-  let lastSection: string | undefined;
-  return items.map((item, i) => {
+  return items.map((item) => {
     const active = isActive(item.href);
-    const showSection = open && item.section && item.section !== lastSection;
-    lastSection = item.section;
     return (
       <div key={item.href} className={cn(!open && "flex flex-col items-center")}>
-        {showSection ? (
-          <div
-            className={cn(
-              "mb-1.5 mt-4 px-3 text-[10px] font-extrabold uppercase tracking-[0.14em] text-muted-foreground/70",
-              i === 0 && "mt-1"
-            )}
-          >
-            {item.section}
-          </div>
-        ) : null}
         <Link
           href={item.href}
           title={!open ? item.label : undefined}
@@ -49,7 +36,7 @@ function renderItems(
             "nav-item-3d group relative flex items-center rounded-xl text-sm font-semibold transition-all",
             open ? "gap-3 px-3 py-2.5" : "justify-center px-2 py-2.5",
             active
-              ? "text-white"
+              ? "bg-gradient-to-r from-primary to-primary/90 text-white shadow-sm"
               : "text-foreground/70 hover:bg-accent-hover hover:text-foreground"
           )}
         >

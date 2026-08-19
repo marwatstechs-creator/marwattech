@@ -24,7 +24,10 @@ export async function generateCertificate(
   courseId: string
 ): Promise<GenerateCertificateResult> {
   const session = await getSessionUser();
-  if (!session || session.profile.role !== "client") {
+  if (
+    !session ||
+    (session.profile.role !== "client" && session.profile.role !== "student")
+  ) {
     return { ok: false, error: "You must be signed in." };
   }
   const db = await createClient();
