@@ -65,6 +65,21 @@ export function getStaticPublicEntries(): Entry[] {
   ];
 }
 
+/** Fetch every row of a Supabase query (a single request is capped at 1000 rows). */
+const FETCH_PAGE = 1000;
+async function fetchAllRows<T>(query: (from: number, to: number) => Promise<{ data: T[] | null }>): Promise<T[]> {
+  const all: T[] = [];
+  let from = 0;
+  for (;;) {
+    const { data } = await query(from, from + FETCH_PAGE - 1);
+    const rows = (data ?? []) as T[];
+    all.push(...rows);
+    if (!data || data.length < FETCH_PAGE) break;
+    from += FETCH_PAGE;
+  }
+  return all;
+}
+
 /** Published dynamic content (services, portfolio, blog, pages, code scripts, study, promo codes). */
 export async function getDynamicPublicEntries(): Promise<Entry[]> {
   let services = DEMO_SERVICES;
@@ -78,37 +93,55 @@ export async function getDynamicPublicEntries(): Promise<Entry[]> {
 
   try {
     const db = await createClient();
+    // Every query is paginated — a single Supabase request is capped at 1000
+    // rows, so large tables (e.g. 3900+ code scripts) would otherwise be
+    // silently truncated in the sitemap.
     const [s, p, b, pg, cs] = await Promise.all([
-      db.from("services").select("slug, updated_at").eq("status", "published"),
-      db.from("portfolio_items").select("slug, updated_at").eq("status", "published"),
-      db.from("blog_posts").select("slug, updated_at").eq("status", "published"),
-      db.from("pages").select("slug, updated_at").eq("status", "published"),
-      db.from("code_scripts").select("slug, updated_at").eq("status", "published"),
+      fetchAllRows<{ slug: string; updated_at: string }>(async (from, to) =>
+        db.from("services").select("slug, updated_at").eq("status", "published").range(from, to)
+      ),
+      fetchAllRows<{ slug: string; updated_at: string }>(async (from, to) =>
+        db.from("portfolio_items").select("slug, updated_at").eq("status", "published").range(from, to)
+      ),
+      fetchAllRows<{ slug: string; updated_at: string }>(async (from, to) =>
+        db.from("blog_posts").select("slug, updated_at").eq("status", "published").range(from, to)
+      ),
+      fetchAllRows<{ slug: string; updated_at: string }>(async (from, to) =>
+        db.from("pages").select("slug, updated_at").eq("status", "published").range(from, to)
+      ),
+      fetchAllRows<{ slug: string; updated_at: string }>(async (from, to) =>
+        db.from("code_scripts").select("slug, updated_at").eq("status", "published").range(from, to)
+      ),
     ]);
-    if (s.data?.length) services = s.data as typeof services;
-    if (p.data?.length) projects = p.data as typeof projects;
-    if (b.data?.length) posts = b.data as typeof posts;
-    if (pg.data?.length) pages = pg.data as typeof pages;
-    if (cs.data?.length) codeScripts = cs.data as typeof codeScripts;
+    if (s.length) services = s as typeof services;
+    if (p.length) projects = p as typeof projects;
+    if (b.length) posts = b as typeof posts;
+    if (pg.length) pages = pg as typeof pages;
+    if (cs.length) codeScripts = cs as typeof codeScripts;
 
     // Study subjects + their published weeks (so /study/[slug]/[week] is indexed).
     const [subj, weeks] = await Promise.all([
-      db.from("study_subjects").select("slug").eq("published", true),
-      db.from("study_weeks").select("week_number, study_subjects(slug)").eq("published", true),
+      fetchAllRows<{ slug: string }>(async (from, to) =>
+        db.from("study_subjects").select("slug").eq("published", true).range(from, to)
+      ),
+      fetchAllRows<{ week_number: number; study_subjects: { slug: string } | null }>(async (from, to) =>
+        db.from("study_weeks")
+          .select("week_number, study_subjects(slug)")
+          .eq("published", true)
+          .range(from, to)
+      ),
     ]);
-    studySubjects = (subj.data ?? []) as typeof studySubjects;
-    for (const w of (weeks.data ?? []) as Array<{
-      week_number: number;
-      study_subjects: { slug: string } | null;
-    }>) {
+    studySubjects = subj;
+    for (const w of weeks) {
       if (w.study_subjects?.slug && typeof w.week_number === "number") {
         studyWeeks.push({ subjectSlug: w.study_subjects.slug, weekNumber: w.week_number });
       }
     }
 
     // Udemy promo codes → treated as pages so they can rank.
-    const pc = await db.from("promo_codes").select("title, id").eq("enabled", true);
-    promoCodes = (pc.data ?? []) as typeof promoCodes;
+    promoCodes = await fetchAllRows<{ title: string; id: string }>(async (from, to) =>
+      db.from("promo_codes").select("title, id").eq("enabled", true).range(from, to)
+    );
   } catch {
     // Supabase unavailable — fall back to demo content only.
   }
