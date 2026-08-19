@@ -153,10 +153,12 @@ function VerificationSeal() {
           className="font-mono uppercase"
           fontSize="13"
           fontWeight="600"
-          letterSpacing="1.2"
+          letterSpacing="1.1"
+          textLength="490"
+          lengthAdjust="spacing"
         >
           <textPath href="#marwat-cert-seal-arc">
-            Digitally verifiable · 100% original ·
+            Digitally verifiable · 100% original · marwattech.com
           </textPath>
         </text>
       </g>

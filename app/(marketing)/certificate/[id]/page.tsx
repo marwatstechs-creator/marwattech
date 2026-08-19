@@ -63,20 +63,32 @@ export default async function CertificatePage({
 
   return (
     <>
-      {/* Print styles — only this page prints the certificate on A4 landscape. */}
+      {/* Print styles — print ONLY the certificate, exactly filling A4 landscape. */}
       <style
         dangerouslySetInnerHTML={{
           __html: `
             @media print {
               @page { size: A4 landscape; margin: 0; }
-              header, footer, aside, .no-print { display: none !important; }
-              main { padding: 0 !important; margin: 0 !important; }
-              body { background: #fff !important; }
-              .print-clean { box-shadow: none !important; border-radius: 0 !important; }
-              .container { padding: 0 !important; margin: 0 !important; max-width: none !important; }
-              .cert-print-wrap {
+              html, body {
                 width: 297mm !important;
                 height: 210mm !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                overflow: hidden !important;
+                background: #fff !important;
+              }
+              header, footer, aside, .no-print { display: none !important; }
+              main { padding: 0 !important; margin: 0 !important; }
+              /* print ONLY the certificate: hide everything else, keep the cert visible */
+              body * { visibility: hidden !important; }
+              .cert-print-wrap, .cert-print-wrap * { visibility: visible !important; }
+              .cert-print-wrap {
+                position: absolute !important;
+                left: 0 !important;
+                top: 0 !important;
+                width: 297mm !important;
+                height: 210mm !important;
+                margin: 0 !important;
                 border-radius: 0 !important;
                 box-shadow: none !important;
               }
