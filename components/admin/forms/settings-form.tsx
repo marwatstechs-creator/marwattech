@@ -29,6 +29,11 @@ const FIELDS: { key: string; label: string; textarea?: boolean; rows?: number; h
   { key: "google_adsense_client", label: "Google AdSense Client ID", hint: "e.g. ca-pub-1234567890123456. Loads AdSense (incl. Auto ads) only on pages that have ad placements (Blog, Code Scripts, Free Courses, Study)." },
   { key: "ad_txt", label: "ads.txt content", textarea: true, hint: "Paste your ads.txt content or upload the file. Served at /ads.txt (and /ad.txt redirects to it) for AdSense verification." },
   { key: "promo_udemy_feed", label: "Auto Udemy promo feed", hint: "Type 1 to show the auto Udemy deals tab on /free-courses, or leave empty to hide it." },
+  { key: "certificate_director_name", label: "Certificate — Director name", hint: "Shown under the left signature on course-completion certificates." },
+  { key: "certificate_director_title", label: "Certificate — Director title", hint: "e.g. Director / Authorized Signatory." },
+  { key: "certificate_director_signature", label: "Certificate — Director signature image URL", hint: "Optional. Paste a URL to a transparent signature image." },
+  { key: "certificate_instructor_name", label: "Certificate — Instructor name", hint: "Shown under the right signature on course-completion certificates." },
+  { key: "certificate_instructor_signature", label: "Certificate — Instructor signature image URL", hint: "Optional. Paste a URL to a transparent signature image." },
 ];
 
 export function SettingsForm({ initial }: { initial: Record<string, string> }) {

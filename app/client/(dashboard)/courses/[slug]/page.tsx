@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 
 import { AdminPageHeader } from "@/components/admin/page-header";
 import { CoursePlayer, type PlayerLesson } from "@/components/client/course-player";
+import { CourseCertificateCard } from "@/components/certificates/course-certificate-card";
 import { createClient } from "@/lib/supabase/server";
 import { getSessionUser } from "@/lib/auth";
 import { sanitizeHtml } from "@/lib/sanitize";
@@ -25,6 +26,8 @@ export default async function ClientCourseDetailPage({ params }: Props) {
   let lessons: PlayerLesson[] = [];
   let enrolled = false;
   let progress: Record<string, boolean> = {};
+  let certificateId: string | null = null;
+  let hasCertificate = false;
 
   try {
     const db = await createClient();
@@ -35,7 +38,7 @@ export default async function ClientCourseDetailPage({ params }: Props) {
       .single();
     if (!c) notFound();
     course = c;
-    const [{ data: l }, { data: e }, { data: lp }] = await Promise.all([
+    const [{ data: l }, { data: e }, { data: lp }, { data: cert }] = await Promise.all([
       db
         .from("course_lessons")
         .select(
@@ -45,6 +48,15 @@ export default async function ClientCourseDetailPage({ params }: Props) {
         .order("sort_order"),
       db.from("enrollments").select("id").eq("client_id", cid).eq("course_id", c.id).maybeSingle(),
       db.from("lesson_progress").select("lesson_id, completed").eq("client_id", cid),
+      cid
+        ? db
+            .from("certificates")
+            .select("id")
+            .eq("student_id", cid)
+            .eq("course_id", c.id)
+            .neq("status", "revoked")
+            .maybeSingle()
+        : Promise.resolve({ data: null }),
     ]);
     lessons = (l ?? []).map((x) => ({
       id: x.id,
@@ -58,9 +70,16 @@ export default async function ClientCourseDetailPage({ params }: Props) {
     }));
     enrolled = !!e;
     for (const p of lp ?? []) progress[p.lesson_id] = p.completed;
+    hasCertificate = !!cert;
+    certificateId = cert?.id ?? null;
   } catch {
     notFound();
   }
+
+  const total = lessons.length;
+  const done = lessons.filter((l) => progress[l.id]).length;
+  const complete = total > 0 && done >= total;
+  const progressPct = total ? Math.round((done / total) * 100) : 0;
 
   return (
     <>
@@ -73,6 +92,15 @@ export default async function ClientCourseDetailPage({ params }: Props) {
         enrolled={enrolled}
         lessons={lessons}
         initialProgress={progress}
+      />
+      <CourseCertificateCard
+        courseId={course.id}
+        courseTitle={course.title}
+        enrolled={enrolled}
+        complete={complete}
+        hasCertificate={hasCertificate}
+        certificateId={certificateId}
+        progressPct={progressPct}
       />
     </>
   );

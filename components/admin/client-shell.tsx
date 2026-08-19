@@ -19,6 +19,7 @@ const NAV = [
   { label: "Payments", href: "/client/payments", icon: "dollar" as const },
   { label: "Support Tickets", href: "/client/tickets", icon: "chat" as const },
   { label: "Courses", href: "/client/courses", icon: "grid" as const },
+  { label: "Certificates", href: "/client/certificates", icon: "medal" as const },
   { label: "Study Materials", href: "/client/materials", icon: "file" as const },
   { label: "Settings", href: "/client/settings", icon: "settings" as const },
 ];

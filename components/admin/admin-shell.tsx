@@ -109,6 +109,7 @@ const NAV_GROUPS: NavGroup[] = [
       { label: "Course Updates", href: "/admin/course-updates", icon: "bell", roles: ["super_admin", "editor"] },
       { label: "Study Platform", href: "/admin/study-platform", icon: "folder", roles: ["super_admin", "editor"] },
       { label: "Study Materials", href: "/admin/study-materials", icon: "folder", roles: ["super_admin", "editor"] },
+      { label: "Certificates", href: "/admin/certificates", icon: "medal", roles: ["super_admin", "editor"] },
     ],
   },
   {

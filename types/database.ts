@@ -2123,6 +2123,63 @@ export interface Database {
         };
         Relationships: [];
       };
+      certificates: {
+        Row: {
+          id: string;
+          certificate_no: string;
+          verification_code: string;
+          student_id: string;
+          course_id: string;
+          student_name: string;
+          course_title: string;
+          course_category: string | null;
+          instructor_name: string | null;
+          course_duration: string | null;
+          status: string;
+          issue_date: string | null;
+          completion_date: string | null;
+          metadata: Json | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          certificate_no: string;
+          verification_code: string;
+          student_id: string;
+          course_id: string;
+          student_name: string;
+          course_title: string;
+          course_category?: string | null;
+          instructor_name?: string | null;
+          course_duration?: string | null;
+          status?: string;
+          issue_date?: string | null;
+          completion_date?: string | null;
+          metadata?: Json | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          certificate_no?: string;
+          verification_code?: string;
+          student_id?: string;
+          course_id?: string;
+          student_name?: string;
+          course_title?: string;
+          course_category?: string | null;
+          instructor_name?: string | null;
+          course_duration?: string | null;
+          status?: string;
+          issue_date?: string | null;
+          completion_date?: string | null;
+          metadata?: Json | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       study_materials: {
         Row: {
           id: string;
