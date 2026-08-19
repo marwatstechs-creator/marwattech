@@ -122,7 +122,7 @@ function TierCard({ tier, index }: { tier: DevTier; index: number }) {
             ))}
           </ul>
           <Link
-            href="/contact"
+            href="/get-started"
             className={cn(
               "group/btn mt-auto inline-flex items-center justify-between rounded-full py-2.5 pl-6 pr-2.5 font-display text-sm font-semibold transition-all duration-300",
               featured

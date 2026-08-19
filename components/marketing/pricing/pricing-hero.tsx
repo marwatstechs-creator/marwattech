@@ -118,7 +118,7 @@ export function PricingHero() {
         {/* CTAs */}
         <motion.div variants={fadeUp(0.6)} className="flex flex-col items-center gap-3 sm:flex-row">
           <Link
-            href="/contact"
+            href="/get-started"
             className="group inline-flex h-12 items-center gap-3 rounded-full bg-primary pl-6 pr-2 text-sm font-semibold text-primary-foreground transition-transform duration-300 hover:scale-[1.03] active:scale-[0.98]"
           >
             Get Matched

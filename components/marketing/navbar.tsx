@@ -526,7 +526,7 @@ export function Navbar() {
                       Start Your Project
                     </span>
                     <p className="mt-1.5 text-xs text-muted-foreground">Tell us what you need. We&apos;ll plan it and match you with the right team.</p>
-                    <Link href="/contact" onClick={() => setMobileOpen(false)}
+                    <Link href="/get-started" onClick={() => setMobileOpen(false)}
                       className="group mt-4 flex items-center justify-between rounded-full bg-primary py-1 pl-4 pr-1 text-sm font-medium text-primary-foreground transition-colors hover:opacity-90">
                       Get a Free Quote
                       <span className="relative flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary-foreground/15">

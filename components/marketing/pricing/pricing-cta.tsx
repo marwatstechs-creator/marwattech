@@ -37,7 +37,7 @@ export function PricingCta() {
           </motion.p>
           <motion.div variants={fadeUp(0.1)} className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Link
-              href="/contact"
+              href="/get-started"
               className="group inline-flex h-12 items-center gap-2 rounded-full bg-primary px-6 text-sm font-semibold text-primary-foreground transition-all duration-300 hover:scale-[1.03] active:scale-[0.98]"
             >
               Get Matched{" "}

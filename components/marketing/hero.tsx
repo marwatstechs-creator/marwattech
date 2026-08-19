@@ -208,7 +208,7 @@ export function Hero() {
             {/* CTAs */}
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.3 }}
               className="flex w-full max-w-[280px] flex-col items-center gap-3 md:max-w-none md:flex-row md:justify-center">
-              <ArrowButton href="/contact">Get Matched</ArrowButton>
+              <ArrowButton href="/get-started">Get Matched</ArrowButton>
               <Link href="/portfolio">
                 <span className="btn-3d-outline group min-h-[64px] rounded-full pl-6 pr-2.5">
                   See Our Work
