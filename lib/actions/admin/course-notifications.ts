@@ -119,7 +119,6 @@ export type BroadcastResult = {
   error?: string;
 };
 
-const BROADCAST_BATCH_LIMIT = 50; // per campaign click — stays within Worker limits
 const SEND_CONCURRENCY = 10;
 const MAX_SUBSCRIBERS = 10000;
 
@@ -138,13 +137,14 @@ function broadcastHtml(subject: string, body: string, unsubscribeUrl: string): s
 /**
  * Start a broadcast to course subscribers.
  *
- * Queues up to 50 recipients as `pending` rows (one per email) so the History
- * tab can show live progress, then fires the send loop in the background
- * (kept alive via Cloudflare waitUntil when available) and returns
- * immediately — no more "hanging" while emails go out.
+ * Queues every eligible recipient as a `pending` row so the History tab can
+ * show live progress, then fires the send loop in the background (kept alive
+ * via Cloudflare waitUntil when available) and returns immediately — no more
+ * "hanging" while emails go out. On the VPS (Node standalone) the background
+ * send keeps running after the response; if it is ever killed, the "Resume
+ * stuck" button picks up any `pending`/`sending` rows.
  *
- * Recipients who already received a send with the SAME subject are skipped,
- * so clicking again continues to the next group instead of re-sending.
+ * Recipients who already received a send with the SAME subject are skipped.
  */
 export async function startBroadcast(input: {
   subject: string;
@@ -174,9 +174,7 @@ export async function startBroadcast(input: {
     .eq("subject", parsed.data.subject)
     .limit(MAX_SUBSCRIBERS);
   const priorSet = new Set((prior ?? []).map((r) => r.email));
-  const recipients = subs
-    .filter((s) => !priorSet.has(s.email))
-    .slice(0, BROADCAST_BATCH_LIMIT);
+  const recipients = subs.filter((s) => !priorSet.has(s.email));
 
   if (!recipients.length) return { ok: true, total: 0, sent: 0 };
 
@@ -184,18 +182,21 @@ export async function startBroadcast(input: {
   const now = new Date().toISOString();
 
   // Queue every recipient as `pending` so History shows live progress.
-  const { error: insErr } = await db.from("course_digest_sends").insert(
-    recipients.map((s) => ({
-      email: s.email,
-      courses: [],
-      status: "pending",
-      subject: parsed.data.subject,
-      body: parsed.data.body,
-      batch_id: batchId,
-      sent_at: now,
-    }))
-  );
-  if (insErr) return { ok: false, error: insErr.message };
+  // Insert in chunks so very large subscriber lists don't hit a single
+  // request payload limit.
+  const rows = recipients.map((s) => ({
+    email: s.email,
+    courses: [],
+    status: "pending",
+    subject: parsed.data.subject,
+    body: parsed.data.body,
+    batch_id: batchId,
+    sent_at: now,
+  }));
+  for (let i = 0; i < rows.length; i += 500) {
+    const { error: insErr } = await db.from("course_digest_sends").insert(rows.slice(i, i + 500));
+    if (insErr) return { ok: false, error: insErr.message };
+  }
 
   // Fire-and-forget the send loop; keep the isolate alive via CF waitUntil.
   const run = runBroadcastBatch(

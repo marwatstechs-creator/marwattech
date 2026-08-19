@@ -373,10 +373,10 @@ function BroadcastDialog({
         <DialogHeader>
           <DialogTitle>Email all course subscribers</DialogTitle>
           <DialogDescription>
-            Send a branded email to {subscriberCount} active subscriber(s). Each recipient
-            gets their own unsubscribe link and the send runs in the background — watch the
-            <b> History tab</b> for live status (pending → sending → sent). Sends up to 50 per
-            click; click again to queue the next group.
+            Send a branded email to all {subscriberCount} active subscriber(s) in one go. Each
+            recipient gets their own unsubscribe link and the send runs in the background —
+            watch the <b>History tab</b> for live status (pending → sending → sent). If the
+            send is ever interrupted, use <b>Resume stuck</b> to finish the rest.
           </DialogDescription>
         </DialogHeader>
         {!emailConfigured && (
