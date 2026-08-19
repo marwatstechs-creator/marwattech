@@ -53,7 +53,7 @@ export default async function CertificateVerifyPage({
   if (!cert) notFound();
 
   return (
-    <div className="container max-w-2xl py-12 sm:py-16">
+    <div className="container mx-auto max-w-2xl py-12 sm:py-16">
       <div className="rounded-3xl border bg-card p-8 text-center shadow-sm sm:p-12">
         <span className="mx-auto grid size-16 place-items-center rounded-full bg-emerald-500/15 text-emerald-600">
           <AppIcon name="check" size={32} />

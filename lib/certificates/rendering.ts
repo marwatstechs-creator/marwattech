@@ -18,7 +18,7 @@ export async function buildCertificateViewData(
     qrSvg = await QRCode.toString(verifyUrl, {
       type: "svg",
       margin: 1,
-      width: 96,
+      width: 220,
       color: { dark: "#07145C", light: "#ffffff" },
     });
   } catch {

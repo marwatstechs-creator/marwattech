@@ -2,6 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 
+import { AppIcon } from "@/components/app-icon";
+import type { IconName } from "@/lib/icons";
+
 /* ── Palette (navy + gold on white paper) ────────────────────────────── */
 const NAVY = "#07145C";
 const GOLD = "#D4AF37";
@@ -41,6 +44,134 @@ function formatDateLabel(iso: string): string {
 }
 
 /* ── Simple certificate: white paper, clean gold frame, no heavy ornament ── */
+
+/* ── Animated service icons (like the CTA banner background) ────────────
+   More of them, very low opacity, gently floating for a lively but subtle
+   paper background. The float transform bakes in the -50%/-50% centering so
+   it never fights the left/top positioning. */
+const BG_ICONS: {
+  icon: IconName;
+  left: string;
+  top: string;
+  size: number;
+  opacity: number;
+  dur: number;
+  delay: number;
+}[] = [
+  { icon: "code", left: "4%", top: "14%", size: 22, opacity: 0.1, dur: 7, delay: -1 },
+  { icon: "wordpress", left: "7%", top: "50%", size: 20, opacity: 0.08, dur: 9, delay: -3 },
+  { icon: "ecommerce", left: "9%", top: "84%", size: 24, opacity: 0.09, dur: 8, delay: -5 },
+  { icon: "seo", left: "13%", top: "22%", size: 20, opacity: 0.11, dur: 6, delay: -2 },
+  { icon: "mobile", left: "17%", top: "91%", size: 22, opacity: 0.08, dur: 10, delay: -6 },
+  { icon: "ai", left: "22%", top: "10%", size: 18, opacity: 0.1, dur: 8, delay: -4 },
+  { icon: "design", left: "26%", top: "78%", size: 20, opacity: 0.09, dur: 7, delay: -1 },
+  { icon: "rocket", left: "31%", top: "20%", size: 22, opacity: 0.11, dur: 6, delay: -3 },
+  { icon: "target", left: "35%", top: "93%", size: 18, opacity: 0.08, dur: 9, delay: -5 },
+  { icon: "chart", left: "40%", top: "12%", size: 22, opacity: 0.1, dur: 8, delay: -2 },
+  { icon: "nextjs", left: "44%", top: "40%", size: 18, opacity: 0.07, dur: 11, delay: -7 },
+  { icon: "globe", left: "47%", top: "74%", size: 20, opacity: 0.1, dur: 7, delay: -1 },
+  { icon: "shield", left: "52%", top: "16%", size: 22, opacity: 0.11, dur: 6, delay: -4 },
+  { icon: "database", left: "55%", top: "89%", size: 18, opacity: 0.08, dur: 9, delay: -3 },
+  { icon: "sparkles", left: "60%", top: "24%", size: 22, opacity: 0.11, dur: 7, delay: -5 },
+  { icon: "layers", left: "64%", top: "78%", size: 18, opacity: 0.09, dur: 10, delay: -2 },
+  { icon: "terminal", left: "69%", top: "11%", size: 24, opacity: 0.09, dur: 8, delay: -6 },
+  { icon: "box", left: "73%", top: "87%", size: 20, opacity: 0.1, dur: 6, delay: -1 },
+  { icon: "dashboard", left: "78%", top: "20%", size: 22, opacity: 0.09, dur: 9, delay: -4 },
+  { icon: "award", left: "83%", top: "72%", size: 20, opacity: 0.1, dur: 7, delay: -3 },
+  { icon: "medal", left: "87%", top: "13%", size: 22, opacity: 0.11, dur: 8, delay: -5 },
+  { icon: "building", left: "91%", top: "62%", size: 22, opacity: 0.09, dur: 6, delay: -2 },
+  { icon: "briefcase", left: "96%", top: "33%", size: 18, opacity: 0.08, dur: 10, delay: -7 },
+  { icon: "search", left: "2%", top: "34%", size: 18, opacity: 0.07, dur: 9, delay: -2 },
+  { icon: "star", left: "11%", top: "7%", size: 20, opacity: 0.09, dur: 7, delay: -5 },
+  { icon: "heart", left: "19%", top: "64%", size: 18, opacity: 0.07, dur: 8, delay: -1 },
+  { icon: "mail", left: "28%", top: "44%", size: 18, opacity: 0.06, dur: 11, delay: -6 },
+  { icon: "phone", left: "37%", top: "58%", size: 16, opacity: 0.06, dur: 9, delay: -3 },
+  { icon: "calendar", left: "46%", top: "6%", size: 18, opacity: 0.08, dur: 8, delay: -4 },
+  { icon: "clock", left: "50%", top: "52%", size: 16, opacity: 0.06, dur: 10, delay: -2 },
+  { icon: "check", left: "58%", top: "58%", size: 18, opacity: 0.07, dur: 7, delay: -5 },
+  { icon: "wallet", left: "67%", top: "44%", size: 18, opacity: 0.06, dur: 9, delay: -1 },
+  { icon: "bank", left: "75%", top: "54%", size: 20, opacity: 0.07, dur: 8, delay: -6 },
+  { icon: "team", left: "83%", top: "40%", size: 18, opacity: 0.06, dur: 11, delay: -3 },
+  { icon: "megaphone", left: "90%", top: "86%", size: 20, opacity: 0.08, dur: 7, delay: -4 },
+  { icon: "analytics", left: "5%", top: "68%", size: 20, opacity: 0.08, dur: 10, delay: -6 },
+  { icon: "activity", left: "33%", top: "32%", size: 16, opacity: 0.06, dur: 8, delay: -2 },
+  { icon: "lock", left: "62%", top: "32%", size: 16, opacity: 0.06, dur: 9, delay: -5 },
+  { icon: "message", left: "94%", top: "5%", size: 18, opacity: 0.07, dur: 8, delay: -1 },
+];
+
+function IconScatter() {
+  return (
+    <div className="pointer-events-none absolute inset-0" aria-hidden>
+      {BG_ICONS.map((c, i) => (
+        <span
+          key={i}
+          className="absolute"
+          style={{
+            left: c.left,
+            top: c.top,
+            color: GOLD,
+            opacity: c.opacity,
+            animation: `cert-icon-float ${c.dur}s ease-in-out ${c.delay}s infinite`,
+          }}
+        >
+          <AppIcon name={c.icon} size={c.size} />
+        </span>
+      ))}
+    </div>
+  );
+}
+
+/* ── Verification seal (rotating circular text, adapted from the hero's GuaranteeSeal) ── */
+function VerificationSeal() {
+  return (
+    <svg
+      width="190"
+      height="190"
+      viewBox="0 0 200 200"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      role="img"
+      aria-label="Digitally verifiable · 100% original certificate"
+      className="pointer-events-none absolute"
+      style={{ left: 56, bottom: 108 }}
+    >
+      {/* outer ring — navy */}
+      <circle cx="100" cy="100" r="96" stroke={NAVY} strokeWidth="2.5" opacity={0.45} />
+      {/* inner ring — gold */}
+      <circle cx="100" cy="100" r="60" stroke={GOLD} strokeWidth="1.5" />
+
+      {/* rotating circular text */}
+      <g
+        className="animate-[spin_26s_linear_infinite] motion-reduce:animate-none"
+        style={{ transformBox: "view-box", transformOrigin: "100px 100px" }}
+      >
+        <defs>
+          <path id="marwat-cert-seal-arc" d="M100 22 a78 78 0 1 1 -0.1 0" fill="none" />
+        </defs>
+        <text
+          fill={GOLD_TEXT}
+          className="font-mono uppercase"
+          fontSize="13"
+          fontWeight="600"
+          letterSpacing="1.2"
+        >
+          <textPath href="#marwat-cert-seal-arc">
+            Digitally verifiable · 100% original ·
+          </textPath>
+        </text>
+      </g>
+
+      {/* center mark — gold check */}
+      <path
+        d="M78 101 l14 16 l30 -36"
+        stroke={GOLD}
+        strokeWidth="8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
 
 /* ── Signature block ──────────────────────────────────────────────────── */
 function SignatureBlock({ name, title, image }: { name: string; title: string; image?: string | null }) {
@@ -94,11 +225,11 @@ export function CertificateView({ data }: { data: CertificateViewData }) {
   return (
     <div
       ref={wrapRef}
-      className="relative w-full overflow-hidden rounded-2xl shadow-2xl ring-1 ring-black/30"
+      className="cert-print-wrap relative w-full overflow-hidden rounded-2xl shadow-2xl ring-1 ring-black/30"
       style={{ aspectRatio: `${DESIGN_W} / ${DESIGN_H}` }}
     >
       <div
-        className="absolute left-0 top-0"
+        className="cert-print-scale absolute left-0 top-0"
         style={{
           width: DESIGN_W,
           height: DESIGN_H,
@@ -109,6 +240,14 @@ export function CertificateView({ data }: { data: CertificateViewData }) {
           fontFamily: "var(--font-inter), sans-serif",
         }}
       >
+        {/* gentle float keyframe for the scattered background icons */}
+        <style>{`
+          @keyframes cert-icon-float {
+            0%, 100% { transform: translate(-50%, -50%) translateY(0) rotate(0deg); }
+            50% { transform: translate(-50%, -50%) translateY(-10px) rotate(5deg); }
+          }
+        `}</style>
+
         {/* subtle night-mode square logo watermark in the background */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
@@ -126,6 +265,9 @@ export function CertificateView({ data }: { data: CertificateViewData }) {
             mixBlendMode: "multiply",
           }}
         />
+
+        {/* scattered service icons in the background (like the CTA banner) */}
+        <IconScatter />
 
         {/* clean gold frame */}
         <div
@@ -267,11 +409,14 @@ export function CertificateView({ data }: { data: CertificateViewData }) {
           </p>
         </div>
 
+        {/* ── verification seal (bottom-left, rotating circular text) ── */}
+        <VerificationSeal />
+
         {/* ── QR verification (bottom-right, above the border) ── */}
-        <div className="absolute flex flex-col items-center gap-1" style={{ right: 54, bottom: 150 }}>
+        <div className="absolute flex flex-col items-center gap-1.5" style={{ right: 54, bottom: 108 }}>
           <div
-            className="grid place-items-center rounded-lg p-2 [&_svg]:h-full [&_svg]:w-full"
-            style={{ width: 96, height: 96, background: WHITE, border: `1.5px solid ${GOLD}`, boxShadow: "0 4px 14px rgba(16,20,46,0.12)" }}
+            className="grid place-items-center rounded-lg p-2.5 [&_svg]:h-full [&_svg]:w-full"
+            style={{ width: 180, height: 180, background: WHITE, border: `2px solid ${GOLD}`, boxShadow: "0 4px 14px rgba(16,20,46,0.12)" }}
           >
             {data.qrSvg ? (
               <div
@@ -282,7 +427,7 @@ export function CertificateView({ data }: { data: CertificateViewData }) {
               <span className="text-[10px] font-bold" style={{ color: INK }}>QR</span>
             )}
           </div>
-          <p className="text-[9.5px] font-bold uppercase tracking-[0.24em]" style={{ color: GOLD_TEXT }}>
+          <p className="text-[10px] font-bold uppercase tracking-[0.24em]" style={{ color: GOLD_TEXT }}>
             Scan to verify
           </p>
         </div>

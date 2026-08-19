@@ -73,15 +73,26 @@ export default async function CertificatePage({
               main { padding: 0 !important; margin: 0 !important; }
               body { background: #fff !important; }
               .print-clean { box-shadow: none !important; border-radius: 0 !important; }
+              .container { padding: 0 !important; margin: 0 !important; max-width: none !important; }
+              .cert-print-wrap {
+                width: 297mm !important;
+                height: 210mm !important;
+                border-radius: 0 !important;
+                box-shadow: none !important;
+              }
+              .cert-print-scale {
+                transform: scale(0.79386) !important;
+                transform-origin: top left !important;
+              }
             }
           `,
         }}
       />
 
-      <div className="container py-10 sm:py-14">
+      <div className="container mx-auto py-10 sm:py-14">
         <CertificateActions data={viewData} />
 
-        <div className="mx-auto mb-8 flex flex-col items-center text-center">
+        <div className="no-print mx-auto mb-8 flex flex-col items-center text-center">
           <h1 className="font-display text-2xl font-bold sm:text-3xl">
             Certificate of Completion
           </h1>
