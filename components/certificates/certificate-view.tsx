@@ -2,9 +2,6 @@
 
 import { useEffect, useRef, useState } from "react";
 
-import { AppIcon } from "@/components/app-icon";
-import type { IconName } from "@/lib/icons";
-
 /* ── Palette (navy + gold on white paper) ────────────────────────────── */
 const NAVY = "#07145C";
 const GOLD = "#D4AF37";
@@ -44,55 +41,6 @@ function formatDateLabel(iso: string): string {
 }
 
 /* ── Simple certificate: white paper, clean gold frame, no heavy ornament ── */
-
-/* ── Scattered service icons (like the CTA banner background) ────────── */
-const BG_ICONS: {
-  icon: IconName;
-  left: string;
-  top: string;
-  size: number;
-  opacity: number;
-}[] = [
-  { icon: "code", left: "5%", top: "16%", size: 20, opacity: 0.42 },
-  { icon: "wordpress", left: "7%", top: "48%", size: 18, opacity: 0.34 },
-  { icon: "ecommerce", left: "9%", top: "82%", size: 22, opacity: 0.32 },
-  { icon: "seo", left: "14%", top: "24%", size: 18, opacity: 0.44 },
-  { icon: "mobile", left: "19%", top: "90%", size: 20, opacity: 0.3 },
-  { icon: "ai", left: "25%", top: "11%", size: 16, opacity: 0.36 },
-  { icon: "design", left: "30%", top: "76%", size: 18, opacity: 0.34 },
-  { icon: "rocket", left: "34%", top: "23%", size: 20, opacity: 0.44 },
-  { icon: "target", left: "39%", top: "92%", size: 16, opacity: 0.3 },
-  { icon: "chart", left: "44%", top: "13%", size: 20, opacity: 0.34 },
-  { icon: "nextjs", left: "47%", top: "42%", size: 16, opacity: 0.26 },
-  { icon: "globe", left: "50%", top: "72%", size: 18, opacity: 0.4 },
-  { icon: "shield", left: "54%", top: "18%", size: 20, opacity: 0.44 },
-  { icon: "database", left: "58%", top: "88%", size: 16, opacity: 0.32 },
-  { icon: "sparkles", left: "63%", top: "26%", size: 20, opacity: 0.44 },
-  { icon: "layers", left: "68%", top: "76%", size: 16, opacity: 0.3 },
-  { icon: "terminal", left: "72%", top: "12%", size: 22, opacity: 0.34 },
-  { icon: "box", left: "77%", top: "86%", size: 18, opacity: 0.36 },
-  { icon: "dashboard", left: "81%", top: "22%", size: 20, opacity: 0.34 },
-  { icon: "award", left: "85%", top: "70%", size: 18, opacity: 0.4 },
-  { icon: "medal", left: "89%", top: "15%", size: 20, opacity: 0.44 },
-  { icon: "building", left: "93%", top: "60%", size: 20, opacity: 0.34 },
-  { icon: "briefcase", left: "96%", top: "34%", size: 16, opacity: 0.3 },
-];
-
-function IconScatter() {
-  return (
-    <div className="pointer-events-none absolute inset-0" aria-hidden>
-      {BG_ICONS.map((c, i) => (
-        <span
-          key={i}
-          className="absolute -translate-x-1/2 -translate-y-1/2"
-          style={{ left: c.left, top: c.top, color: GOLD, opacity: c.opacity }}
-        >
-          <AppIcon name={c.icon} size={c.size} />
-        </span>
-      ))}
-    </div>
-  );
-}
 
 /* ── Signature block ──────────────────────────────────────────────────── */
 function SignatureBlock({ name, title, image }: { name: string; title: string; image?: string | null }) {
@@ -161,8 +109,23 @@ export function CertificateView({ data }: { data: CertificateViewData }) {
           fontFamily: "var(--font-inter), sans-serif",
         }}
       >
-        {/* scattered service icons in the background (like the CTA banner) */}
-        <IconScatter />
+        {/* subtle night-mode square logo watermark in the background */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/assets/logo-dark-square.svg"
+          alt=""
+          aria-hidden
+          className="pointer-events-none absolute"
+          style={{
+            left: "50%",
+            top: "50%",
+            width: 620,
+            height: 620,
+            transform: "translate(-50%, -50%)",
+            opacity: 0.12,
+            mixBlendMode: "multiply",
+          }}
+        />
 
         {/* clean gold frame */}
         <div
