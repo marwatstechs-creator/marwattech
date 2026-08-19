@@ -191,8 +191,24 @@ export function CertificateView({ data }: { data: CertificateViewData }) {
           />
         ))}
 
+        {/* award badge (top-left) + golden laurel (top-right) fill the header gap */}
+        <img
+          src="/assets/award-badge.svg"
+          alt=""
+          aria-hidden
+          className="pointer-events-none absolute"
+          style={{ left: 84, top: 46, width: 176, height: 176 }}
+        />
+        <img
+          src="/assets/laurel.svg"
+          alt=""
+          aria-hidden
+          className="pointer-events-none absolute"
+          style={{ right: 56, top: 34, width: 216, height: 216 }}
+        />
+
         {/* ── central content ── */}
-        <div className="absolute inset-x-0" style={{ top: 150 }}>
+        <div className="absolute inset-x-0" style={{ top: 168 }}>
           {/* platform eyebrow */}
           <p
             className="text-center text-[15px] font-semibold uppercase tracking-[0.42em]"
