@@ -158,7 +158,7 @@ function VerificationSeal() {
           lengthAdjust="spacing"
         >
           <textPath href="#marwat-cert-seal-arc">
-            Digitally verifiable · 100% original · marwattech.com.
+            · Digitally verifiable · 100% original · marwattech.com. ·
           </textPath>
         </text>
       </g>
