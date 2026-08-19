@@ -23,15 +23,6 @@ export type DigestResult = {
 const BATCH_SIZE = 12;
 const MAX_EVENTS = 200;
 const MAX_SUBSCRIBERS = 10000;
-/**
- * Emails per invocation. Sending hundreds over SMTP in one Worker request
- * exceeds Cloudflare's CPU/wall-clock limits (Error 1102), which silently
- * kills the run mid-way. By capping each cron hit, the digest stays under the
- * limit; the every-10-minute cron drains the queue across runs (idempotent —
- * delivered recipients are skipped via course_digest_sends dedup, and events
- * stay pending until everyone is sent).
- */
-const MAX_PER_RUN = 50;
 
 /** Read the course-update config from site_settings (with sane defaults). */
 export async function getCourseUpdateConfig(db: ReturnType<typeof createAdminClient>) {
@@ -130,9 +121,10 @@ export async function sendCourseDigest(opts: { force?: boolean } = {}): Promise<
       return { ok: true, reason: "already-sent" };
     }
 
-    // Cap per invocation so the Worker stays within Cloudflare's resource
-    // limits — remaining recipients are picked up by the next cron run.
-    const toSend = recipients.slice(0, MAX_PER_RUN);
+    // The app runs on a VPS (Node) where the old Cloudflare per-run cap isn't
+    // needed — send to every recipient now. Failures are logged and the dedup
+    // (course_digest_sends) guarantees nothing is ever sent twice.
+    const toSend = recipients;
 
     const siteUrl = SITE.url.replace(/\/$/, "");
     const subject =
@@ -183,12 +175,10 @@ export async function sendCourseDigest(opts: { force?: boolean } = {}): Promise<
       });
     }
 
-    // 5) Mark events as included ONLY when every recipient in this run was
-    //    sent AND the whole list fits within the per-run cap (i.e. nothing is
-    //    left over for the next cron run). Otherwise leave events pending so
-    //    the remaining recipients get them on the next run (dedup skips the
-    //    already-delivered ones instead of re-sending).
-    const fullySent = sent === toSend.length && toSend.length === recipients.length;
+    // 5) Mark events as included ONLY when every recipient was sent. If some
+    //    failed, leave events pending so the next run retries just the ones
+    //    that didn't get through (dedup skips the delivered ones).
+    const fullySent = sent === recipients.length;
     if (fullySent) {
       await db
         .from("course_update_events")
