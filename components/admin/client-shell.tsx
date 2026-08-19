@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { AvatarMenu } from "@/components/profile/avatar-menu";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { DigitalClock } from "@/components/ui/digital-clock";
 import { CollapsibleSidebar, type CollapsibleSidebarItem } from "@/components/admin/collapsible-sidebar";
 import { cn } from "@/lib/utils";
 
@@ -119,6 +120,11 @@ export function ClientShell({
               profileHref="/client/settings"
               signOutHref="/client/login"
             />
+          </div>
+
+          {/* Live Karachi-time digital clock (navbar center) */}
+          <div className="pointer-events-none absolute left-1/2 top-1/2 hidden -translate-x-1/2 -translate-y-1/2 md:block">
+            <DigitalClock />
           </div>
         </header>
         <main className="flex-1 p-4 sm:p-6 lg:p-8">{children}</main>

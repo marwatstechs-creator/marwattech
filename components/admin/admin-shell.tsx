@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/sheet";
 import { AvatarMenu } from "@/components/profile/avatar-menu";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { DigitalClock } from "@/components/ui/digital-clock";
 import { CollapsibleSidebar, type CollapsibleSidebarItem } from "@/components/admin/collapsible-sidebar";
 import { AdminSectionTabs, type SectionTabItem } from "@/components/admin/admin-section-tabs";
 import { trackEvent } from "@/lib/analytics";
@@ -375,6 +376,11 @@ export function AdminShell({
               signOutHref="/admin/login"
               onSignedOut={() => trackEvent("admin_sign_out")}
             />
+          </div>
+
+          {/* Live Karachi-time digital clock (navbar center) */}
+          <div className="pointer-events-none absolute left-1/2 top-1/2 hidden -translate-x-1/2 -translate-y-1/2 md:block">
+            <DigitalClock />
           </div>
         </header>
 
