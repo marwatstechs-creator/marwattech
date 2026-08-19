@@ -21,16 +21,16 @@ export async function setCertificateStatus(
   return { ok: true };
 }
 
-export function revokeCertificate(id: string) {
+export async function revokeCertificate(id: string) {
   return setCertificateStatus(id, "revoked");
 }
 
-export function reissueCertificate(id: string) {
+export async function reissueCertificate(id: string) {
   return setCertificateStatus(id, "issued");
 }
 
 /** Reissue / regenerate: re-stamp an issued certificate as current. */
-export function regenerateCertificate(id: string) {
+export async function regenerateCertificate(id: string) {
   return setCertificateStatus(id, "issued");
 }
 
