@@ -1,8 +1,9 @@
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { NextResponse } from "next/server";
 
 import { exchangeGoogleCode, type GoogleLoginMode } from "@/lib/google";
 import { signInWithVerifiedEmail } from "@/lib/auth";
+import { SITE } from "@/lib/constants";
 
 /**
  * "Sign in with Google" callback.
@@ -11,8 +12,17 @@ import { signInWithVerifiedEmail } from "@/lib/auth";
  * signs them in via a server-side magic-link OTP (no password change).
  */
 export async function GET(request: Request) {
-  const { searchParams, origin } = new URL(request.url);
+  const { searchParams } = new URL(request.url);
   const code = searchParams.get("code");
+
+  // Public origin from the forwarded headers (Cloudflare) — `request.url`
+  // resolves to the server's internal 0.0.0.0:3000 address behind the proxy,
+  // which broke both the Google token exchange and the final redirect.
+  const h = await headers();
+  const proto = h.get("x-forwarded-proto") ?? "https";
+  const host = h.get("x-forwarded-host") ?? h.get("host") ?? SITE.url.replace(/^https?:\/\//, "");
+  const origin = `${proto}://${host}`;
+
   const fail = (err = "google") => NextResponse.redirect(`${origin}/admin/login?error=${err}`);
 
   if (!code) return fail();
@@ -36,6 +46,7 @@ export async function GET(request: Request) {
       email: identity.email,
       name: identity.name,
       picture: identity.picture,
+      provider: "google",
     });
     if (error) return fail("google");
     return NextResponse.redirect(`${origin}${target}`);

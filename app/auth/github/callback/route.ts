@@ -49,6 +49,7 @@ export async function GET(request: Request) {
       email: identity.email,
       name: identity.name,
       picture: identity.picture,
+      provider: "github",
     });
     if (error) return failMode("github");
     return NextResponse.redirect(`${origin}${target}`);

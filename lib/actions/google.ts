@@ -148,6 +148,7 @@ export async function handleGoogleOneTap(
       email: identity.email,
       name: identity.name,
       picture: identity.picture,
+      provider: "google",
     });
     if (error) {
       return { ok: false as const, error: "Could not complete sign-in. Please try again." };

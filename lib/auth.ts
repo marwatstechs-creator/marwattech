@@ -61,6 +61,26 @@ export async function getAuthProviders(): Promise<string[]> {
   }
 }
 
+export type SignInMethod = "google" | "github" | "email";
+
+/** Which method signed this account in — shown as a badge on the profile. */
+export async function getSignInMethod(): Promise<SignInMethod> {
+  try {
+    const db = await createClient();
+    const {
+      data: { user },
+    } = await db.auth.getUser();
+    if (!user) return "email";
+    const providers = (user.app_metadata?.providers as string[]) ?? [];
+    const meta = (user.user_metadata ?? {}) as Record<string, unknown>;
+    if (providers.includes("google") || meta.sign_in_method === "google") return "google";
+    if (providers.includes("github") || meta.sign_in_method === "github") return "github";
+    return "email";
+  } catch {
+    return "email";
+  }
+}
+
 /** True when the account was created with / has an email+password login. */
 export function hasPassword(providers: string[]): boolean {
   return providers.includes("email") || providers.includes("password");
@@ -115,6 +135,7 @@ export async function signInWithVerifiedEmail(opts: {
   email: string;
   name?: string | null;
   picture?: string | null;
+  provider?: "google" | "github";
 }): Promise<{ target: "/admin" | "/client"; error?: string }> {
   const { createAdminClient } = await import("@/lib/supabase/admin");
   const admin = createAdminClient();
@@ -136,6 +157,23 @@ export async function signInWithVerifiedEmail(opts: {
     user = created?.user ?? undefined;
   }
   if (!user) return { target: "/client", error: "No user account found" };
+
+  // 1b) Remember which provider signed the user in (shown as a badge on the
+  //     profile page). GitHub/Google custom OAuth logs in via a magic-link
+  //     OTP, which Supabase would otherwise report as "email", so we record
+  //     the real provider explicitly in user_metadata.
+  if (opts.provider) {
+    try {
+      await admin.auth.admin.updateUserById(user.id, {
+        user_metadata: {
+          ...(user.user_metadata ?? {}),
+          sign_in_method: opts.provider,
+        },
+      });
+    } catch {
+      // Non-fatal — badge detection falls back to app_metadata.providers.
+    }
+  }
 
   // 2) Generate a magic-link OTP and complete it server-side (sets the cookie).
   //    The token hash from generateLink must be verified via `token_hash`
