@@ -6,10 +6,12 @@ import {
   supportSchema,
   mockupSchema,
   applicationSchema,
+  meetingBookingSchema,
   type ContactInput,
   type SupportInput,
   type MockupInput,
   type ApplicationInput,
+  type MeetingBookingInput,
 } from "@/lib/validations";
 import {
   notifyContact,
@@ -17,6 +19,8 @@ import {
   notifyMockup,
   notifyApplication,
   notifyQuoteReceived,
+  notifyMeetingBooking,
+  meetingBookingConfirmation,
 } from "@/lib/email";
 
 type ActionResult = { success: boolean; error?: string };
@@ -201,6 +205,63 @@ export async function submitApplication(
           to
         );
       }
+    } catch {
+      // ignore
+    }
+  }
+
+  return { success: true };
+}
+
+export async function submitMeetingBooking(
+  input: MeetingBookingInput
+): Promise<ActionResult> {
+  const parsed = meetingBookingSchema.safeParse(input);
+  if (!parsed.success) {
+    return { success: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
+  }
+  // Honeypot: silently drop automated spam submissions.
+  if (parsed.data.website) return { success: true };
+
+  const db = await createClient();
+  const { error } = await db.from("meeting_bookings").insert({
+    name: parsed.data.name,
+    email: parsed.data.email,
+    phone: parsed.data.phone || null,
+    country: parsed.data.country || null,
+    company: parsed.data.company || null,
+    project_description: parsed.data.project_description,
+    tech_stack: parsed.data.tech_stack || null,
+    how_found: parsed.data.how_found || null,
+    timezone: parsed.data.timezone,
+    meeting_date: parsed.data.meeting_date,
+    meeting_time: parsed.data.meeting_time,
+  });
+  if (error) return { success: false, error: "Could not book your call. Please try again." };
+
+  if (isEmailConfigured()) {
+    try {
+      const to = await notifyAddresses();
+      if (to) {
+        await notifyMeetingBooking(
+          {
+            ...parsed.data,
+            timezone: parsed.data.timezone || null,
+          },
+          to
+        );
+      }
+    } catch {
+      // ignore
+    }
+    // Branded confirmation to the person who booked (best-effort).
+    try {
+      await meetingBookingConfirmation(parsed.data.email, {
+        name: parsed.data.name,
+        meeting_date: parsed.data.meeting_date,
+        meeting_time: parsed.data.meeting_time,
+        timezone: parsed.data.timezone || null,
+      });
     } catch {
       // ignore
     }

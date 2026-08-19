@@ -44,7 +44,29 @@ export const newsletterSchema = z.object({
   email: z.string().email("Enter a valid email address"),
 });
 
+export const meetingBookingSchema = z.object({
+  name: z.string().min(2, "Please enter your name").max(100),
+  email: z.string().email("Enter a valid email address"),
+  phone: z.string().min(7, "Please enter your phone number").max(30),
+  country: z.string().min(1, "Please select your country").max(120),
+  company: z.string().max(150).optional().or(z.literal("")),
+  project_description: z
+    .string()
+    .min(10, "Tell us a little about your project (min 10 characters)")
+    .max(8000),
+  tech_stack: z
+    .string()
+    .min(1, "Tell us your tech stack (or type “Unsure”)")
+    .max(300),
+  how_found: z.string().max(150).optional().or(z.literal("")),
+  timezone: z.string().max(80),
+  meeting_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Please pick a date"),
+  meeting_time: z.string().min(1, "Please pick a time"),
+  website: z.string().max(200).optional().or(z.literal("")),
+});
+
 export type ContactInput = z.infer<typeof contactSchema>;
 export type SupportInput = z.infer<typeof supportSchema>;
 export type MockupInput = z.infer<typeof mockupSchema>;
 export type ApplicationInput = z.infer<typeof applicationSchema>;
+export type MeetingBookingInput = z.infer<typeof meetingBookingSchema>;

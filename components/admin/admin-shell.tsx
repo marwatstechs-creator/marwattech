@@ -81,6 +81,7 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { label: "Tickets", href: "/admin/tickets", icon: "chat", roles: ["super_admin", "editor", "support"] },
       { label: "Messages", href: "/admin/messages", icon: "message", roles: ["super_admin", "editor", "support"] },
+      { label: "Meetings", href: "/admin/meetings", icon: "calendar", roles: ["super_admin", "editor", "support"] },
     ],
   },
   {

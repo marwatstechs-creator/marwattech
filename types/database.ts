@@ -29,6 +29,7 @@ export type MessageStatus =
   | "resolved"
   | "closed";
 export type TicketPriority = "low" | "normal" | "high" | "urgent";
+export type MeetingStatus = "pending" | "confirmed" | "completed" | "cancelled";
 export type PaymentStatus =
   | "pending"
   | "completed"
@@ -988,6 +989,63 @@ export interface Database {
           budget_range?: string | null;
           description?: string;
           status?: MessageStatus;
+          internal_notes?: string | null;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      meeting_bookings: {
+        Row: {
+          id: string;
+          name: string;
+          email: string;
+          phone: string | null;
+          country: string | null;
+          company: string | null;
+          project_description: string;
+          tech_stack: string | null;
+          how_found: string | null;
+          timezone: string;
+          meeting_date: string;
+          meeting_time: string;
+          status: MeetingStatus;
+          meeting_link: string | null;
+          internal_notes: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          email: string;
+          phone?: string | null;
+          country?: string | null;
+          company?: string | null;
+          project_description: string;
+          tech_stack?: string | null;
+          how_found?: string | null;
+          timezone?: string;
+          meeting_date: string;
+          meeting_time: string;
+          status?: MeetingStatus;
+          meeting_link?: string | null;
+          internal_notes?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          email?: string;
+          phone?: string | null;
+          country?: string | null;
+          company?: string | null;
+          project_description?: string;
+          tech_stack?: string | null;
+          how_found?: string | null;
+          timezone?: string;
+          meeting_date?: string;
+          meeting_time?: string;
+          status?: MeetingStatus;
+          meeting_link?: string | null;
           internal_notes?: string | null;
           created_at?: string;
         };

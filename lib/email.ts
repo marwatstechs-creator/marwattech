@@ -4,6 +4,8 @@ import {
   emailLayout,
   infoCard,
   quoteRequestEmail,
+  meetingBookingConfirmationEmail,
+  meetingConfirmedEmail as meetingConfirmedEmailTemplate,
   esc,
   PURPLE,
   INK,
@@ -335,5 +337,89 @@ export async function notifyQuoteReceived(
     to,
     subject: `Thanks${opts.name ? ` ${opts.name}` : ""} — we've received your request`,
     html: quoteRequestEmail({ name: opts.name, service: opts.service }),
+  });
+}
+
+/** Internal notification to the team when a strategy/discovery call is booked. */
+export async function notifyMeetingBooking(booking: {
+  name: string;
+  email: string;
+  phone?: string | null;
+  country?: string | null;
+  company?: string | null;
+  project_description: string;
+  tech_stack?: string | null;
+  how_found?: string | null;
+  meeting_date: string;
+  meeting_time: string;
+  timezone?: string | null;
+}, to: string) {
+  const html = notifyShell({
+    badge: "New call booking",
+    title: "📅 New strategy call booked",
+    preheader: `${booking.name} booked a call for ${booking.meeting_date} at ${booking.meeting_time}`,
+    body: `
+      <p style="margin:0 0 18px;font-size:14px;line-height:1.65;color:${MUTED};">A new meeting was booked through the Get Started flow by <a href="mailto:${esc(booking.email)}" style="color:${PURPLE};font-weight:700;">${esc(booking.email)}</a>. Review it in the <a href="${esc(SITE.url)}/admin/meetings" style="color:${PURPLE};font-weight:700;">admin Meetings dashboard</a>.</p>
+      ${infoCard({ rows: [
+        { label: "Name", value: esc(booking.name) },
+        { label: "Email", value: esc(booking.email) },
+        ...(booking.phone ? [{ label: "Phone", value: esc(booking.phone) }] : []),
+        ...(booking.country ? [{ label: "Country", value: esc(booking.country) }] : []),
+        ...(booking.company ? [{ label: "Company", value: esc(booking.company) }] : []),
+        { label: "Date", value: esc(booking.meeting_date) },
+        { label: "Time", value: esc(booking.meeting_time) },
+        ...(booking.timezone ? [{ label: "Timezone", value: esc(booking.timezone) }] : []),
+        ...(booking.tech_stack ? [{ label: "Tech stack", value: esc(booking.tech_stack) }] : []),
+        ...(booking.how_found ? [{ label: "How they found us", value: esc(booking.how_found) }] : []),
+      ]})}
+      ${messageBox(booking.project_description)}
+    `,
+  });
+  await sendEmail({
+    to,
+    subject: `📅 Strategy call booked — ${booking.name} (${booking.meeting_date} ${booking.meeting_time})`,
+    html,
+    replyTo: booking.email,
+  });
+}
+
+/** Customer-facing confirmation when a strategy/discovery call is booked. */
+export async function meetingBookingConfirmation(
+  to: string,
+  opts: { name?: string | null; meeting_date: string; meeting_time: string; timezone?: string | null }
+) {
+  await sendEmail({
+    to,
+    subject: "Your strategy call is booked 🎉 — Marwat Tech",
+    html: meetingBookingConfirmationEmail({
+      name: opts.name,
+      meetingDate: opts.meeting_date,
+      meetingTime: opts.meeting_time,
+      timezone: opts.timezone,
+    }),
+  });
+}
+
+/** Customer-facing email when the team confirms the call and provides a join link. */
+export async function meetingConfirmedEmail(
+  to: string,
+  opts: {
+    name?: string | null;
+    meeting_date: string;
+    meeting_time: string;
+    timezone?: string | null;
+    meeting_link: string;
+  }
+) {
+  await sendEmail({
+    to,
+    subject: "Your strategy call is confirmed ✅ — Marwat Tech",
+    html: meetingConfirmedEmailTemplate({
+      name: opts.name,
+      meetingDate: opts.meeting_date,
+      meetingTime: opts.meeting_time,
+      timezone: opts.timezone,
+      meetingLink: opts.meeting_link,
+    }),
   });
 }

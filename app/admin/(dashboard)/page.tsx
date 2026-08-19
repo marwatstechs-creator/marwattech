@@ -53,6 +53,7 @@ export default async function AdminDashboardPage() {
     newTickets: 0,
     newApplications: 0,
     openTickets: 0,
+    pendingMeetings: 0,
   };
   let collectedCurrencies: string[] = [];
   let activity: Activity[] = [];
@@ -73,7 +74,7 @@ export default async function AdminDashboardPage() {
     const [
       services, posts, projects, codeScripts,
       newContact, newTickets, newMockup, newApplications, openTickets,
-      msgRows, activityRows, ticketRows, paymentRows,
+      msgRows, activityRows, ticketRows, paymentRows, pendingMeetings,
     ] = await Promise.all([
       db.from("services").select("id", { count: "exact", head: true }),
       db.from("blog_posts").select("id", { count: "exact", head: true }),
@@ -88,6 +89,7 @@ export default async function AdminDashboardPage() {
       db.from("activity_logs").select("id, action, entity_type, entity_id, metadata, created_at").order("created_at", { ascending: false }).limit(12),
       db.from("support_tickets").select("id, subject, status, priority, created_at").order("updated_at", { ascending: false }).limit(5),
       db.from("payments").select("amount, currency, created_at").eq("status", "completed"),
+      db.from("meeting_bookings").select("id", { count: "exact", head: true }).eq("status", "pending"),
     ]);
 
     stats.services = services.count ?? 0;
@@ -98,6 +100,7 @@ export default async function AdminDashboardPage() {
     stats.openTickets = openTickets.count ?? 0;
     stats.newApplications = newApplications.count ?? 0;
     stats.unread = (newContact.count ?? 0) + (newTickets.count ?? 0) + (newMockup.count ?? 0);
+    stats.pendingMeetings = pendingMeetings.count ?? 0;
 
     const completed = (paymentRows.data ?? []) as { amount: number; currency: string; created_at: string }[];
     stats.payments = completed.length;
@@ -235,9 +238,10 @@ export default async function AdminDashboardPage() {
             </Link>
           </CardHeader>
           <CardContent className="space-y-3">
-            <div className="grid gap-3 sm:grid-cols-3">
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               <AttentionLink href="/admin/messages" icon="message" label="New messages" value={stats.unread} tone="gold" />
               <AttentionLink href="/admin/tickets" icon="chat" label="Open tickets" value={stats.openTickets} tone="azure" />
+              <AttentionLink href="/admin/meetings" icon="calendar" label="Pending meetings" value={stats.pendingMeetings} tone="gold" />
               <AttentionLink href="/admin/applications" icon="userAdd" label="New applications" value={stats.newApplications} tone="emerald" />
             </div>
 

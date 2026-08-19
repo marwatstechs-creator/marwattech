@@ -31,6 +31,7 @@ export function StatusBadge({ status }: { status: string }) {
     cancelled: { label: "Cancelled", variant: "destructive" },
     // Payments
     pending: { label: "Pending", variant: "gold" },
+    confirmed: { label: "Confirmed", variant: "azure" },
     failed: { label: "Failed", variant: "destructive" },
     refunded: { label: "Refunded", variant: "secondary" },
   };

@@ -374,7 +374,7 @@ export function Navbar() {
                   </>
                 )}
                 <span className="hidden xl:inline-flex">
-                  <ArrowBtn href="/contact" variant="gold">Get Started</ArrowBtn>
+                  <ArrowBtn href="/get-started" variant="gold">Get Started</ArrowBtn>
                 </span>
               </div>
               <button type="button" className="grid size-9 place-items-center rounded-full border bg-background lg:hidden" onClick={() => setMobileOpen(true)} aria-label="Open navigation">
@@ -570,7 +570,7 @@ export function Navbar() {
                     </Link>
                   </>
                 )}
-                <Link href="/contact" onClick={() => setMobileOpen(false)}
+                <Link href="/get-started" onClick={() => setMobileOpen(false)}
                   className="btn-3d-gold inline-flex h-11 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-full px-3 text-sm font-semibold text-black">
                   <AppIcon name="arrowRight" size={17} className="shrink-0" />
                   Get Started

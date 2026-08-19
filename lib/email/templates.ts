@@ -638,6 +638,68 @@ export function quoteRequestEmail(opts: {
   });
 }
 
+/** Customer-facing confirmation when a strategy/discovery call is booked. */
+export function meetingBookingConfirmationEmail(opts: {
+  name?: string | null;
+  meetingDate: string;
+  meetingTime: string;
+  timezone?: string | null;
+}): string {
+  return emailLayout({
+    badge: "Call booked",
+    title: "Your call is booked! 🎉",
+    preheader: `${opts.meetingDate} at ${opts.meetingTime} — a Marwat Tech expert will call you.`,
+    body: `
+      <p style="margin:0 0 20px;font-size:14px;line-height:1.7;color:${MUTED};">Hi${opts.name ? ` ${esc(opts.name)}` : ""}, thanks for booking a strategy &amp; discovery call with ${SITE.name}. A senior member of our team will contact you at the time below.</p>
+      ${infoCard({
+        headerLeft: "Your call",
+        rows: [
+          { label: "Date", value: esc(opts.meetingDate) },
+          { label: "Time", value: esc(opts.meetingTime) },
+          ...(opts.timezone ? [{ label: "Timezone", value: esc(opts.timezone) }] : []),
+          { label: "Duration", value: "30 minutes" },
+        ],
+      })}
+      ${stepsCard([
+        { icon: "🗓️", title: "We review", desc: "Your requirements are shared with the right expert." },
+        { icon: "📞", title: "The call", desc: "A free strategy & discovery session — no obligation." },
+        { icon: "🚀", title: "Next steps", desc: "You get a clear plan & a no-obligation quotation." },
+      ])}
+      <p style="margin:0;font-size:13px;color:${MUTED};">Need to reschedule or cancel? Just reply to this email or message us on WhatsApp — <a href="${esc(SITE.whatsapp)}" style="color:${PURPLE};font-weight:700;">${esc(SITE.phone)}</a>.</p>
+    `,
+  });
+}
+
+/** Customer-facing confirmation when the team confirms the call with a join link. */
+export function meetingConfirmedEmail(opts: {
+  name?: string | null;
+  meetingDate: string;
+  meetingTime: string;
+  timezone?: string | null;
+  meetingLink: string;
+}): string {
+  return emailLayout({
+    badge: "Call confirmed",
+    title: "Your call is confirmed ✅",
+    preheader: `Join your Marwat Tech strategy call on ${opts.meetingDate} at ${opts.meetingTime}.`,
+    body: `
+      <p style="margin:0 0 20px;font-size:14px;line-height:1.7;color:${MUTED};">Hi${opts.name ? ` ${esc(opts.name)}` : ""}, great news — your strategy &amp; discovery call with ${SITE.name} is confirmed. Tap the button below to join at the scheduled time.</p>
+      ${infoCard({
+        headerLeft: "Your call",
+        rows: [
+          { label: "Date", value: esc(opts.meetingDate) },
+          { label: "Time", value: esc(opts.meetingTime) },
+          ...(opts.timezone ? [{ label: "Timezone", value: esc(opts.timezone) }] : []),
+          { label: "Duration", value: "30 minutes" },
+          { label: "Join link", value: esc(opts.meetingLink) },
+        ],
+      })}
+      <p style="margin:0 0 20px;font-size:13px;color:${MUTED};">Having trouble joining, or need to reschedule? Just reply to this email or message us on WhatsApp — <a href="${esc(SITE.whatsapp)}" style="color:${PURPLE};font-weight:700;">${esc(SITE.phone)}</a>.</p>
+    `,
+    cta: { label: "Join the call", href: opts.meetingLink },
+  });
+}
+
 /** Password-reset link emailed by an admin from the user management panel. */
 export function adminResetPasswordEmail(opts: {
   name?: string | null;
