@@ -27,13 +27,25 @@ export async function uploadTicketAttachments(
   const total = files.reduce((s, f) => s + f.size, 0);
   if (total > 20 * 1024 * 1024) return { ok: false, error: "Attachments too large (max 20 MB total)." };
 
+  // Only allow safe, previewable file types — never executables, scripts or
+  // HTML/SVG that could be served as active content and harm the site.
+  const ALLOWED_EXT = new Set([
+    "jpg", "jpeg", "png", "gif", "webp", "bmp", "avif",
+    "mp4", "webm", "mov", "m4v",
+    "pdf",
+    "doc", "docx", "xls", "xlsx", "ppt", "pptx", "txt", "csv", "md",
+  ]);
+
   try {
     const admin = createAdminClient();
     const urls: string[] = [];
     for (const file of files) {
-      const bytes = new Uint8Array(await file.arrayBuffer());
       const ext =
         (file.name.split(".").pop() || "bin").toLowerCase().replace(/[^a-z0-9]/g, "") || "bin";
+      if (!ALLOWED_EXT.has(ext)) {
+        return { ok: false, error: `"${file.name}" is not an allowed file type.` };
+      }
+      const bytes = new Uint8Array(await file.arrayBuffer());
       const path = `tickets/${session.user.id}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
       const { error } = await admin.storage
         .from("media")

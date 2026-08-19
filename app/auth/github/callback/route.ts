@@ -1,8 +1,9 @@
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { NextResponse } from "next/server";
 
 import { exchangeGitHubCode, type GitHubLoginMode } from "@/lib/github";
 import { signInWithVerifiedEmail } from "@/lib/auth";
+import { SITE } from "@/lib/constants";
 
 /**
  * "Sign in with GitHub" callback.
@@ -11,8 +12,18 @@ import { signInWithVerifiedEmail } from "@/lib/auth";
  * signs them in via a server-side magic-link OTP (no password change).
  */
 export async function GET(request: Request) {
-  const { searchParams, origin } = new URL(request.url);
+  const { searchParams } = new URL(request.url);
   const code = searchParams.get("code");
+
+  // Public origin from the forwarded headers (Cloudflare) — `request.url`
+  // resolves to the server's internal 0.0.0.0:3000 address behind the proxy,
+  // which broke BOTH the GitHub token exchange (redirect_uri mismatch) and
+  // the final redirect back to the dashboard.
+  const h = await headers();
+  const proto = h.get("x-forwarded-proto") ?? "https";
+  const host = h.get("x-forwarded-host") ?? h.get("host") ?? SITE.url.replace(/^https?:\/\//, "");
+  const origin = `${proto}://${host}`;
+
   const fail = (err = "github") => NextResponse.redirect(`${origin}/admin/login?error=${err}`);
 
   if (!code) return fail();
@@ -28,6 +39,8 @@ export async function GET(request: Request) {
   if (!state || !expected || state !== expected) return fail("github");
 
   const mode: GitHubLoginMode = state.startsWith("client:") ? "client" : "admin";
+  const loginPath = mode === "client" ? "/client/login" : "/admin/login";
+  const failMode = (err = "github") => NextResponse.redirect(`${origin}${loginPath}?error=${err}`);
   const redirectUri = `${origin}/auth/github/callback`;
 
   try {
@@ -37,9 +50,9 @@ export async function GET(request: Request) {
       name: identity.name,
       picture: identity.picture,
     });
-    if (error) return fail("github");
+    if (error) return failMode("github");
     return NextResponse.redirect(`${origin}${target}`);
   } catch {
-    return fail("github");
+    return failMode("github");
   }
 }

@@ -9,6 +9,13 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { cn, formatDate, initials, timeAgo } from "@/lib/utils";
 import { TICKET_STATUSES, statusLabel, statusTone } from "@/lib/tickets";
 import { uploadTicketAttachments } from "@/lib/actions/client/tickets";
@@ -48,49 +55,161 @@ export type TicketRow = {
   closed_at: string | null;
 };
 
+function attachmentKind(url: string): "image" | "video" | "pdf" | "file" {
+  const ext = (url.split("?")[0].split(".").pop() ?? "").toLowerCase();
+  if (["jpg", "jpeg", "png", "gif", "webp", "bmp", "avif"].includes(ext)) return "image";
+  if (["mp4", "webm", "mov", "m4v"].includes(ext)) return "video";
+  if (ext === "pdf") return "pdf";
+  return "file";
+}
+
+function MediaViewer({
+  open,
+  onClose,
+  url,
+  kind,
+  name,
+}: {
+  open: boolean;
+  onClose: () => void;
+  url: string;
+  kind: "image" | "video";
+  name: string;
+}) {
+  return (
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="max-w-3xl">
+        <DialogHeader>
+          <DialogTitle className="truncate pr-6">{name}</DialogTitle>
+        </DialogHeader>
+        <div className="grid place-items-center overflow-hidden rounded-lg bg-black/5 p-2">
+          {kind === "image" ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={url} alt={name} className="max-h-[75vh] w-auto max-w-full rounded object-contain" />
+          ) : (
+            <video src={url} controls autoPlay className="max-h-[75vh] w-auto max-w-full rounded" />
+          )}
+        </div>
+        <DialogFooter>
+          <a href={url} target="_blank" rel="noopener noreferrer" download>
+            <Button variant="outline" size="sm">
+              <AppIcon name="download" size={14} /> Download
+            </Button>
+          </a>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+/** Inline thumbnail / chip for a chat attachment; opens a proper viewer. */
+function MediaAttachment({ url }: { url: string }) {
+  const [open, setOpen] = useState(false);
+  const kind = attachmentKind(url);
+  const name = decodeURIComponent(url.split("/").pop() ?? "attachment");
+  const close = () => setOpen(false);
+
+  if (kind === "image") {
+    return (
+      <>
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          className="group relative h-20 w-24 shrink-0 overflow-hidden rounded-lg border bg-black/5"
+          aria-label={`Open image ${name}`}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={url}
+            alt={name}
+            className="h-full w-full object-cover transition-transform group-hover:scale-105"
+          />
+          <span className="absolute inset-0 grid place-items-center bg-black/0 transition group-hover:bg-black/25">
+            <AppIcon name="external" size={16} className="text-white opacity-0 transition group-hover:opacity-100" />
+          </span>
+        </button>
+        <MediaViewer open={open} onClose={close} url={url} kind="image" name={name} />
+      </>
+    );
+  }
+
+  if (kind === "video") {
+    return (
+      <>
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          className="group relative h-20 w-24 shrink-0 overflow-hidden rounded-lg border bg-black/5"
+          aria-label={`Play video ${name}`}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <video src={url} className="h-full w-full object-cover" preload="metadata" muted playsInline />
+          <span className="absolute inset-0 grid place-items-center bg-black/30">
+            <span className="grid size-8 place-items-center rounded-full bg-black/50 text-white">
+              <AppIcon name="play" size={16} />
+            </span>
+          </span>
+        </button>
+        <MediaViewer open={open} onClose={close} url={url} kind="video" name={name} />
+      </>
+    );
+  }
+
+  // PDF / other file → compact chip that opens in a new tab.
+  return (
+    <a
+      href={url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="inline-flex max-w-[200px] items-center gap-1.5 rounded-lg border bg-muted/50 px-2.5 py-1.5 text-xs font-medium hover:underline"
+    >
+      <AppIcon name={kind === "pdf" ? "file" : "download"} size={14} className="shrink-0" />
+      <span className="truncate">{name}</span>
+    </a>
+  );
+}
+
 function MessageBubble({
   msg,
   isLast,
+  mode,
 }: {
   msg: TicketMessage;
   isLast: boolean;
+  mode: "admin" | "client";
 }) {
   const isSystem = msg.sender_type === "system";
   const isStaff = msg.sender_type === "staff";
   const isCustomer = msg.sender_type === "customer";
+  // Own messages align right in BOTH views so the client looks like the admin
+  // (staff replies right on admin, the client's own replies right on client).
+  const isMine = (mode === "admin" && isStaff) || (mode === "client" && isCustomer);
 
-  if (isSystem) {
-    return (
-      <div className="my-2 flex justify-center">
-        <span className="rounded-full bg-muted px-3 py-1 text-xs text-muted-foreground">
-          {msg.body} · {timeAgo(msg.created_at)}
-        </span>
-      </div>
-    );
-  }
+  // Centered status text was noisy — drop system messages entirely.
+  if (isSystem) return null;
 
   return (
     <div
       className={cn(
         "flex gap-2.5",
-        isStaff && "flex-row-reverse"
+        isMine && "flex-row-reverse"
       )}
     >
       <Avatar className="mt-0.5 size-8 shrink-0">
         <AvatarFallback
           className={cn(
             "text-xs font-bold",
-            isStaff ? "bg-primary/15 text-primary" : "bg-muted text-muted-foreground"
+            isMine ? "bg-primary/15 text-primary" : "bg-muted text-muted-foreground"
           )}
         >
           {initials(msg.sender_name || msg.sender_email || "?")}
         </AvatarFallback>
       </Avatar>
-      <div className={cn("max-w-[78%] min-w-0", isStaff && "text-right")}>
+      <div className={cn("max-w-[78%] min-w-0", isMine && "text-right")}>
         <div
           className={cn(
             "rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed",
-            isStaff
+            isMine
               ? "rounded-tr-sm bg-primary text-primary-foreground"
               : "rounded-tl-sm border bg-card text-foreground",
             msg.internal && "border-dashed border-yellow-500/50 bg-yellow-500/5"
@@ -98,23 +217,14 @@ function MessageBubble({
         >
           {msg.body}
           {(msg.attachments ?? []).length > 0 && (
-            <div className={cn("mt-2 flex flex-wrap gap-1.5", isStaff && "justify-end")}>
+            <div className={cn("mt-2 flex flex-wrap gap-2", isMine && "justify-end")}>
               {(msg.attachments ?? []).map((url, i) => (
-                <a
-                  key={i}
-                  href={url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 rounded-md bg-black/10 px-2 py-1 text-xs font-medium underline-offset-2 hover:underline dark:bg-white/10"
-                >
-                  <AppIcon name="download" size={12} />
-                  Attachment {i + 1}
-                </a>
+                <MediaAttachment key={i} url={url} />
               ))}
             </div>
           )}
         </div>
-        <p className={cn("mt-1 text-[11px] text-muted-foreground", isStaff && "text-right")}>
+        <p className={cn("mt-1 text-[11px] text-muted-foreground", isMine && "text-right")}>
           {msg.sender_name || msg.sender_email || "Unknown"}
           {msg.internal && " · internal"}
           {" · "}
@@ -393,9 +503,10 @@ export function TicketThread({
                 created_at: ticket.created_at,
               }}
               isLast={messages.length === 0}
+              mode={mode}
             />
             {messages.map((m, i) => (
-              <MessageBubble key={m.id} msg={m} isLast={i === messages.length - 1} />
+              <MessageBubble key={m.id} msg={m} isLast={i === messages.length - 1} mode={mode} />
             ))}
             {messages.length === 0 && (
               <p className="text-center text-xs text-muted-foreground">
