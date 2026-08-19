@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 
 import { AppIcon } from "@/components/app-icon";
 import type { IconName } from "@/lib/icons";
@@ -118,6 +118,38 @@ function IconScatter() {
         </span>
       ))}
     </div>
+  );
+}
+
+/* ── Ornate gold corner ornament (elegant certificate filigree) ────────── */
+function CornerOrnament({ style }: { style?: CSSProperties }) {
+  return (
+    <svg
+      viewBox="0 0 240 240"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden
+      className="pointer-events-none absolute"
+      style={{ color: GOLD, ...style }}
+    >
+      {/* corner frame lines */}
+      <path d="M18 240 C18 130 70 40 240 18" stroke="currentColor" strokeWidth="2.5" />
+      <path d="M18 240 C18 150 80 55 240 38" stroke="currentColor" strokeWidth="1.5" opacity="0.7" />
+      {/* spiral flourish */}
+      <path
+        d="M18 240 c46 0 86 -14 112 -44 c24 -28 24 -62 -2 -84 c-24 -21 -60 -18 -80 6 c-18 21 -14 52 10 66"
+        stroke="currentColor"
+        strokeWidth="2.2"
+      />
+      {/* laurel leaves */}
+      <path d="M120 120 c10 -26 34 -42 62 -46" stroke="currentColor" strokeWidth="2" />
+      <path d="M120 120 c-2 28 16 52 42 62" stroke="currentColor" strokeWidth="2" />
+      {/* corner dots */}
+      <circle cx="18" cy="198" r="4.5" fill="currentColor" />
+      <circle cx="198" cy="18" r="4.5" fill="currentColor" />
+      <circle cx="18" cy="224" r="3" fill="currentColor" />
+      <circle cx="224" cy="18" r="3" fill="currentColor" />
+    </svg>
   );
 }
 
@@ -297,6 +329,14 @@ export function CertificateView({ data }: { data: CertificateViewData }) {
             style={{ left: p.x - 4, top: p.y - 4, background: GOLD }}
           />
         ))}
+
+        {/* ornate gold corner ornaments — top-left + bottom-right, low-opacity bg decoration */}
+        <CornerOrnament
+          style={{ left: 24, top: 24, width: 300, height: 300, opacity: 0.38 }}
+        />
+        <CornerOrnament
+          style={{ right: 24, bottom: 24, width: 300, height: 300, opacity: 0.38, transform: "rotate(180deg)" }}
+        />
 
         {/* award badge (top-left) + golden laurel (top-right) fill the header gap */}
         <img
