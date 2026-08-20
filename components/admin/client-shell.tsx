@@ -103,8 +103,14 @@ export function ClientShell({
 
       {/* Main */}
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="topbar-3d glass-strong sticky top-0 z-30 flex h-16 items-center justify-between gap-4 border-b px-4 sm:px-6">
-          <div className="flex items-center gap-3">
+        <header className="topbar flex h-16 items-center justify-between gap-3 border-b px-3 sm:gap-4 sm:px-6">
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Home — back to the public site (mobile-friendly, always visible) */}
+            <Link href="/" aria-label="Home" title="Home" className="lg:hidden">
+              <Button variant="outline" size="icon">
+                <AppIcon name="homeAdmin" size={20} />
+              </Button>
+            </Link>
             <div className="hidden lg:block">
               <Button
                 variant="outline"
@@ -138,24 +144,28 @@ export function ClientShell({
             <DigitalClock />
           </div>
         </header>
-        <main className="flex-1 p-4 sm:p-6 lg:p-8">{children}</main>
+        <main className="dashboard-main flex-1 p-4 pb-24 sm:p-6 sm:pb-24 lg:p-8">{children}</main>
       </div>
 
-      {/* Mobile bottom nav */}
-      <nav className="glass-strong fixed inset-x-0 bottom-0 z-40 flex items-center justify-around border-t px-2 py-1.5 lg:hidden">
+      {/* Mobile bottom nav — icons only, flexible so it always fits (e.g. iPhone 16 Pro Max) */}
+      <nav
+        className="glass-strong fixed inset-x-0 bottom-0 z-40 flex items-stretch justify-around border-t px-1 pt-1.5 lg:hidden"
+        style={{ paddingBottom: "max(0.375rem, env(safe-area-inset-bottom))" }}
+      >
         {navItems.map((item) => {
           const active = item.href === "/client" ? pathname === "/client" : pathname.startsWith(item.href);
           return (
             <Link
               key={item.href}
               href={item.href}
+              aria-label={item.label}
+              title={item.label}
               className={cn(
-                "nav-item-3d flex flex-col items-center gap-0.5 rounded-lg px-3 py-1.5 text-xs font-medium",
+                "nav-item-3d grid min-w-0 flex-1 place-items-center rounded-xl py-2",
                 active ? "text-primary" : "text-muted-foreground"
               )}
             >
-              <AppIcon name={item.icon} size={18} />
-              {item.label}
+              <AppIcon name={item.icon} size={20} />
             </Link>
           );
         })}

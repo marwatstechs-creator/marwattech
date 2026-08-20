@@ -628,6 +628,20 @@
   backdrop-filter: blur(24px) saturate(var(--glass-sat));
   box-shadow: var(--shadow-3d), var(--highlight-3d), var(--edge-3d);
 }
+/* Account/profile menus — solid on mobile (reliable on iOS Safari; portaled
+   fixed elements with backdrop-filter can render blank there), glass on ≥sm. */
+[data-slot="dropdown-menu-content"] {
+  background-color: var(--popover);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+@media (min-width: 640px) {
+  [data-slot="dropdown-menu-content"] {
+    background-color: var(--glass-bg-strong);
+    -webkit-backdrop-filter: blur(24px) saturate(var(--glass-sat));
+    backdrop-filter: blur(24px) saturate(var(--glass-sat));
+  }
+}
 
 /* Dashboard top nav bar — raised 3D toolbar, deepens on hover (matches front-site navbar) */
 .topbar-3d {
@@ -636,6 +650,36 @@
 }
 .topbar-3d:hover {
   box-shadow: var(--shadow-3d), var(--highlight-3d), var(--edge-3d);
+}
+
+/* Dashboard content — grid/flex children must be allowed to shrink below their
+   content min-width on small screens (prevents horizontal overflow on phones). */
+.dashboard-main {
+  min-width: 0;
+}
+.dashboard-main .grid > *,
+.dashboard-main .flex > * {
+  min-width: 0;
+}
+
+/* iOS-safe dashboard topbar — solid + GPU-composited on mobile (Safari hides
+   sticky elements that carry backdrop-filter on scroll/tap), liquid-glass on ≥sm. */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  transform: translateZ(0);
+  background-color: var(--background);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  box-shadow: var(--shadow-3d-sm), var(--highlight-3d), var(--edge-3d);
+}
+@media (min-width: 640px) {
+  .topbar {
+    background-color: var(--glass-bg-strong);
+    -webkit-backdrop-filter: blur(calc(var(--glass-blur) + 6px)) saturate(var(--glass-sat));
+    backdrop-filter: blur(calc(var(--glass-blur) + 6px)) saturate(var(--glass-sat));
+  }
 }
 
 /* ── iOS 26/27 Liquid Glass system ─────────────────────────────────── */

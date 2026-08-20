@@ -327,8 +327,14 @@ export function AdminShell({
       {/* Main */}
       <div className="flex min-w-0 flex-1 flex-col">
         {/* Topbar */}
-        <header className="topbar-3d glass-strong sticky top-0 z-30 flex h-16 items-center justify-between gap-4 border-b px-4 sm:px-6">
-          <div className="flex items-center gap-3">
+        <header className="topbar flex h-16 items-center justify-between gap-3 border-b px-3 sm:gap-4 sm:px-6">
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Home — back to the public site (mobile-friendly, always visible) */}
+            <Link href="/" aria-label="Home" title="Home" className="lg:hidden">
+              <Button variant="outline" size="icon">
+                <AppIcon name="homeAdmin" size={20} />
+              </Button>
+            </Link>
             {/* Sidebar toggle (desktop) — menu icon becomes close when open */}
             <div className="hidden lg:block">
               <Button
@@ -387,7 +393,7 @@ export function AdminShell({
         </header>
 
         {/* Content */}
-        <main className="flex-1 p-4 sm:p-6 lg:p-8" key={pathname}>
+        <main className="dashboard-main flex-1 p-4 sm:p-6 lg:p-8" key={pathname}>
           {/* Group tabs — children of the active parent */}
           <AdminSectionTabs
             groupLabel={activeGroup?.label ?? ""}
